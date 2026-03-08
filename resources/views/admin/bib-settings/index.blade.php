@@ -17,18 +17,22 @@
     </div>
 
     @if ($activeTab === 'format')
-        <div
-            x-data='bibFormatPreview(@json([
-                "padding" => $setting->number_padding ?? 3,
-                "prefixes" => $setting->category_prefixes ?? [],
-                "starts" => $setting->category_start_numbers ?? [],
-                "defaults" => $distanceCategories->mapWithKeys(fn ($category) => [
+        @php
+            $bibPreviewConfig = [
+                'padding' => $setting->number_padding ?? 3,
+                'prefixes' => $setting->category_prefixes ?? [],
+                'starts' => $setting->category_start_numbers ?? [],
+                'defaults' => $distanceCategories->mapWithKeys(fn ($category) => [
                     $category->id => [
-                        "start" => 1,
-                        "prefix" => substr($category->name, 0, 1),
+                        'start' => 1,
+                        'prefix' => substr($category->name, 0, 1),
                     ],
                 ])->toArray(),
-            ]))'
+            ];
+        @endphp
+
+        <div
+            x-data='bibFormatPreview(@json($bibPreviewConfig))'
             class="grid gap-8 lg:grid-cols-3"
         >
             {{-- Form --}}
