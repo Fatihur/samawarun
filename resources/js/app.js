@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function setSubmittingState(form, submitter) {
-        const controls = form.querySelectorAll('button, input, select, textarea');
+        const controls = form.querySelectorAll('button[type="submit"], input[type="submit"]');
 
         controls.forEach((control) => {
             if (control === submitter) {
