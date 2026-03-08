@@ -91,7 +91,9 @@ class ParticipantSeeder extends Seeder
                     'address' => fake()->address(),
                     'distance_category' => $distance,
                     'jersey_size' => fake()->randomElement(['S', 'M', 'L', 'XL', 'XXL']),
-                    'emergency_contact' => fake()->name().' - '.fake()->phoneNumber(),
+                    'emergency_contact_name' => fake()->name(),
+                    'emergency_contact_phone' => fake()->phoneNumber(),
+                    'emergency_contact_relationship' => fake()->randomElement(Participant::EMERGENCY_RELATIONSHIPS),
                     'transfer_proof' => 'participants/payments/sample-'.$event->id.'-'.($i + 1).'.jpg',
                     'status' => Participant::STATUS_VERIFIED,
                 ]);

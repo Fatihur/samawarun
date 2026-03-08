@@ -9,7 +9,7 @@
     {{-- Upload Form --}}
     <div class="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Tambah Foto</h2>
-        <form action="{{ route('admin.gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row items-start sm:items-end gap-4">
+        <form action="{{ route('admin.gallery.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row items-start sm:items-end gap-4" data-loading-title="Mengunggah foto" data-loading-message="Foto galeri sedang diunggah...">
             @csrf
             <div class="flex-1 w-full">
                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">Keterangan (opsional)</label>
@@ -19,7 +19,7 @@
                 <label class="block text-sm font-semibold text-slate-700 mb-1.5">File Gambar</label>
                 <input type="file" name="image" accept="image/*" required class="w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-600 file:px-4 file:py-2 file:text-sm file:font-bold file:text-white hover:file:bg-brand-700 file:cursor-pointer file:transition-colors" />
             </div>
-            <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95 shrink-0">
+            <button type="submit" data-loading-label="Mengunggah..." class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95 shrink-0">
                 <x-heroicon-o-arrow-up-tray class="h-4 w-4" />
                 Upload
             </button>
@@ -50,16 +50,16 @@
                     <p class="text-white text-sm font-semibold truncate flex-1 mr-2">{{ $gallery->title ?? 'Tanpa keterangan' }}</p>
                     <div class="flex gap-1.5 shrink-0">
                         {{-- Toggle Active --}}
-                        <form action="{{ route('admin.gallery.toggle', $gallery) }}" method="POST">
+                        <form action="{{ route('admin.gallery.toggle', $gallery) }}" method="POST" data-loading-title="Mengubah status foto" data-loading-message="Status foto galeri sedang diperbarui...">
                             @csrf @method('PATCH')
-                            <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-lg {{ $gallery->is_active ? 'bg-emerald-500 text-white' : 'bg-white/20 text-white/70' }} backdrop-blur-sm transition-colors hover:bg-emerald-600 hover:text-white" title="{{ $gallery->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                            <button type="submit" data-loading-label="Memproses..." class="flex h-8 w-8 items-center justify-center rounded-lg {{ $gallery->is_active ? 'bg-emerald-500 text-white' : 'bg-white/20 text-white/70' }} backdrop-blur-sm transition-colors hover:bg-emerald-600 hover:text-white" title="{{ $gallery->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
                                 <x-heroicon-o-eye class="h-4 w-4" />
                             </button>
                         </form>
                         {{-- Delete --}}
-                        <form action="{{ route('admin.gallery.destroy', $gallery) }}" method="POST" onsubmit="return confirm('Yakin hapus foto ini?')">
+                        <form action="{{ route('admin.gallery.destroy', $gallery) }}" method="POST" onsubmit="return confirm('Yakin hapus foto ini?')" data-loading-title="Menghapus foto" data-loading-message="Foto galeri sedang dihapus...">
                             @csrf @method('DELETE')
-                            <button type="submit" class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white/70 transition-colors hover:bg-red-500 hover:text-white" title="Hapus">
+                            <button type="submit" data-loading-label="Menghapus..." class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white/70 transition-colors hover:bg-red-500 hover:text-white" title="Hapus">
                                 <x-heroicon-o-trash class="h-4 w-4" />
                             </button>
                         </form>
@@ -76,10 +76,10 @@
 
             {{-- Edit Title Form --}}
             <div class="px-4 py-3 border-t border-slate-100">
-                <form action="{{ route('admin.gallery.update', $gallery) }}" method="POST" class="flex gap-2">
+                <form action="{{ route('admin.gallery.update', $gallery) }}" method="POST" class="flex gap-2" data-loading-title="Menyimpan keterangan foto" data-loading-message="Perubahan keterangan galeri sedang disimpan...">
                     @csrf @method('PUT')
                     <input type="text" name="title" value="{{ $gallery->title }}" class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 focus:border-brand-500 focus:ring-brand-500" placeholder="Keterangan..." />
-                    <button type="submit" class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors">Simpan</button>
+                    <button type="submit" data-loading-label="Menyimpan..." class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors">Simpan</button>
                 </form>
             </div>
         </div>

@@ -188,7 +188,7 @@
                     </td>
                     <td>
                         <div class="label">Kontak Darurat</div>
-                        <div class="value">{{ $participant->emergency_contact }}</div>
+                        <div class="value">{{ $participant->emergency_contact_display }}</div>
                     </td>
                 </tr>
                 <tr>

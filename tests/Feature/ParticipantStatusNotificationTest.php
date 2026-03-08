@@ -60,7 +60,9 @@ class ParticipantStatusNotificationTest extends TestCase
             'address' => 'Sumbawa Besar',
             'distance_category' => '5K',
             'jersey_size' => 'L',
-            'emergency_contact' => '081111111111',
+            'emergency_contact_name' => 'Ayah Budi',
+            'emergency_contact_phone' => '081111111111',
+            'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_FATHER,
             'transfer_proof' => 'participants/payments/budi.jpg',
             'status' => Participant::STATUS_PENDING,
         ]);
@@ -113,7 +115,9 @@ class ParticipantStatusNotificationTest extends TestCase
             'address' => 'Moyo Hilir',
             'distance_category' => '7K',
             'jersey_size' => 'M',
-            'emergency_contact' => '082222222222',
+            'emergency_contact_name' => 'Ibu Siti',
+            'emergency_contact_phone' => '082222222222',
+            'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_MOTHER,
             'transfer_proof' => 'participants/payments/siti.jpg',
             'status' => Participant::STATUS_PENDING,
         ]);

@@ -101,15 +101,15 @@
                                 <a href="{{ route('admin.participants.show', $participant) }}" class="text-xs font-bold text-brand-600 hover:text-brand-800 transition-colors">Detail</a>
                                 
                                 @if($participant->status === \App\Models\Participant::STATUS_PENDING)
-                                    <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" onsubmit="return confirm('Verifikasi peserta ini?')">
+                                    <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" onsubmit="return confirm('Verifikasi peserta ini?')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">Verify</button>
+                                        <button type="submit" data-loading-label="Memverifikasi..." class="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">Verify</button>
                                     </form>
-                                    <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" onsubmit="return confirm('Tolak peserta ini?')">
+                                    <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" onsubmit="return confirm('Tolak peserta ini?')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" class="text-xs font-bold text-red-600 hover:text-red-800 transition-colors">Reject</button>
+                                        <button type="submit" data-loading-label="Menolak..." class="text-xs font-bold text-red-600 hover:text-red-800 transition-colors">Reject</button>
                                     </form>
                                 @endif
                             </div>

@@ -57,7 +57,7 @@
             @endif
 
             {{-- Form --}}
-            <form action="{{ route('registrations.store', $event) }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('registrations.store', $event) }}" method="POST" enctype="multipart/form-data" data-loading-title="Mengirim pendaftaran" data-loading-message="Data peserta dan berkas sedang dikirim, mohon tunggu...">
                 @csrf
 
                 {{-- Step 1: Data Diri --}}
@@ -110,9 +110,25 @@
                                 <label class="mb-1.5 block text-sm font-medium text-gray-300">Alamat <span class="text-red-400">*</span></label>
                                 <textarea name="address" rows="3" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="Alamat lengkap" required>{{ old('address') }}</textarea>
                             </div>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Status Kontak Darurat <span class="text-red-400">*</span></label>
+                                <select name="emergency_contact_relationship" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" required>
+                                    <option value="">Pilih hubungan keluarga</option>
+                                    <option value="father" @selected(old('emergency_contact_relationship') === 'father')>Ayah</option>
+                                    <option value="mother" @selected(old('emergency_contact_relationship') === 'mother')>Ibu</option>
+                                    <option value="husband" @selected(old('emergency_contact_relationship') === 'husband')>Suami</option>
+                                    <option value="wife" @selected(old('emergency_contact_relationship') === 'wife')>Istri</option>
+                                    <option value="child" @selected(old('emergency_contact_relationship') === 'child')>Anak</option>
+                                    <option value="other_family" @selected(old('emergency_contact_relationship') === 'other_family')>Keluarga Lain</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Nama Kontak Darurat <span class="text-red-400">*</span></label>
+                                <input name="emergency_contact_name" value="{{ old('emergency_contact_name') }}" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="Nama lengkap kontak darurat" required>
+                            </div>
                             <div class="sm:col-span-2">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Kontak Darurat <span class="text-red-400">*</span></label>
-                                <input name="emergency_contact" value="{{ old('emergency_contact') }}" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="Nama & No. HP kontak darurat" required>
+                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Nomor Kontak Darurat <span class="text-red-400">*</span></label>
+                                <input name="emergency_contact_phone" value="{{ old('emergency_contact_phone') }}" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="08xxxxxxxxxx" required>
                             </div>
                         </div>
                     </div>
@@ -216,7 +232,7 @@
                         <x-heroicon-o-arrow-right class="h-4 w-4" />
                     </button>
 
-                    <button type="submit" x-show="currentStep === 3" class="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.3)] transition-all hover:bg-primary-hover active:scale-95">
+                    <button type="submit" x-show="currentStep === 3" data-loading-label="Mengirim..." class="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.3)] transition-all hover:bg-primary-hover active:scale-95">
                         <x-heroicon-o-check-circle class="h-4 w-4" />
                         Kirim Pendaftaran
                     </button>

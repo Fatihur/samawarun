@@ -17,9 +17,22 @@
     </div>
 
     @if ($activeTab === 'format')
-        <div x-data="bibFormatPreview()" class="grid gap-8 lg:grid-cols-3">
+        <div
+            x-data='bibFormatPreview(@json([
+                "padding" => $setting->number_padding ?? 3,
+                "prefixes" => $setting->category_prefixes ?? [],
+                "starts" => $setting->category_start_numbers ?? [],
+                "defaults" => $distanceCategories->mapWithKeys(fn ($category) => [
+                    $category->id => [
+                        "start" => 1,
+                        "prefix" => substr($category->name, 0, 1),
+                    ],
+                ])->toArray(),
+            ]))'
+            class="grid gap-8 lg:grid-cols-3"
+        >
             {{-- Form --}}
-            <form action="{{ route('admin.bib-settings.update') }}" method="POST" class="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+            <form action="{{ route('admin.bib-settings.update') }}" method="POST" class="lg:col-span-2 rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm" data-loading-title="Menyimpan format nomor" data-loading-message="Pengaturan format nomor dada sedang diperbarui...">
                 @csrf
                 @method('PUT')
                 <input type="hidden" name="section" value="format">
@@ -56,7 +69,7 @@
                     <p class="mt-2 text-xs text-slate-400">Menentukan jumlah digit angka. Contoh: padding 3 → 001, 045, 120.</p>
                 </div>
 
-                <button type="submit" class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95" {{ $distanceCategories->isEmpty() ? 'disabled' : '' }}>
+                <button type="submit" data-loading-label="Menyimpan..." class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95" {{ $distanceCategories->isEmpty() ? 'disabled' : '' }}>
                     Simpan Format Nomor
                 </button>
             </form>
@@ -95,22 +108,23 @@
         </div>
 
         <script>
-            function bibFormatPreview() {
+            function bibFormatPreview(config) {
                 return {
-                    padding: {{ $setting->number_padding ?? 3 }},
-                    prefixes: @json($setting->category_prefixes ?? []),
-                    starts: @json($setting->category_start_numbers ?? []),
+                    padding: config.padding || 3,
+                    prefixes: config.prefixes || {},
+                    starts: config.starts || {},
+                    defaults: config.defaults || {},
                     
                     init() {
-                        // Ensure all categories have a fallback start value if missing in JSON
-                        @foreach($distanceCategories as $category)
-                            if (this.starts[{{ $category->id }}] === undefined) {
-                                this.starts[{{ $category->id }}] = 1;
+                        Object.entries(this.defaults).forEach(([categoryId, defaults]) => {
+                            if (this.starts[categoryId] === undefined) {
+                                this.starts[categoryId] = defaults.start;
                             }
-                            if (this.prefixes[{{ $category->id }}] === undefined) {
-                                this.prefixes[{{ $category->id }}] = '{{ substr($category->name, 0, 1) }}';
+
+                            if (this.prefixes[categoryId] === undefined) {
+                                this.prefixes[categoryId] = defaults.prefix;
                             }
-                        @endforeach
+                        });
                     },
 
                     getPreview(categoryId) {
@@ -128,7 +142,7 @@
 
     @else
         {{-- Template Tab --}}
-        <form action="{{ route('admin.bib-settings.update') }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+        <form action="{{ route('admin.bib-settings.update') }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm" data-loading-title="Menyimpan desain template" data-loading-message="Template nomor dada sedang diperbarui...">
             @csrf
             @method('PUT')
             <input type="hidden" name="section" value="template">
@@ -279,7 +293,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
+            <button type="submit" data-loading-label="Menyimpan..." class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
                 Simpan Desain Template
             </button>
         </form>

@@ -26,7 +26,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.login.store') }}" method="POST" class="space-y-5">
+            <form action="{{ route('admin.login.store') }}" method="POST" class="space-y-5" data-loading-title="Masuk ke dashboard" data-loading-message="Sedang memverifikasi akun admin...">
                 @csrf
                 <div>
                     <label class="mb-1.5 block text-sm font-medium text-gray-300">Email</label>
@@ -40,7 +40,7 @@
                     <input type="checkbox" name="remember" value="1" class="rounded border-white/20 bg-background-dark text-primary focus:ring-primary">
                     Ingat saya
                 </label>
-                <button type="submit" class="w-full rounded-xl bg-primary py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.2)] transition-all hover:bg-primary-hover active:scale-[0.98]">Masuk</button>
+                <button type="submit" data-loading-label="Memproses..." class="w-full rounded-xl bg-primary py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.2)] transition-all hover:bg-primary-hover active:scale-[0.98]">Masuk</button>
             </form>
         </div>
     </body>

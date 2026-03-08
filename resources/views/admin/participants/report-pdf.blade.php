@@ -76,10 +76,11 @@
                 <th style="width: 12%">Nomor BIB</th>
                 <th style="width: 15%">Event</th>
                 <th style="width: 20%">Nama Peserta</th>
-                <th style="width: 15%">Kontak</th>
-                <th style="width: 10%">Kategori</th>
-                <th style="width: 8%">Jersey</th>
-                <th style="width: 17%">Status</th>
+                <th style="width: 13%">Kontak</th>
+                <th style="width: 16%">Kontak Darurat</th>
+                <th style="width: 9%">Kategori</th>
+                <th style="width: 7%">Jersey</th>
+                <th style="width: 15%">Status</th>
             </tr>
         </thead>
         <tbody>
@@ -95,6 +96,10 @@
                     <td>
                         {{ $participant->phone }}<br>
                         <span style="font-size: 8px; color: #64748b;">{{ $participant->email }}</span>
+                    </td>
+                    <td>
+                        <strong>{{ $participant->emergency_contact_name }}</strong><br>
+                        <span style="font-size: 8px; color: #64748b;">{{ $participant->emergency_contact_relationship_label }} - {{ $participant->emergency_contact_phone }}</span>
                     </td>
                     <td class="text-center"><strong>{{ $participant->distance_category }}</strong></td>
                     <td class="text-center">{{ $participant->jersey_size }}</td>
@@ -113,7 +118,7 @@
             @endforeach
             @if($participants->isEmpty())
                 <tr>
-                    <td colspan="8" class="text-center" style="padding: 20px;">Tidak ada data peserta.</td>
+                    <td colspan="9" class="text-center" style="padding: 20px;">Tidak ada data peserta.</td>
                 </tr>
             @endif
         </tbody>

@@ -112,9 +112,9 @@
                     </a>
                 </div>
                 <div class="border-t border-slate-100 py-1">
-                    <form method="POST" action="{{ route('admin.logout') }}">
+                    <form method="POST" action="{{ route('admin.logout') }}" data-loading-title="Keluar dari dashboard" data-loading-message="Sesi admin sedang diakhiri...">
                         @csrf
-                        <button type="submit" class="flex w-full items-center px-4 py-2 text-left text-sm font-bold text-red-600 transition-colors hover:bg-red-50 hover:text-red-800">
+                        <button type="submit" data-loading-label="Keluar..." class="flex w-full items-center px-4 py-2 text-left text-sm font-bold text-red-600 transition-colors hover:bg-red-50 hover:text-red-800">
                             <x-heroicon-o-arrow-right-on-rectangle class="mr-3 h-4 w-4" />
                             Logout
                         </button>

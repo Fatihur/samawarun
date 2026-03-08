@@ -10,7 +10,7 @@
 
     <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-            <form action="{{ route('admin.race-timing.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('admin.race-timing.store') }}" method="POST" class="space-y-6" data-loading-title="Mencatat waktu finish" data-loading-message="Data peserta sedang dicocokkan dan waktu finish sedang disimpan...">
                 @csrf
                 <div>
                     <label class="mb-1.5 block text-sm font-semibold text-slate-700">Event</label>
@@ -35,7 +35,7 @@
                     @enderror
                 </div>
 
-                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95">
+                <button type="submit" data-loading-label="Mencatat..." class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95">
                     <x-heroicon-o-check-badge class="h-5 w-5" />
                     Catat Finish Sekarang
                 </button>

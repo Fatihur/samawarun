@@ -36,10 +36,10 @@
                         <td class="px-5 py-4">
                             <div class="flex items-center gap-3">
                                 <a href="{{ route('admin.events.edit', $event) }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">Edit</a>
-                                <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus event ini?')">
+                                <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus event ini?')" data-loading-title="Menghapus event" data-loading-message="Event sedang dihapus, mohon tunggu...">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-sm font-semibold text-red-500 hover:text-red-700 transition-colors">Hapus</button>
+                                    <button type="submit" data-loading-label="Menghapus..." class="text-sm font-semibold text-red-500 hover:text-red-700 transition-colors">Hapus</button>
                                 </form>
                             </div>
                         </td>

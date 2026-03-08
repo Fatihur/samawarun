@@ -58,7 +58,9 @@ class RegistrationController extends Controller
                 }
             }],
             'jersey_size' => ['required', Rule::in(['S', 'M', 'L', 'XL', 'XXL'])],
-            'emergency_contact' => ['required', 'string', 'max:255'],
+            'emergency_contact_name' => ['required', 'string', 'max:255'],
+            'emergency_contact_phone' => ['required', 'string', 'max:255'],
+            'emergency_contact_relationship' => ['required', Rule::in(Participant::EMERGENCY_RELATIONSHIPS)],
             'transfer_proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ]);
 

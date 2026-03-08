@@ -45,7 +45,9 @@ class RaceTimingTest extends TestCase
             'address' => 'Sumbawa',
             'distance_category' => '5K',
             'jersey_size' => 'L',
-            'emergency_contact' => '08111111111',
+            'emergency_contact_name' => 'Ayah Pelari',
+            'emergency_contact_phone' => '08111111111',
+            'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_FATHER,
             'transfer_proof' => 'participants/payments/a.jpg',
             'status' => Participant::STATUS_VERIFIED,
         ]);
@@ -96,7 +98,9 @@ class RaceTimingTest extends TestCase
             'address' => 'Sumbawa',
             'distance_category' => '7K',
             'jersey_size' => 'L',
-            'emergency_contact' => '08111111111',
+            'emergency_contact_name' => 'Ibu Pending',
+            'emergency_contact_phone' => '08111111111',
+            'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_MOTHER,
             'transfer_proof' => 'participants/payments/a.jpg',
             'status' => Participant::STATUS_PENDING,
         ]);

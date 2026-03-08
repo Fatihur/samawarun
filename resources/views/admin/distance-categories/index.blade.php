@@ -12,7 +12,7 @@
         {{-- Form Create --}}
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4">Tambah Kategori</h2>
-            <form action="{{ route('admin.distance-categories.store') }}" method="POST">
+            <form action="{{ route('admin.distance-categories.store') }}" method="POST" data-loading-title="Menambah kategori" data-loading-message="Kategori jarak baru sedang disimpan...">
                 @csrf
                 <div class="mb-4">
                     <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nama Kategori</label>
@@ -21,7 +21,7 @@
                         <p class="mt-2 text-xs text-red-600">{{ $message }}</p>
                     @enderror
                 </div>
-                <button type="submit" class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
+                <button type="submit" data-loading-label="Menyimpan..." class="w-full inline-flex justify-center items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
                     <x-heroicon-o-plus class="h-4 w-4" />
                     Tambah
                 </button>
@@ -49,24 +49,24 @@
                         @foreach ($categories as $category)
                         <tr class="hover:bg-slate-50 transition-colors">
                             <td class="px-6 py-4 font-semibold text-slate-800">
-                                <form action="{{ route('admin.distance-categories.update', $category) }}" method="POST" class="flex items-center gap-2">
+                                <form action="{{ route('admin.distance-categories.update', $category) }}" method="POST" class="flex items-center gap-2" data-loading-title="Memperbarui kategori" data-loading-message="Perubahan kategori jarak sedang disimpan...">
                                     @csrf @method('PUT')
                                     <input type="text" name="name" value="{{ $category->name }}" class="rounded-lg border border-transparent hover:border-slate-200 focus:border-brand-500 focus:ring-brand-500 bg-transparent hover:bg-white px-2 py-1 text-sm font-semibold transition-all w-32" required>
-                                    <button type="submit" class="invisible group-hover:visible text-xs font-bold text-brand-600 hover:text-brand-700">Simpan</button>
+                                    <button type="submit" data-loading-label="Menyimpan..." class="invisible group-hover:visible text-xs font-bold text-brand-600 hover:text-brand-700">Simpan</button>
                                 </form>
                             </td>
                             <td class="px-6 py-4">
-                                <form action="{{ route('admin.distance-categories.toggle', $category) }}" method="POST">
+                                <form action="{{ route('admin.distance-categories.toggle', $category) }}" method="POST" data-loading-title="Mengubah status kategori" data-loading-message="Status kategori jarak sedang diperbarui...">
                                     @csrf @method('PATCH')
-                                    <button type="submit" class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider {{ $category->is_active ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' }} transition-colors">
+                                    <button type="submit" data-loading-label="Memproses..." class="inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider {{ $category->is_active ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' : 'bg-slate-100 text-slate-500 hover:bg-slate-200' }} transition-colors">
                                         {{ $category->is_active ? 'Aktif' : 'Nonaktif' }}
                                     </button>
                                 </form>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <form action="{{ route('admin.distance-categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Yakin hapus kategori ini? Semua event yang menggunakan kategori ini akan terdampak.')">
+                                <form action="{{ route('admin.distance-categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Yakin hapus kategori ini? Semua event yang menggunakan kategori ini akan terdampak.')" data-loading-title="Menghapus kategori" data-loading-message="Kategori jarak sedang dihapus...">
                                     @csrf @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus">
+                                    <button type="submit" data-loading-label="Menghapus..." class="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus">
                                         <x-heroicon-o-trash class="h-4 w-4" />
                                     </button>
                                 </form>

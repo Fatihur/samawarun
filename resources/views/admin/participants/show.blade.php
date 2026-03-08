@@ -10,16 +10,16 @@
         {{-- Action Buttons --}}
         @if($participant->status === 'pending')
         <div class="flex items-center gap-2">
-            <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" class="inline">
+            <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" class="inline" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">
                 @csrf @method('PATCH')
-                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95" onclick="return confirm('Verifikasi peserta ini?')">
+                <button type="submit" data-loading-label="Memverifikasi..." class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95" onclick="return confirm('Verifikasi peserta ini?')">
                     <x-heroicon-o-check-circle class="h-4 w-4" />
                     Verify
                 </button>
             </form>
-            <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" class="inline">
+            <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" class="inline" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">
                 @csrf @method('PATCH')
-                <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95" onclick="return confirm('Tolak pendaftaran peserta ini?')">
+                <button type="submit" data-loading-label="Menolak..." class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95" onclick="return confirm('Tolak pendaftaran peserta ini?')">
                     <x-heroicon-o-x-circle class="h-4 w-4" />
                     Reject
                 </button>
@@ -57,7 +57,9 @@
                         ['label' => 'NIK', 'value' => $participant->nik, 'full' => true],
                         ['label' => 'HP', 'value' => $participant->phone],
                         ['label' => 'Email', 'value' => $participant->email],
-                        ['label' => 'Kontak Darurat', 'value' => $participant->emergency_contact, 'full' => true],
+                        ['label' => 'Hubungan Darurat', 'value' => $participant->emergency_contact_relationship_label],
+                        ['label' => 'Nama Kontak Darurat', 'value' => $participant->emergency_contact_name],
+                        ['label' => 'Nomor Kontak Darurat', 'value' => $participant->emergency_contact_phone, 'full' => true],
                         ['label' => 'Kategori', 'value' => $participant->distance_category],
                         ['label' => 'Jersey', 'value' => $participant->jersey_size],
                         ['label' => 'BIB Number', 'value' => $participant->bib_number ?? '-'],

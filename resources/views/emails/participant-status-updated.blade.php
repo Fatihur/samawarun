@@ -98,7 +98,7 @@
                                                 </td>
                                                 <td style="padding:0 0 12px; width:50%; vertical-align:top;">
                                                     <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; color:#94a3b8; text-transform:uppercase;">Kontak Darurat</div>
-                                                    <div style="margin-top:4px; font-size:15px; color:#0f172a;">{{ $participant->emergency_contact }}</div>
+                                                    <div style="margin-top:4px; font-size:15px; color:#0f172a;">{{ $participant->emergency_contact_display }}</div>
                                                 </td>
                                             </tr>
                                             <tr>

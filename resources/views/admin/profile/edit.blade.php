@@ -11,7 +11,7 @@
         <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-4 mb-6">Informasi Akun</h2>
             
-            <form action="{{ route('admin.profile.update') }}" method="POST">
+            <form action="{{ route('admin.profile.update') }}" method="POST" data-loading-title="Menyimpan profil" data-loading-message="Perubahan profil admin sedang disimpan...">
                 @csrf
                 @method('PUT')
 
@@ -57,7 +57,7 @@
                 </div>
 
                 <div class="mt-8 rounded-xl bg-slate-50 p-4 border border-slate-100 flex items-center justify-end">
-                    <button type="submit" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
+                    <button type="submit" data-loading-label="Menyimpan..." class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-6 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
                         <x-heroicon-s-check-circle class="h-5 w-5" />
                         Simpan Perubahan
                     </button>

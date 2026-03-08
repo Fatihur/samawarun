@@ -13,12 +13,12 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.events.update', $event) }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm">
+    <form action="{{ route('admin.events.update', $event) }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm" data-loading-title="Memperbarui event" data-loading-message="Perubahan event sedang disimpan...">
         @csrf
         @method('PUT')
         @include('admin.events._form', ['event' => $event])
         <div class="mt-6 flex items-center gap-4">
-            <button type="submit" class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">Update Event</button>
+            <button type="submit" data-loading-label="Menyimpan..." class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">Update Event</button>
             <a href="{{ route('admin.events.index') }}" class="text-sm font-semibold text-slate-500 hover:text-slate-700 transition-colors">Batal</a>
         </div>
     </form>
