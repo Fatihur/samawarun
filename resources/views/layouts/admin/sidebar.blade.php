@@ -6,14 +6,6 @@
                 <x-heroicon-o-bolt class="h-5 w-5" />
             </div>
             <span class="font-display text-xl font-bold tracking-wider text-white uppercase italic">Samawa<span class="text-brand-500">Admin</span></span>
-{{-- Sidebar --}}
-<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'" class="fixed inset-y-0 left-0 z-30 w-64 shrink-0 transform bg-slate-900 px-4 py-6 text-slate-300 transition-transform duration-300 lg:static lg:translate-x-0 flex flex-col border-r border-slate-800 shadow-xl lg:shadow-none">
-    <div class="mb-8 px-2 flex items-center justify-between">
-        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 group">
-            <div class="flex h-8 w-8 items-center justify-center rounded-md bg-gradient-to-br from-brand-500 to-amber-500 text-white shadow-md">
-                <x-heroicon-o-bolt class="h-5 w-5" />
-            </div>
-            <span class="font-display text-xl font-bold tracking-wider text-white uppercase italic">Samawa<span class="text-brand-500">Admin</span></span>
         </a>
         <button @click="sidebarOpen = false" class="lg:hidden text-slate-400 hover:text-white">
             <x-heroicon-o-x-mark class="h-6 w-6" />
