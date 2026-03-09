@@ -55,7 +55,17 @@
             <x-heroicon-o-clock class="h-5 w-5 {{ request()->routeIs('admin.race-timing.*') ? 'text-brand-500' : 'text-slate-400 group-hover:text-white' }}" />
             Catat Waktu Race
         </a>
-        
+
+        <a href="{{ route('admin.race-reports.index') }}" class="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors {{ request()->routeIs('admin.race-reports.*') ? 'bg-brand-500/10 text-brand-400' : 'hover:bg-slate-800 hover:text-white' }}">
+            <x-heroicon-o-document-chart-bar class="h-5 w-5 {{ request()->routeIs('admin.race-reports.*') ? 'text-brand-500' : 'text-slate-400 group-hover:text-white' }}" />
+            Laporan
+        </a>
+
+        <a href="{{ route('admin.certificates.index') }}" class="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors {{ request()->routeIs('admin.certificates.*') || request()->routeIs('admin.participants.certificate') ? 'bg-brand-500/10 text-brand-400' : 'hover:bg-slate-800 hover:text-white' }}">
+            <x-heroicon-o-document-check class="h-5 w-5 {{ request()->routeIs('admin.certificates.*') || request()->routeIs('admin.participants.certificate') ? 'text-brand-500' : 'text-slate-400 group-hover:text-white' }}" />
+            Sertifikat
+        </a>
+
     </nav>
 
     

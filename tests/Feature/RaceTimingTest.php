@@ -57,7 +57,7 @@ class RaceTimingTest extends TestCase
             'bib_number' => '5A001',
         ]);
 
-        $response->assertRedirect(route('admin.race-timing.index'));
+        $response->assertRedirect(route('admin.race-timing.index', ['event_id' => $event->id]));
 
         $participant->refresh();
 
@@ -105,12 +105,12 @@ class RaceTimingTest extends TestCase
             'status' => Participant::STATUS_PENDING,
         ]);
 
-        $response = $this->actingAs($admin)->from(route('admin.race-timing.index'))->post(route('admin.race-timing.store'), [
+        $response = $this->actingAs($admin)->from(route('admin.race-timing.index', ['event_id' => $event->id]))->post(route('admin.race-timing.store'), [
             'event_id' => $event->id,
             'bib_number' => '7A001',
         ]);
 
-        $response->assertRedirect(route('admin.race-timing.index'));
+        $response->assertRedirect(route('admin.race-timing.index', ['event_id' => $event->id]));
         $response->assertSessionHas('error');
         $this->assertNull($participant->fresh()->race_finished_at);
     }

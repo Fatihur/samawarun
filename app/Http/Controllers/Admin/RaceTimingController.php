@@ -12,10 +12,15 @@ use Illuminate\View\View;
 
 class RaceTimingController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
+        $selectedEventId = old('event_id', $request->query('event_id'));
+
         return view('admin.race-timing.index', [
             'events' => Event::query()->orderByDesc('date')->get(),
+            'selectedEvent' => $selectedEventId
+                ? Event::query()->find($selectedEventId)
+                : null,
         ]);
     }
 
@@ -62,7 +67,7 @@ class RaceTimingController extends Controller
         ]);
 
         return redirect()
-            ->route('admin.race-timing.index')
+            ->route('admin.race-timing.index', ['event_id' => $event->id])
             ->with('success', 'Waktu finish peserta berhasil dicatat.')
             ->with('timing_result', [
                 'event_name' => $participant->event?->name,

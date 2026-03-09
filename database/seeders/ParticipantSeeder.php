@@ -7,6 +7,7 @@ use App\Models\DistanceCategory;
 use App\Models\Event;
 use App\Models\Participant;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Carbon;
 
 class ParticipantSeeder extends Seeder
 {
@@ -29,7 +30,11 @@ class ParticipantSeeder extends Seeder
                 $distances = Event::DISTANCES;
             }
 
-            $targetTotal = $event->event_code === 'SRN001' ? 120 : 80;
+            $targetTotal = match ($event->event_code) {
+                'SRN260301' => 180,
+                'SRN001' => 120,
+                default => 80,
+            };
 
             $currentCount = Participant::query()
                 ->where('event_id', $event->id)
@@ -78,6 +83,22 @@ class ParticipantSeeder extends Seeder
 
                 $sequenceByDistance[$distance]['next'] = $number + 1;
 
+                $startedAt = $event->date && $event->start_time
+                    ? Carbon::parse($event->date->format('Y-m-d').' '.$event->start_time->format('H:i:s'))
+                    : null;
+
+                $shouldMarkAsFinished = $startedAt !== null
+                    && $event->date?->isPast()
+                    && fake()->boolean(65);
+
+                $raceDurationSeconds = null;
+                $raceFinishedAt = null;
+
+                if ($shouldMarkAsFinished) {
+                    $raceDurationSeconds = fake()->numberBetween(1500, 10800);
+                    $raceFinishedAt = $startedAt->copy()->addSeconds($raceDurationSeconds);
+                }
+
                 Participant::query()->create([
                     'event_id' => $event->id,
                     'bib_number' => $bibNumber,
@@ -96,8 +117,11 @@ class ParticipantSeeder extends Seeder
                     'emergency_contact_relationship' => fake()->randomElement(Participant::EMERGENCY_RELATIONSHIPS),
                     'transfer_proof' => 'participants/payments/sample-'.$event->id.'-'.($i + 1).'.jpg',
                     'status' => Participant::STATUS_VERIFIED,
+                    'race_finished_at' => $raceFinishedAt,
+                    'race_duration_seconds' => $raceDurationSeconds,
                 ]);
             }
+
         }
     }
 }

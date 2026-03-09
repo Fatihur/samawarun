@@ -14,6 +14,20 @@ class EventSeeder extends Seeder
 
         $events = [
             [
+                'event_code' => 'SRN260301',
+                'name' => 'Samawa Run Maret 2026',
+                'description' => 'Event Samawa Run pada 1 Maret 2026 untuk kategori 5K, 7K, dan 10K.',
+                'date' => '2026-03-01',
+                'start_time' => '06:00',
+                'registration_deadline' => '2026-02-25 23:59:00',
+                'location' => 'Lapangan Pahlawan Sumbawa',
+                'price' => 150000,
+                'contact' => 'Panitia Samawa Run',
+                'bank_account' => 'BCA 1234567890 a.n. Samawa Run',
+                'is_active' => true,
+                'distances' => [Event::DISTANCE_5K, Event::DISTANCE_7K, Event::DISTANCE_10K],
+            ],
+            [
                 'event_code' => 'SRN001',
                 'name' => 'Samawa Run Opening Race',
                 'description' => 'Event perdana komunitas Samawa Run untuk kategori 5K, 7K, dan 10K.',

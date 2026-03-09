@@ -7,8 +7,6 @@ use App\Models\DistanceCategory;
 use App\Models\Event;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class EventController extends Controller
@@ -36,7 +34,7 @@ class EventController extends Controller
             $validated['poster'] = $request->file('poster')->store('event-posters', 'public');
         }
 
-        $validated['event_code'] = $validated['event_code'] ?: Str::upper(Str::random(6));
+        $validated['event_code'] = $this->generateEventCode($validated['date']);
         $event = Event::create($validated);
 
         if ($request->has('distance_categories')) {
@@ -79,12 +77,6 @@ class EventController extends Controller
     private function validateEvent(Request $request, ?Event $event = null): array
     {
         $validated = $request->validate([
-            'event_code' => [
-                'nullable',
-                'string',
-                'max:30',
-                Rule::unique('events', 'event_code')->ignore($event),
-            ],
             'name' => ['required', 'string', 'max:255'],
             'poster' => ['nullable', 'image', 'max:2048'],
             'description' => ['required', 'string'],
@@ -105,5 +97,20 @@ class EventController extends Controller
         $validated['is_active'] = $request->boolean('is_active');
 
         return $validated;
+    }
+
+    private function generateEventCode(string $date): string
+    {
+        $prefix = 'EVT'.date('ymd', strtotime($date));
+        $latestCode = Event::query()
+            ->where('event_code', 'like', $prefix.'%')
+            ->orderByDesc('event_code')
+            ->value('event_code');
+
+        $nextNumber = $latestCode
+            ? ((int) substr($latestCode, -3)) + 1
+            : 1;
+
+        return $prefix.str_pad((string) $nextNumber, 3, '0', STR_PAD_LEFT);
     }
 }

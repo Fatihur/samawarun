@@ -1,8 +1,5 @@
 <div class="grid gap-5 md:grid-cols-2">
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Kode Event</label>
-        <input type="text" name="event_code" value="{{ old('event_code', $event->event_code ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="Kosongkan untuk auto-generate">
-    </div>
+    <input type="hidden" name="event_code" value="{{ $event->event_code ?? '' }}">
     <div>
         <label class="mb-1.5 block text-sm font-semibold text-slate-700">Nama Event</label>
         <input type="text" name="name" value="{{ old('name', $event->name ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors" required>

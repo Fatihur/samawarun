@@ -156,19 +156,8 @@ return [
     |
     */
 
-    'domain' => (static function (): ?string {
-        $domain = env('SESSION_DOMAIN');
-
-        if (! is_string($domain)) {
-            return $domain;
-        }
-
-        $normalized = trim($domain);
-
-        return $normalized === '' || strtolower($normalized) === 'null'
-            ? null
-            : $normalized;
-    })(),
+    'domain' => env('SESSION_DOMAIN'),
+       
 
     /*
     |--------------------------------------------------------------------------

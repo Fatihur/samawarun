@@ -1,0 +1,310 @@
+{
+    "dancing script": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/dancing_script_bold_4ff392e09f0d21c9b1b92613d17504c3",
+        "normal": "dancing_script_normal_9d0271ab99c4c75c12420d958569bdba"
+    },
+    "great vibes": {
+        "normal": "great_vibes_normal_4d55d394ce6fdfbbe1d7d249a60c13bd"
+    },
+    "inter": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/inter_bold_8f9861418c9a6d0776b62bc96b5c080e",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/inter_bold_italic_cbc165c05d69c878cd601f5c3eae4541",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/inter_italic_e9e8bd2532a115fb435a614b19af6a79",
+        "normal": "inter_normal_393915bff46a8bddb0d105d0b34ee315"
+    },
+    "kaushan script": {
+        "normal": "kaushan_script_normal_c5d53cb1be2e5be89a9d2c2045cfd044"
+    },
+    "lato": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/lato_bold_ba11981efd66bcd7f5ddd95d9552c944",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/lato_bold_italic_c3a2d8e41cb1806a8f5ab559dc8d51ec",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/lato_italic_ea0c336d6ece7fff7d2745bf5e5cfd39",
+        "normal": "lato_normal_e5a86ad1413ea3c7c1a32d100e345096"
+    },
+    "merriweather": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/merriweather_bold_9111836d4147137900d12f0ad732f6b3",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/merriweather_bold_italic_63c76f648fe3f0c3030968de2d54d34c",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/merriweather_italic_e5bc74267cf1205b2f53699194ead063",
+        "normal": "merriweather_normal_51ff6f3bad7e7ac3fed39242ba24bbb4"
+    },
+    "montserrat": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/montserrat_bold_1f3c35487a5e1825ba619c62fbe68c8b",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/montserrat_bold_italic_20031edff7d840d4513c79880594654b",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/montserrat_italic_b063ab292d35949afba51a07aa9f0796",
+        "normal": "montserrat_normal_ca99cdf51601f6d2df16241e06da065f"
+    },
+    "open sans": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/open_sans_bold_fe5270352bfc20767116db5acbbcb913",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/open_sans_bold_italic_99ca88902f3885ef82a216bb7cbfa83e",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/open_sans_italic_a409acf94b9b7990c50a93ea43a0a095",
+        "normal": "open_sans_normal_a48f9909a5f42391f192bcd1c4400e7e"
+    },
+    "pacifico": {
+        "normal": "pacifico_normal_659d306f25b3e46b5cbdc0e0d3fe194b"
+    },
+    "playfair display": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/playfair_display_bold_fe5a63d290d6f59f327bac33e3c91894",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/playfair_display_bold_italic_3b2976e405c06a65f739bfe871263d43",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/playfair_display_italic_a9c30b7b871fc2bab071b024eb1c4dad",
+        "normal": "playfair_display_normal_3601febc9b040b6fae18c6cd79b2d1ce"
+    },
+    "poppins": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/poppins_bold_aa833ca69fa3bf7699add8098a360c30",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/poppins_bold_italic_0288ae1661edf9331d7c6053335c3835",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/poppins_italic_27fab71ea34d987546ccde3df0d49891",
+        "normal": "poppins_normal_5f965e714ea0d19cc84f22bba85da3fa"
+    },
+    "roboto": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/roboto_bold_edeec537f0ac73f59bd9c36d7ed3bd3a",
+        "bold_italic": "D:\\ORDER\\samawarun\\storage\\fonts\/roboto_bold_italic_8781224a364b28c402a4f8a9a3fce365",
+        "italic": "D:\\ORDER\\samawarun\\storage\\fonts\/roboto_italic_18aa3bd7d6a35ee20f7cb4e690b3cc71",
+        "normal": "roboto_normal_08f6cc1aa0662d8e83c1233efd55e6ef"
+    },
+    "satisfy": {
+        "normal": "satisfy_normal_b4485cd7811b397f48a224fc7d011244"
+    },
+    "tangerine": {
+        "bold": "D:\\ORDER\\samawarun\\storage\\fonts\/tangerine_bold_7b955fef9282d07acfcf69ac89c6ea57",
+        "normal": "tangerine_normal_1db19b7141b7f6def11dd4eb4de4c2a0"
+    },
+    "dancing script bold 4ff392e09f0d21c9b1b92613d17504c3": {
+        "normal": "dancing_script_bold_4ff392e09f0d21c9b1b92613d17504c3_normal_8b25adf019991daa3ec53596513ed6e1"
+    },
+    "dancing script normal 9d0271ab99c4c75c12420d958569bdba": {
+        "normal": "dancing_script_normal_9d0271ab99c4c75c12420d958569bdba_normal_a59d7d9cd6ce73519df24b1e1b026156"
+    },
+    "great vibes normal 4d55d394ce6fdfbbe1d7d249a60c13bd": {
+        "normal": "great_vibes_normal_4d55d394ce6fdfbbe1d7d249a60c13bd_normal_7ac65281c6aed75943e751a8a345f820"
+    },
+    "inter bold 8f9861418c9a6d0776b62bc96b5c080e": {
+        "normal": "inter_bold_8f9861418c9a6d0776b62bc96b5c080e_normal_9944ae7fb35c3e5b30df9f5dd8b56d27"
+    },
+    "inter bold italic cbc165c05d69c878cd601f5c3eae4541": {
+        "normal": "inter_bold_italic_cbc165c05d69c878cd601f5c3eae4541_normal_9cee09fb8981e89ede5832bd84e25e24"
+    },
+    "inter italic e9e8bd2532a115fb435a614b19af6a79": {
+        "normal": "inter_italic_e9e8bd2532a115fb435a614b19af6a79_normal_2f0496807df82929f78769b69ac52525"
+    },
+    "inter normal 393915bff46a8bddb0d105d0b34ee315": {
+        "normal": "inter_normal_393915bff46a8bddb0d105d0b34ee315_normal_ca95ad419fbd1734042ee1397308e228"
+    },
+    "kaushan script normal c5d53cb1be2e5be89a9d2c2045cfd044": {
+        "normal": "kaushan_script_normal_c5d53cb1be2e5be89a9d2c2045cfd044_normal_564b45f3ec838fb09dc9e78a06183ce4"
+    },
+    "lato bold ba11981efd66bcd7f5ddd95d9552c944": {
+        "normal": "lato_bold_ba11981efd66bcd7f5ddd95d9552c944_normal_52fb421d381850de0a28ec5d3d9b62a5"
+    },
+    "lato bold italic c3a2d8e41cb1806a8f5ab559dc8d51ec": {
+        "normal": "lato_bold_italic_c3a2d8e41cb1806a8f5ab559dc8d51ec_normal_46ea7d8b3b0051167e6eadb8b9e2a4cb"
+    },
+    "lato italic ea0c336d6ece7fff7d2745bf5e5cfd39": {
+        "normal": "lato_italic_ea0c336d6ece7fff7d2745bf5e5cfd39_normal_c9744fb983f0b20428dbf5f375f24b3b"
+    },
+    "lato normal e5a86ad1413ea3c7c1a32d100e345096": {
+        "normal": "lato_normal_e5a86ad1413ea3c7c1a32d100e345096_normal_44cc40118963d09bb2ad4a8625d8ebae"
+    },
+    "merriweather bold 9111836d4147137900d12f0ad732f6b3": {
+        "normal": "merriweather_bold_9111836d4147137900d12f0ad732f6b3_normal_3a6f57e3b94ea378660ca6d060ba5911"
+    },
+    "merriweather bold italic 63c76f648fe3f0c3030968de2d54d34c": {
+        "normal": "merriweather_bold_italic_63c76f648fe3f0c3030968de2d54d34c_normal_e707692f67ae215216eb5c0868a42f89"
+    },
+    "merriweather italic e5bc74267cf1205b2f53699194ead063": {
+        "normal": "merriweather_italic_e5bc74267cf1205b2f53699194ead063_normal_e7bbfe029bb20657b544f1d8aa4e5290"
+    },
+    "merriweather normal 51ff6f3bad7e7ac3fed39242ba24bbb4": {
+        "normal": "merriweather_normal_51ff6f3bad7e7ac3fed39242ba24bbb4_normal_32d1ba25530ee2981f970a5ede7fda51"
+    },
+    "montserrat bold 1f3c35487a5e1825ba619c62fbe68c8b": {
+        "normal": "montserrat_bold_1f3c35487a5e1825ba619c62fbe68c8b_normal_75dd17b1d38eacb3eeadd82201634640"
+    },
+    "montserrat bold italic 20031edff7d840d4513c79880594654b": {
+        "normal": "montserrat_bold_italic_20031edff7d840d4513c79880594654b_normal_506d13ce6920abc902c5378c618c4c85"
+    },
+    "montserrat italic b063ab292d35949afba51a07aa9f0796": {
+        "normal": "montserrat_italic_b063ab292d35949afba51a07aa9f0796_normal_692fdb0e2765f05b16aec3c4411c5770"
+    },
+    "montserrat normal ca99cdf51601f6d2df16241e06da065f": {
+        "normal": "montserrat_normal_ca99cdf51601f6d2df16241e06da065f_normal_6ea78bd49499c19d6081bb893692288c"
+    },
+    "open sans bold fe5270352bfc20767116db5acbbcb913": {
+        "normal": "open_sans_bold_fe5270352bfc20767116db5acbbcb913_normal_c231bdd151a7df7e03ab18d248e2ad03"
+    },
+    "open sans bold italic 99ca88902f3885ef82a216bb7cbfa83e": {
+        "normal": "open_sans_bold_italic_99ca88902f3885ef82a216bb7cbfa83e_normal_0ad2c9dd8ee328a24620f3f977a72ed9"
+    },
+    "open sans italic a409acf94b9b7990c50a93ea43a0a095": {
+        "normal": "open_sans_italic_a409acf94b9b7990c50a93ea43a0a095_normal_175240e7d4ae86b9c5510ea60734599e"
+    },
+    "open sans normal a48f9909a5f42391f192bcd1c4400e7e": {
+        "normal": "open_sans_normal_a48f9909a5f42391f192bcd1c4400e7e_normal_a8d82cc2490cae8ae6a250b6d9c999da"
+    },
+    "pacifico normal 659d306f25b3e46b5cbdc0e0d3fe194b": {
+        "normal": "pacifico_normal_659d306f25b3e46b5cbdc0e0d3fe194b_normal_7f40abcdd1341355c0589d7c56944b94"
+    },
+    "playfair display bold fe5a63d290d6f59f327bac33e3c91894": {
+        "normal": "playfair_display_bold_fe5a63d290d6f59f327bac33e3c91894_normal_313545d6c94664039f8dfe02ceba422c"
+    },
+    "playfair display bold italic 3b2976e405c06a65f739bfe871263d43": {
+        "normal": "playfair_display_bold_italic_3b2976e405c06a65f739bfe871263d43_normal_7ac60d949e4208f90ce5c6f20410df95"
+    },
+    "playfair display italic a9c30b7b871fc2bab071b024eb1c4dad": {
+        "normal": "playfair_display_italic_a9c30b7b871fc2bab071b024eb1c4dad_normal_7b2232752075bc0a227d69e2ee84e32b"
+    },
+    "playfair display normal 3601febc9b040b6fae18c6cd79b2d1ce": {
+        "normal": "playfair_display_normal_3601febc9b040b6fae18c6cd79b2d1ce_normal_d05d0e282c26d236b6ce004bf3839606"
+    },
+    "poppins bold aa833ca69fa3bf7699add8098a360c30": {
+        "normal": "poppins_bold_aa833ca69fa3bf7699add8098a360c30_normal_fd61c9e0fa4a886e33e2e633e6b3623a"
+    },
+    "poppins bold italic 0288ae1661edf9331d7c6053335c3835": {
+        "normal": "poppins_bold_italic_0288ae1661edf9331d7c6053335c3835_normal_c3cce09272d5ac3e4e087de29aa9dc47"
+    },
+    "poppins italic 27fab71ea34d987546ccde3df0d49891": {
+        "normal": "poppins_italic_27fab71ea34d987546ccde3df0d49891_normal_d42ae92afea47608bd20012e1e6bc126"
+    },
+    "poppins normal 5f965e714ea0d19cc84f22bba85da3fa": {
+        "normal": "poppins_normal_5f965e714ea0d19cc84f22bba85da3fa_normal_ce17a509f381d31ccd4f83d68349348f"
+    },
+    "roboto bold edeec537f0ac73f59bd9c36d7ed3bd3a": {
+        "normal": "roboto_bold_edeec537f0ac73f59bd9c36d7ed3bd3a_normal_4220573cbbfa3f006ee420b13b749c2a"
+    },
+    "roboto bold italic 8781224a364b28c402a4f8a9a3fce365": {
+        "normal": "roboto_bold_italic_8781224a364b28c402a4f8a9a3fce365_normal_2785800d34766b9021cde24a20950335"
+    },
+    "roboto italic 18aa3bd7d6a35ee20f7cb4e690b3cc71": {
+        "normal": "roboto_italic_18aa3bd7d6a35ee20f7cb4e690b3cc71_normal_0bb805a993b819359a16a4ed7134dad0"
+    },
+    "roboto normal 08f6cc1aa0662d8e83c1233efd55e6ef": {
+        "normal": "roboto_normal_08f6cc1aa0662d8e83c1233efd55e6ef_normal_497083553dcae8fc71dc5c96344b8229"
+    },
+    "satisfy normal b4485cd7811b397f48a224fc7d011244": {
+        "normal": "satisfy_normal_b4485cd7811b397f48a224fc7d011244_normal_d665009a2462ccbf118c1ad30f094333"
+    },
+    "tangerine bold 7b955fef9282d07acfcf69ac89c6ea57": {
+        "normal": "tangerine_bold_7b955fef9282d07acfcf69ac89c6ea57_normal_8d8bdf491137ed6676130bbf693dd8ab"
+    },
+    "tangerine normal 1db19b7141b7f6def11dd4eb4de4c2a0": {
+        "normal": "tangerine_normal_1db19b7141b7f6def11dd4eb4de4c2a0_normal_bbc478bf2fd12955637e7fb53d6e01d4"
+    },
+    "dancing script bold 4ff392e09f0d21c9b1b92613d17504c3 normal 8b25adf019991daa3ec53596513ed6e1": {
+        "normal": "dancing_script_bold_4ff392e09f0d21c9b1b92613d17504c3_normal_8b25adf019991daa3ec53596513ed6e1_normal_20692ff304fb9e28780e1c867f795b4b"
+    },
+    "dancing script normal 9d0271ab99c4c75c12420d958569bdba normal a59d7d9cd6ce73519df24b1e1b026156": {
+        "normal": "dancing_script_normal_9d0271ab99c4c75c12420d958569bdba_normal_a59d7d9cd6ce73519df24b1e1b026156_normal_a66d71b3c0cf0fe220153a791fdd70cc"
+    },
+    "great vibes normal 4d55d394ce6fdfbbe1d7d249a60c13bd normal 7ac65281c6aed75943e751a8a345f820": {
+        "normal": "great_vibes_normal_4d55d394ce6fdfbbe1d7d249a60c13bd_normal_7ac65281c6aed75943e751a8a345f820_normal_4deac6d7e0bdd36b8bd896abd1a1864d"
+    },
+    "inter bold 8f9861418c9a6d0776b62bc96b5c080e normal 9944ae7fb35c3e5b30df9f5dd8b56d27": {
+        "normal": "inter_bold_8f9861418c9a6d0776b62bc96b5c080e_normal_9944ae7fb35c3e5b30df9f5dd8b56d27_normal_3cf906c65dff7c8102ab598d2b2ce494"
+    },
+    "inter bold italic cbc165c05d69c878cd601f5c3eae4541 normal 9cee09fb8981e89ede5832bd84e25e24": {
+        "normal": "inter_bold_italic_cbc165c05d69c878cd601f5c3eae4541_normal_9cee09fb8981e89ede5832bd84e25e24_normal_3055307ba7e33d57680259d2cf4288a9"
+    },
+    "inter italic e9e8bd2532a115fb435a614b19af6a79 normal 2f0496807df82929f78769b69ac52525": {
+        "normal": "inter_italic_e9e8bd2532a115fb435a614b19af6a79_normal_2f0496807df82929f78769b69ac52525_normal_61543ec45f7320163e096e4f5c4115fb"
+    },
+    "inter normal 393915bff46a8bddb0d105d0b34ee315 normal ca95ad419fbd1734042ee1397308e228": {
+        "normal": "inter_normal_393915bff46a8bddb0d105d0b34ee315_normal_ca95ad419fbd1734042ee1397308e228_normal_82b78d25f41edac880dfa08f545ee532"
+    },
+    "kaushan script normal c5d53cb1be2e5be89a9d2c2045cfd044 normal 564b45f3ec838fb09dc9e78a06183ce4": {
+        "normal": "kaushan_script_normal_c5d53cb1be2e5be89a9d2c2045cfd044_normal_564b45f3ec838fb09dc9e78a06183ce4_normal_2a8dc6414334903e5ccd6775bde27e2f"
+    },
+    "lato bold ba11981efd66bcd7f5ddd95d9552c944 normal 52fb421d381850de0a28ec5d3d9b62a5": {
+        "normal": "lato_bold_ba11981efd66bcd7f5ddd95d9552c944_normal_52fb421d381850de0a28ec5d3d9b62a5_normal_24f32442d9c7bce7ab10b783e5f05266"
+    },
+    "lato bold italic c3a2d8e41cb1806a8f5ab559dc8d51ec normal 46ea7d8b3b0051167e6eadb8b9e2a4cb": {
+        "normal": "lato_bold_italic_c3a2d8e41cb1806a8f5ab559dc8d51ec_normal_46ea7d8b3b0051167e6eadb8b9e2a4cb_normal_bad23f5baaedfa692ad723fa1f802c1a"
+    },
+    "lato italic ea0c336d6ece7fff7d2745bf5e5cfd39 normal c9744fb983f0b20428dbf5f375f24b3b": {
+        "normal": "lato_italic_ea0c336d6ece7fff7d2745bf5e5cfd39_normal_c9744fb983f0b20428dbf5f375f24b3b_normal_8d7d854bbefa2dd362384ec6d87c60c5"
+    },
+    "lato normal e5a86ad1413ea3c7c1a32d100e345096 normal 44cc40118963d09bb2ad4a8625d8ebae": {
+        "normal": "lato_normal_e5a86ad1413ea3c7c1a32d100e345096_normal_44cc40118963d09bb2ad4a8625d8ebae_normal_dcd8a105c7292d42f419af2d448be3d5"
+    },
+    "merriweather bold 9111836d4147137900d12f0ad732f6b3 normal 3a6f57e3b94ea378660ca6d060ba5911": {
+        "normal": "merriweather_bold_9111836d4147137900d12f0ad732f6b3_normal_3a6f57e3b94ea378660ca6d060ba5911_normal_4fdea7c25976cff4891e2ee2386ea2a6"
+    },
+    "merriweather bold italic 63c76f648fe3f0c3030968de2d54d34c normal e707692f67ae215216eb5c0868a42f89": {
+        "normal": "merriweather_bold_italic_63c76f648fe3f0c3030968de2d54d34c_normal_e707692f67ae215216eb5c0868a42f89_normal_eeba92d6e8f8059456993ce89677d525"
+    },
+    "merriweather italic e5bc74267cf1205b2f53699194ead063 normal e7bbfe029bb20657b544f1d8aa4e5290": {
+        "normal": "merriweather_italic_e5bc74267cf1205b2f53699194ead063_normal_e7bbfe029bb20657b544f1d8aa4e5290_normal_9d88fed615180a01812e8b8efb09975f"
+    },
+    "merriweather normal 51ff6f3bad7e7ac3fed39242ba24bbb4 normal 32d1ba25530ee2981f970a5ede7fda51": {
+        "normal": "merriweather_normal_51ff6f3bad7e7ac3fed39242ba24bbb4_normal_32d1ba25530ee2981f970a5ede7fda51_normal_48953369affaca9fe380a2b2bb8f9f43"
+    },
+    "montserrat bold 1f3c35487a5e1825ba619c62fbe68c8b normal 75dd17b1d38eacb3eeadd82201634640": {
+        "normal": "montserrat_bold_1f3c35487a5e1825ba619c62fbe68c8b_normal_75dd17b1d38eacb3eeadd82201634640_normal_c29e77c1e85e430f8252cb8f4f5050cd"
+    },
+    "montserrat bold italic 20031edff7d840d4513c79880594654b normal 506d13ce6920abc902c5378c618c4c85": {
+        "normal": "montserrat_bold_italic_20031edff7d840d4513c79880594654b_normal_506d13ce6920abc902c5378c618c4c85_normal_64c6f4f1bd2a8fde295822f5ce4f7ce6"
+    },
+    "montserrat italic b063ab292d35949afba51a07aa9f0796 normal 692fdb0e2765f05b16aec3c4411c5770": {
+        "normal": "montserrat_italic_b063ab292d35949afba51a07aa9f0796_normal_692fdb0e2765f05b16aec3c4411c5770_normal_174f024de1f4d10390a629b8d760ef98"
+    },
+    "montserrat normal ca99cdf51601f6d2df16241e06da065f normal 6ea78bd49499c19d6081bb893692288c": {
+        "normal": "montserrat_normal_ca99cdf51601f6d2df16241e06da065f_normal_6ea78bd49499c19d6081bb893692288c_normal_1aef8129c98fedd747532fb244fa22dd"
+    },
+    "open sans bold fe5270352bfc20767116db5acbbcb913 normal c231bdd151a7df7e03ab18d248e2ad03": {
+        "normal": "open_sans_bold_fe5270352bfc20767116db5acbbcb913_normal_c231bdd151a7df7e03ab18d248e2ad03_normal_d04919a8133586758f7380012fb7e2a1"
+    },
+    "open sans bold italic 99ca88902f3885ef82a216bb7cbfa83e normal 0ad2c9dd8ee328a24620f3f977a72ed9": {
+        "normal": "open_sans_bold_italic_99ca88902f3885ef82a216bb7cbfa83e_normal_0ad2c9dd8ee328a24620f3f977a72ed9_normal_b71ba05660b69eea64b142182ceab419"
+    },
+    "open sans italic a409acf94b9b7990c50a93ea43a0a095 normal 175240e7d4ae86b9c5510ea60734599e": {
+        "normal": "open_sans_italic_a409acf94b9b7990c50a93ea43a0a095_normal_175240e7d4ae86b9c5510ea60734599e_normal_511786ec36522fc2e7c8fb4e3de6e3b8"
+    },
+    "open sans normal a48f9909a5f42391f192bcd1c4400e7e normal a8d82cc2490cae8ae6a250b6d9c999da": {
+        "normal": "open_sans_normal_a48f9909a5f42391f192bcd1c4400e7e_normal_a8d82cc2490cae8ae6a250b6d9c999da_normal_c13d3a15be7e9ec9162cdc6f05232058"
+    },
+    "pacifico normal 659d306f25b3e46b5cbdc0e0d3fe194b normal 7f40abcdd1341355c0589d7c56944b94": {
+        "normal": "pacifico_normal_659d306f25b3e46b5cbdc0e0d3fe194b_normal_7f40abcdd1341355c0589d7c56944b94_normal_fe381948b389371ec93148bf8c4c7f7a"
+    },
+    "playfair display bold fe5a63d290d6f59f327bac33e3c91894 normal 313545d6c94664039f8dfe02ceba422c": {
+        "normal": "playfair_display_bold_fe5a63d290d6f59f327bac33e3c91894_normal_313545d6c94664039f8dfe02ceba422c_normal_f56ad71c288364e56405d94e5adcab86"
+    },
+    "playfair display bold italic 3b2976e405c06a65f739bfe871263d43 normal 7ac60d949e4208f90ce5c6f20410df95": {
+        "normal": "playfair_display_bold_italic_3b2976e405c06a65f739bfe871263d43_normal_7ac60d949e4208f90ce5c6f20410df95_normal_7561f95f4bc104636d982ee2d830d526"
+    },
+    "playfair display italic a9c30b7b871fc2bab071b024eb1c4dad normal 7b2232752075bc0a227d69e2ee84e32b": {
+        "normal": "playfair_display_italic_a9c30b7b871fc2bab071b024eb1c4dad_normal_7b2232752075bc0a227d69e2ee84e32b_normal_8e887b05be91c19e779f83a4685a8cb1"
+    },
+    "playfair display normal 3601febc9b040b6fae18c6cd79b2d1ce normal d05d0e282c26d236b6ce004bf3839606": {
+        "normal": "playfair_display_normal_3601febc9b040b6fae18c6cd79b2d1ce_normal_d05d0e282c26d236b6ce004bf3839606_normal_92a4bb193c404a3128a6b2b4cf3dd256"
+    },
+    "poppins bold aa833ca69fa3bf7699add8098a360c30 normal fd61c9e0fa4a886e33e2e633e6b3623a": {
+        "normal": "poppins_bold_aa833ca69fa3bf7699add8098a360c30_normal_fd61c9e0fa4a886e33e2e633e6b3623a_normal_fd37785c19ec299b8a730f203fe5d8f8"
+    },
+    "poppins bold italic 0288ae1661edf9331d7c6053335c3835 normal c3cce09272d5ac3e4e087de29aa9dc47": {
+        "normal": "poppins_bold_italic_0288ae1661edf9331d7c6053335c3835_normal_c3cce09272d5ac3e4e087de29aa9dc47_normal_4fe141f2f532d24fd25badff6efe065b"
+    },
+    "poppins italic 27fab71ea34d987546ccde3df0d49891 normal d42ae92afea47608bd20012e1e6bc126": {
+        "normal": "poppins_italic_27fab71ea34d987546ccde3df0d49891_normal_d42ae92afea47608bd20012e1e6bc126_normal_94b544a0620858cb10b085a65205e5a9"
+    },
+    "poppins normal 5f965e714ea0d19cc84f22bba85da3fa normal ce17a509f381d31ccd4f83d68349348f": {
+        "normal": "poppins_normal_5f965e714ea0d19cc84f22bba85da3fa_normal_ce17a509f381d31ccd4f83d68349348f_normal_36cf7ebdd7c1b3d815621d7c006bb8c0"
+    },
+    "roboto bold edeec537f0ac73f59bd9c36d7ed3bd3a normal 4220573cbbfa3f006ee420b13b749c2a": {
+        "normal": "roboto_bold_edeec537f0ac73f59bd9c36d7ed3bd3a_normal_4220573cbbfa3f006ee420b13b749c2a_normal_261d7125720d9d4c233a2e1bb95685ad"
+    },
+    "roboto bold italic 8781224a364b28c402a4f8a9a3fce365 normal 2785800d34766b9021cde24a20950335": {
+        "normal": "roboto_bold_italic_8781224a364b28c402a4f8a9a3fce365_normal_2785800d34766b9021cde24a20950335_normal_5d1f2a43342fa2981343676df50a88de"
+    },
+    "roboto italic 18aa3bd7d6a35ee20f7cb4e690b3cc71 normal 0bb805a993b819359a16a4ed7134dad0": {
+        "normal": "roboto_italic_18aa3bd7d6a35ee20f7cb4e690b3cc71_normal_0bb805a993b819359a16a4ed7134dad0_normal_80d876243d442da01d7030ac0a1cff19"
+    },
+    "roboto normal 08f6cc1aa0662d8e83c1233efd55e6ef normal 497083553dcae8fc71dc5c96344b8229": {
+        "normal": "roboto_normal_08f6cc1aa0662d8e83c1233efd55e6ef_normal_497083553dcae8fc71dc5c96344b8229_normal_4a782364dd282ee40d65cb79d6ac261b"
+    },
+    "satisfy normal b4485cd7811b397f48a224fc7d011244 normal d665009a2462ccbf118c1ad30f094333": {
+        "normal": "satisfy_normal_b4485cd7811b397f48a224fc7d011244_normal_d665009a2462ccbf118c1ad30f094333_normal_f760ee777e4e723ac91db50c927d757c"
+    },
+    "tangerine bold 7b955fef9282d07acfcf69ac89c6ea57 normal 8d8bdf491137ed6676130bbf693dd8ab": {
+        "normal": "tangerine_bold_7b955fef9282d07acfcf69ac89c6ea57_normal_8d8bdf491137ed6676130bbf693dd8ab_normal_296281c65ccd0576e1fa39706bb6ae7e"
+    },
+    "tangerine normal 1db19b7141b7f6def11dd4eb4de4c2a0 normal bbc478bf2fd12955637e7fb53d6e01d4": {
+        "normal": "tangerine_normal_1db19b7141b7f6def11dd4eb4de4c2a0_normal_bbc478bf2fd12955637e7fb53d6e01d4_normal_67aeb8a03d4da21551b0ac11bb4a5948"
+    }
+}

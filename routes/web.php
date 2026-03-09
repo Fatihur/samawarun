@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\BibSettingController as AdminBibSettingController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DistanceCategoryController as AdminDistanceCategoryController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\RegistrationController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\RaceReportController as AdminRaceReportController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use Illuminate\Support\Facades\Route;
 
@@ -61,6 +63,15 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::get('/participants/export', [AdminParticipantController::class, 'export'])->name('participants.export');
         Route::get('/participants/export-pdf', [AdminParticipantController::class, 'exportPdf'])->name('participants.export_pdf');
+        Route::get('/race-reports', [AdminRaceReportController::class, 'index'])->name('race-reports.index');
+        Route::get('/race-reports/export', [AdminRaceReportController::class, 'export'])->name('race-reports.export');
+        Route::get('/race-reports/export-pdf', [AdminRaceReportController::class, 'exportPdf'])->name('race-reports.export-pdf');
+        Route::get('/certificates', [AdminCertificateController::class, 'index'])->name('certificates.index');
+        Route::post('/certificates/background', [AdminCertificateController::class, 'updateBackground'])->name('certificates.background.update');
+        Route::post('/certificates/elements', [AdminCertificateController::class, 'saveElements'])->name('certificates.elements.save');
+        Route::get('/certificates/preview', [AdminCertificateController::class, 'previewPdf'])->name('certificates.preview');
+        Route::get('/participants/{participant}/certificate', [AdminCertificateController::class, 'downloadParticipant'])->name('participants.certificate');
+        Route::post('/certificates/bulk', [AdminCertificateController::class, 'downloadBulk'])->name('certificates.bulk');
         Route::get('/race-timing', [AdminRaceTimingController::class, 'index'])->name('race-timing.index');
         Route::post('/race-timing', [AdminRaceTimingController::class, 'store'])->name('race-timing.store');
         Route::post('/participants/id-card/bulk', [AdminParticipantController::class, 'exportIdCardBulk'])->name('participants.id-card.bulk');
