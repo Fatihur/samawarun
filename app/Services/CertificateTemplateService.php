@@ -132,7 +132,7 @@ class CertificateTemplateService
             'pages' => [['elements' => $resolvedElements]],
             'backgroundBase64' => $backgroundBase64,
             'orientation' => $orientation,
-            'fontFacesCss' => $this->getFontFacesCss(),
+            'fontFacesCss' => $this->getFontFacesCss($template->text_elements ?? []),
         ])->setPaper('a4', $orientation);
     }
 
@@ -152,13 +152,38 @@ class CertificateTemplateService
             'pages' => $pages,
             'backgroundBase64' => $backgroundBase64,
             'orientation' => $orientation,
-            'fontFacesCss' => $this->getFontFacesCss(),
+            'fontFacesCss' => $this->getFontFacesCss($template->text_elements ?? []),
         ])->setPaper('a4', $orientation);
     }
     
-    private function getFontFacesCss(): string
+    private function getFontFacesCss(array $elements): string
     {
+        $usedFamilies = collect($elements)
+            ->pluck('fontFamily')
+            ->filter()
+            ->map(fn ($f) => strtolower($f))
+            ->unique()
+            ->toArray();
+            
+        // Exclude system fonts from custom processing
+        $systemFonts = ['dejavu sans', 'dejavu serif', 'dejavu sans mono', 'helvetica', 'times', 'courier'];
+        $usedFamilies = array_diff($usedFamilies, $systemFonts);
+        
+        if (empty($usedFamilies)) {
+            return '';
+        }
+
         $fontDir = storage_path('fonts');
+        
+        // Auto-install fonts if directory is missing or empty (useful for fresh production deployments)
+        if (! is_dir($fontDir) || count(scandir($fontDir)) <= 2) {
+            try {
+                \Illuminate\Support\Facades\Artisan::call('certificates:install-fonts');
+            } catch (\Exception $e) {
+                // Silently omit if it fails, it will fallback to system fonts
+            }
+        }
+
         if (! is_dir($fontDir)) {
             return '';
         }
@@ -194,15 +219,25 @@ class CertificateTemplateService
                 if (strtolower($fontFamily) === 'open sans') {
                     $fontFamily = 'Open Sans';
                 }
-
-                $fontPath = str_replace('\\', '/', $fontDir . DIRECTORY_SEPARATOR . $file);
                 
-                $css .= "@font-face {\n";
-                $css .= "    font-family: '{$fontFamily}';\n";
-                $css .= "    src: url('{$fontPath}') format('truetype');\n";
-                $css .= "    font-weight: {$fontWeight};\n";
-                $css .= "    font-style: {$fontStyle};\n";
-                $css .= "}\n";
+                // Only embed the fonts actually used in the elements to save massive HTML bloat
+                if (!in_array(strtolower($fontFamily), $usedFamilies)) {
+                    continue;
+                }
+
+                $fontPath = $fontDir . DIRECTORY_SEPARATOR . $file;
+                
+                if (file_exists($fontPath)) {
+                    $fontData = base64_encode(file_get_contents($fontPath));
+                    $dataUri = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
+                    
+                    $css .= "@font-face {\n";
+                    $css .= "    font-family: '{$fontFamily}';\n";
+                    $css .= "    src: url('{$dataUri}') format('truetype');\n";
+                    $css .= "    font-weight: {$fontWeight};\n";
+                    $css .= "    font-style: {$fontStyle};\n";
+                    $css .= "}\n";
+                }
             }
         }
 
