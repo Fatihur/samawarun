@@ -40,6 +40,7 @@ $(document).ready(function() {
 
             $(this).DataTable({
                 responsive: true,
+                order: [], // Disable initial sorting, respect backend order
                 language: {
                     emptyTable: "Tidak ada data yang tersedia pada tabel ini",
                     info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
