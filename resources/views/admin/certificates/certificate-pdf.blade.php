@@ -94,12 +94,14 @@
                     $leftMm = ($x / 100) * $pageW - ($w / 100 * $pageW / 2);
                     $topMm = ($y / 100) * $pageH;
                     $widthMm = ($w / 100) * $pageW;
+                    
+                    $fontFamilyLower = strtolower($fontFamily);
                 @endphp
                 <div class="text-element" style="
                     left: {{ $leftMm }}mm;
                     top: {{ $topMm }}mm;
                     width: {{ $widthMm }}mm;
-                    font-family: '{{ $fontFamily }}', sans-serif;
+                    font-family: '{{ $fontFamilyLower }}', sans-serif;
                     font-size: {{ $fontSize }}px;
                     font-weight: {{ $fontWeight }};
                     font-style: {{ $fontStyle }};

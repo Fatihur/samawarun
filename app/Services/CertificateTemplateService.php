@@ -220,6 +220,8 @@ class CertificateTemplateService
                     $fontFamily = 'Open Sans';
                 }
                 
+                $dompdfFontFamily = strtolower($fontFamily); // DomPDF strictly uses lowercase keys internally
+                
                 // Only embed the fonts actually used in the elements to save massive HTML bloat
                 if (!in_array(strtolower($fontFamily), $usedFamilies)) {
                     continue;
@@ -232,7 +234,7 @@ class CertificateTemplateService
                     $dataUri = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
                     
                     $css .= "@font-face {\n";
-                    $css .= "    font-family: '{$fontFamily}';\n";
+                    $css .= "    font-family: '{$dompdfFontFamily}';\n";
                     $css .= "    src: url('{$dataUri}') format('truetype');\n";
                     $css .= "    font-weight: {$fontWeight};\n";
                     $css .= "    font-style: {$fontStyle};\n";
