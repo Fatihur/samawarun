@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
             menubar: false,
             branding: false,
             promotion: false,
+            license_key: 'gpl',
             plugins: 'lists link autolink',
             toolbar: 'blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist | link | removeformat',
             block_formats: 'Paragraph=p; Heading 2=h2; Heading 3=h3; Heading 4=h4',
