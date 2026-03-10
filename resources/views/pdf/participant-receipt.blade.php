@@ -204,13 +204,13 @@
             </table>
 
             <div class="barcode-wrap">
-                <div style="font-size: 14px; font-weight: bold; color: #065f46; margin-bottom: 10px;">Barcode Peserta</div>
-                <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode Peserta">
+                <div style="font-size: 14px; font-weight: bold; color: #065f46; margin-bottom: 10px;">QR Code Peserta</div>
+                <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta">
                 <div class="barcode-text">{{ $barcodeValue }}</div>
             </div>
 
             <div class="footer">
-                Simpan dokumen ini sebagai bukti pendaftaran. Tunjukkan barcode dan BIB saat diperlukan pada hari pelaksanaan.
+                Simpan dokumen ini sebagai bukti pendaftaran. Tunjukkan QR Code dan BIB saat diperlukan pada hari pelaksanaan.
             </div>
         </div>
     </div>

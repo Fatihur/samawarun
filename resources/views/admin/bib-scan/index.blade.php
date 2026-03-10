@@ -37,8 +37,8 @@
 
                 <div class="rounded-2xl border border-indigo-100 bg-indigo-50 p-5">
                     <p class="text-xs font-bold uppercase tracking-[0.22em] text-indigo-600">Scanner Kamera</p>
-                    <h2 class="mt-2 text-lg font-bold text-slate-900">Arahkan barcode bib ke kamera</h2>
-                    <p class="mt-2 text-sm leading-relaxed text-slate-600">Setelah barcode terbaca, nomor bib akan diisikan otomatis dan sistem menampilkan detail peserta di panel kanan.</p>
+                    <h2 class="mt-2 text-lg font-bold text-slate-900">Arahkan QR Code BIB ke kamera</h2>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-600">Setelah QR Code terbaca, nomor bib akan diisikan otomatis dan sistem menampilkan detail peserta di panel kanan.</p>
 
                     <div class="mt-5 overflow-hidden rounded-2xl border border-dashed border-indigo-200 bg-slate-950 p-3">
                         <div id="admin-bib-info-scanner" class="min-h-[260px] rounded-xl bg-slate-900"></div>
@@ -217,7 +217,7 @@
                     );
 
                     isScanning = true;
-                    setStatus('Scanner aktif. Arahkan barcode bib ke area kamera.', 'success');
+                    setStatus('Scanner aktif. Arahkan QR Code bib ke area kamera.', 'success');
                 } catch (error) {
                     setStatus('Kamera tidak bisa dibuka. Pastikan izin kamera aktif atau masukkan BIB manual.', 'error');
                 }

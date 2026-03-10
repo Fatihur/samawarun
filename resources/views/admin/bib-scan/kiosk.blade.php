@@ -215,7 +215,7 @@
             {{-- Idle --}}
             <div class="idle-state" id="idle-state">
                 <h2>Siap Melayani</h2>
-                <p>Silakan scan barcode pada BIB Anda pada kamera di sudut layar.</p>
+                <p>Silakan scan QR Code pada BIB Anda pada kamera di sudut layar.</p>
             </div>
 
             {{-- Info Panel (Like Photo) --}}

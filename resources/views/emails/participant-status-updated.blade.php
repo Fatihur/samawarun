@@ -127,9 +127,9 @@
                                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border:1px solid #d1fae5; border-radius:16px; background-color:#f0fdf4;">
                                     <tr>
                                         <td style="padding:20px; text-align:center;">
-                                            <div style="font-size:15px; font-weight:700; color:#065f46;">Barcode Peserta</div>
-                                            <div style="margin-top:6px; font-size:13px; color:#047857;">Gunakan barcode ini bersama email ini sebagai bukti registrasi.</div>
-                                            <img src="data:image/png;base64,{{ $barcode }}" alt="Barcode Peserta" style="display:block; margin:18px auto 0; width:280px; max-width:100%; height:auto;">
+                                            <div style="font-size:15px; font-weight:700; color:#065f46;">QR Code Peserta</div>
+                                            <div style="margin-top:6px; font-size:13px; color:#047857;">Gunakan QR Code ini bersama email ini sebagai bukti registrasi.</div>
+                                            <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta" style="display:block; margin:18px auto 0; width:150px; max-width:100%; height:150px; object-fit:contain;">
                                             <div style="margin-top:12px; font-size:13px; font-weight:700; letter-spacing:0.18em; color:#065f46;">{{ $barcodeValue }}</div>
                                         </td>
                                     </tr>

@@ -7,7 +7,7 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
-use Picqer\Barcode\BarcodeGeneratorPNG;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class ParticipantVerifiedNotification extends Notification
 {
@@ -27,10 +27,9 @@ class ParticipantVerifiedNotification extends Notification
     {
         $participant = $this->participant->loadMissing('event');
 
-        $barcodeGenerator = new BarcodeGeneratorPNG();
         $barcodeValue = $participant->bib_number ?: 'PT-'.$participant->id;
         $barcode = base64_encode(
-            $barcodeGenerator->getBarcode($barcodeValue, $barcodeGenerator::TYPE_CODE_128, 2, 70)
+            QrCode::format('svg')->margin(1)->size(200)->generate($barcodeValue)
         );
 
         $pdf = app('dompdf.wrapper')
@@ -56,7 +55,7 @@ class ParticipantVerifiedNotification extends Notification
                     'Selamat, pendaftaran Anda di Samawa Run telah diverifikasi oleh admin.',
                     'Berikut kami lampirkan detail peserta dan struk pendaftaran Anda.',
                 ],
-                'footerMessage' => 'Simpan email ini sebagai bukti pendaftaran. Tunjukkan barcode dan BIB saat diperlukan pada hari pelaksanaan.',
+                'footerMessage' => 'Simpan email ini sebagai bukti pendaftaran. Tunjukkan QR Code dan BIB saat diperlukan pada hari pelaksanaan.',
                 'barcode' => $barcode,
                 'barcodeValue' => $barcodeValue,
             ])

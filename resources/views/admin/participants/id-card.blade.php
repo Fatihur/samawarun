@@ -73,14 +73,14 @@
         }
 
         .barcode-container {
-            margin-top: 4mm;
+            margin-top: 2mm;
             text-align: center;
         }
         
         .barcode-container img {
-            height: 15mm;
-            width: auto;
-            max-width: 120mm;
+            width: 25mm;
+            height: 25mm;
+            object-fit: contain;
         }
 
         .participant-name {
@@ -99,10 +99,9 @@
 <body>
     @foreach ($participants as $participant)
         @php
-            $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
             // Use BIB if available, fallback to str-padded ID if not
             $barcodeText = $participant->bib_number ?? str_pad($participant->id, 4, '0', STR_PAD_LEFT);
-            $barcodeBase64 = base64_encode($generator->getBarcode($barcodeText, $generator::TYPE_CODE_128));
+            $barcodeBase64 = base64_encode(\SimpleSoftwareIO\QrCode\Facades\QrCode::format('svg')->margin(1)->size(200)->generate($barcodeText));
         @endphp
         <div class="page-wrap {{ !$loop->last ? 'page-break' : '' }}">
             @if ($setting->background_image_path)
@@ -115,7 +114,7 @@
                 <div class="bib-number">{{ $participant->bib_number ?? '0000' }}</div>
                 
                 <div class="barcode-container">
-                    <img src="data:image/png;base64,{{ $barcodeBase64 }}" alt="Barcode">
+                    <img src="data:image/svg+xml;base64,{{ $barcodeBase64 }}" alt="QR Code">
                 </div>
 
                 <div class="participant-name">{{ $participant->name }}</div>
