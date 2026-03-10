@@ -42,6 +42,10 @@
             <x-heroicon-o-tag class="h-5 w-5 {{ request()->routeIs('admin.bib-settings.*') ? 'text-brand-500' : 'text-slate-400 group-hover:text-white' }}" />
             Pengaturan BIB
         </a>
+        <a href="{{ route('admin.bib-scan.index') }}" class="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors {{ request()->routeIs('admin.bib-scan.*') ? 'bg-brand-500/10 text-brand-400' : 'hover:bg-slate-800 hover:text-white' }}">
+            <x-heroicon-o-qr-code class="h-5 w-5 {{ request()->routeIs('admin.bib-scan.*') ? 'text-brand-500' : 'text-slate-400 group-hover:text-white' }}" />
+            Scan BIB
+        </a>
 
         {{-- Hasil & Laporan --}}
         <div class="pt-4 pb-1">

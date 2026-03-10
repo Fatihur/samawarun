@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\BibSettingController as AdminBibSettingController;
+use App\Http\Controllers\Admin\BibScanController as AdminBibScanController;
 use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -44,6 +45,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/bib-settings', [AdminBibSettingController::class, 'index'])->name('bib-settings.index');
         Route::put('/bib-settings', [AdminBibSettingController::class, 'update'])->name('bib-settings.update');
         Route::get('/bib-settings/layout-guide', [AdminBibSettingController::class, 'layoutGuide'])->name('bib-settings.layout-guide');
+        Route::get('/bib-scan', [AdminBibScanController::class, 'index'])->name('bib-scan.index');
 
         Route::get('/notifications/{id}/read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.read');
 

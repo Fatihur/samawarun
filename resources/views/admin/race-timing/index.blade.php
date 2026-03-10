@@ -4,7 +4,7 @@
     <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
             <h1 class="font-display text-3xl font-bold uppercase italic text-slate-800">Catat Waktu Race</h1>
-            <p class="mt-2 max-w-2xl text-sm text-slate-500">Pilih event sekali, lalu lanjut masukkan nomor BIB peserta satu per satu. Sistem akan otomatis mencatat waktu finish saat ini dan menghitung durasi lari dari jam mulai event.</p>
+            <p class="mt-2 max-w-2xl text-sm text-slate-500">Pilih event sekali, lalu masukkan nomor BIB peserta satu per satu. Sistem akan otomatis mencatat waktu finish saat ini dan menghitung durasi lari dari jam mulai event.</p>
         </div>
     </div>
 
@@ -109,4 +109,5 @@
             @endif
         </div>
     </div>
+
 @endsection

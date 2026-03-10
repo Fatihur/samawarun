@@ -107,7 +107,7 @@
             {{-- Sidebar / Register --}}
             <div class="relative lg:col-span-1">
                 <div class="sticky top-28 flex flex-col gap-6">
-                    <div class="overflow-hidden rounded-2xl border border-white/10 bg-secondary-dark p-6 shadow-2xl">
+                     <div class="overflow-hidden rounded-2xl border border-white/10 bg-secondary-dark p-6 shadow-2xl">
                         <div class="mb-6 flex flex-col gap-1 border-b border-white/5 pb-6">
                             <p class="text-sm font-medium text-gray-400">Biaya Pendaftaran</p>
                             <div class="flex items-baseline gap-1">
@@ -141,10 +141,10 @@
                                 <p class="mt-2 text-sm text-red-100">Deadline pendaftaran event ini telah berakhir, sehingga peserta baru tidak bisa mendaftar.</p>
                             </div>
                         @endif
-                        <p class="mt-4 text-center text-xs text-gray-500">
-                            *Pastikan data diri sesuai dengan KTP/Identitas
-                        </p>
-                    </div>
+                         <p class="mt-4 text-center text-xs text-gray-500">
+                             *Pastikan data diri sesuai dengan KTP/Identitas
+                         </p>
+                     </div>
 
                     <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6">
                         <h3 class="mb-4 flex items-center gap-2 font-bold text-white uppercase text-sm tracking-widest">

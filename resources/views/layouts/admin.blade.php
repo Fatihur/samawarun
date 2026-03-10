@@ -25,7 +25,7 @@
                 {{-- Top Navbar Mobile & Desktop --}}
                 @include('layouts.admin.navbar')
 
-                <main class="flex-1 overflow-y-auto overflow-x-auto p-4 sm:p-6 lg:p-8 relative h-full">
+                <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 relative h-full">
                     <div class="mx-auto w-full max-w-7xl">
                         @if (session('success'))
                             <div class="mb-6 flex items-start sm:items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 sm:py-4 text-emerald-800 shadow-sm" role="alert">
@@ -43,6 +43,7 @@
                         @yield('content')
                     </div>
                 </main>
+            </div>
         </div>
     </body>
 </html>
