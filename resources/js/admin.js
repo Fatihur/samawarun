@@ -7,6 +7,22 @@ import 'datatables.net-responsive-dt';
 import 'datatables.net-dt/css/dataTables.dataTables.css';
 import 'datatables.net-responsive-dt/css/responsive.dataTables.css';
 
+// TinyMCE - self-hosted via npm (no API key needed)
+import 'tinymce';
+import 'tinymce/themes/silver';
+import 'tinymce/icons/default';
+import 'tinymce/models/dom';
+
+// TinyMCE plugins
+import 'tinymce/plugins/lists';
+import 'tinymce/plugins/link';
+import 'tinymce/plugins/autolink';
+
+// TinyMCE skins
+import 'tinymce/skins/ui/oxide/skin.min.css';
+import 'tinymce/skins/content/default/content.min.css';
+import 'tinymce/skins/content/default/content.css';
+
 // TinyMCE Initialization
 document.addEventListener('DOMContentLoaded', function () {
     if (document.querySelectorAll('textarea.richtext').length > 0) {
@@ -20,7 +36,8 @@ document.addEventListener('DOMContentLoaded', function () {
             toolbar: 'blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist | link | removeformat',
             block_formats: 'Paragraph=p; Heading 2=h2; Heading 3=h3; Heading 4=h4',
             content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6; }',
-            skin: 'oxide',
+            skin: false,
+            content_css: false,
             setup: function (editor) {
                 editor.on('change', function () {
                     editor.save();
