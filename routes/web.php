@@ -46,6 +46,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::put('/bib-settings', [AdminBibSettingController::class, 'update'])->name('bib-settings.update');
         Route::get('/bib-settings/layout-guide', [AdminBibSettingController::class, 'layoutGuide'])->name('bib-settings.layout-guide');
         Route::get('/bib-scan', [AdminBibScanController::class, 'index'])->name('bib-scan.index');
+        Route::get('/bib-scan/kiosk', [AdminBibScanController::class, 'kiosk'])->name('bib-scan.kiosk');
+        Route::get('/bib-scan/kiosk/lookup', [AdminBibScanController::class, 'kioskLookup'])->name('bib-scan.kiosk.lookup');
 
         Route::get('/notifications/{id}/read', [AdminNotificationController::class, 'markAsRead'])->name('notifications.read');
 

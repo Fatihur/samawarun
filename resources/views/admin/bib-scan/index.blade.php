@@ -6,6 +6,15 @@
             <h1 class="font-display text-3xl font-bold uppercase italic text-slate-800">Scan BIB</h1>
             <p class="mt-2 max-w-2xl text-sm text-slate-500">Gunakan kamera atau input manual untuk membaca nomor bib dan menampilkan informasi peserta tanpa mencatat waktu race.</p>
         </div>
+        
+        @if ($selectedEvent = request('event_id', old('event_id')))
+        <div class="flex items-center gap-3">
+            <a href="{{ route('admin.bib-scan.kiosk', ['event_id' => $selectedEvent]) }}" class="inline-flex items-center gap-2 rounded-xl bg-orange-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-orange-700 active:scale-95">
+                <x-heroicon-o-computer-desktop class="h-5 w-5" />
+                Mode Kiosk (Fullscreen)
+            </a>
+        </div>
+        @endif
     </div>
 
     <div class="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
