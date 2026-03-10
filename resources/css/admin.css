@@ -1,3 +1,21 @@
+/* Force reset html/body to eliminate edge gaps */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+body {
+    overflow: hidden !important;
+}
+
+/* Hide sidebar scrollbar but keep scrollable */
+aside nav {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+}
+aside nav::-webkit-scrollbar {
+    display: none; /* Chrome/Safari/Opera */
+}
+
 /* DataTable Custom Overrides to match design system */
 .dataTables_wrapper {
     padding: 1.5rem;

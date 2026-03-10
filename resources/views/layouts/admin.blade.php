@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full overflow-hidden m-0 p-0">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,7 +11,7 @@
         {{-- AlpineJS for interactivity --}}
         <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
-    <body class="bg-slate-50 font-sans text-slate-800 antialiased selection:bg-brand-500 selection:text-white" x-data="{ sidebarOpen: false }">
+    <body class="h-full m-0 p-0 overflow-hidden bg-slate-50 font-sans text-slate-800 antialiased selection:bg-brand-500 selection:text-white" x-data="{ sidebarOpen: false }">
         <div class="flex h-screen overflow-hidden bg-slate-50">
             
             {{-- Mobile Sidebar Overlay --}}
