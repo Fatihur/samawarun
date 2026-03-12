@@ -18,10 +18,11 @@
                     </tr>
                     <tr>
                         <td style="padding:32px 24px; line-height:1.7; font-size:16px;">
-                            <p style="margin:0 0 16px;">Halo {{ $participantName }},</p>
+                            <p style="margin:0 0 16px;">Halo {{ $participant->name }},</p>
                             <p style="margin:0 0 16px;">Terima kasih telah mendaftar di Samawa Run.</p>
-                            <p style="margin:0 0 16px;">Pendaftaran Anda telah kami terima dan saat ini sedang ditinjau oleh admin.</p>
-                            <p style="margin:0;">Kami akan menginformasikan status selanjutnya setelah proses verifikasi selesai.</p>
+                            <p style="margin:0 0 16px;">Pendaftaran Anda untuk kategori {{ $participant->distance_category }} telah kami terima dan saat ini sedang ditinjau oleh admin.</p>
+                            <p style="margin:0 0 16px;">Setelah pendaftaran disetujui, kami akan mengirimkan link pembayaran ke email ini.</p>
+                            <p style="margin:0;">Setelah pembayaran direview dan disetujui, Anda akan menerima email berisi bukti pendaftaran, nomor BIB, dan QR code peserta.</p>
                         </td>
                     </tr>
                 </table>

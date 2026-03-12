@@ -13,6 +13,7 @@ class EventController extends Controller
         return view('public.events.index', [
             'events' => Event::query()
                 ->where('is_active', true)
+                ->with('distanceCategories')
                 ->orderBy('date')
                 ->paginate(12),
         ]);
@@ -23,7 +24,7 @@ class EventController extends Controller
         abort_unless($event->is_active, 404);
 
         return view('public.events.show', [
-            'event' => $event,
+            'event' => $event->load('distanceCategories'),
             'isRegistrationOpen' => $event->isRegistrationOpen(),
         ]);
     }

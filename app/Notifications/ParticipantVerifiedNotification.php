@@ -38,24 +38,24 @@ class ParticipantVerifiedNotification extends Notification
                 'barcode' => $barcode,
                 'barcodeValue' => $barcodeValue,
             ])
-            ->setPaper('A4')
+            ->setPaper([0, 0, 226.77, 920])
             ->output();
 
         $fileName = 'struk-pendaftaran-'.Str::slug($participant->name).'-'.$participant->id.'.pdf';
 
         return (new MailMessage)
-            ->subject('Pendaftaran Anda berhasil diverifikasi')
+            ->subject('Pembayaran disetujui, pendaftaran Anda lengkap')
             ->view('emails.participant-status-updated', [
                 'participant' => $participant,
-                'statusTitle' => 'Pendaftaran Berhasil Diverifikasi',
-                'statusBadge' => 'TERVERIFIKASI',
+                'statusTitle' => 'Pendaftaran Lengkap & BIB Tersedia',
+                'statusBadge' => 'PEMBAYARAN DISETUJUI',
                 'statusColor' => '#047857',
                 'statusBackground' => '#ecfdf5',
                 'introLines' => [
-                    'Selamat, pendaftaran Anda di Samawa Run telah diverifikasi oleh admin.',
-                    'Berikut kami lampirkan detail peserta dan struk pendaftaran Anda.',
+                    'Selamat, pembayaran Anda telah disetujui oleh admin Samawa Run.',
+                    'Berikut kami lampirkan bukti pendaftaran lengkap beserta nomor BIB dan QR code peserta.',
                 ],
-                'footerMessage' => 'Simpan email ini sebagai bukti pendaftaran. Tunjukkan QR Code dan BIB saat diperlukan pada hari pelaksanaan.',
+                'footerMessage' => 'Simpan email ini sebagai bukti pendaftaran resmi. Tunjukkan QR Code dan BIB saat diperlukan pada hari pelaksanaan.',
                 'barcode' => $barcode,
                 'barcodeValue' => $barcodeValue,
             ])

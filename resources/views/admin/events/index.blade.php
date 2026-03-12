@@ -34,12 +34,16 @@
                             @endif
                         </td>
                         <td class="px-5 py-4">
-                            <div class="flex items-center gap-3">
-                                <a href="{{ route('admin.events.edit', $event) }}" class="text-sm font-semibold text-blue-600 hover:text-blue-800 transition-colors">Edit</a>
+                            <div class="flex items-center gap-2">
+                                <a href="{{ route('admin.events.edit', $event) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800" title="Edit" aria-label="Edit {{ $event->name }}">
+                                    <x-heroicon-o-pencil-square class="h-4 w-4" />
+                                </a>
                                 <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus event ini?')" data-loading-title="Menghapus event" data-loading-message="Event sedang dihapus, mohon tunggu...">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" data-loading-label="Menghapus..." class="text-sm font-semibold text-red-500 hover:text-red-700 transition-colors">Hapus</button>
+                                    <button type="submit" data-loading-label="Menghapus..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus" aria-label="Hapus {{ $event->name }}">
+                                        <x-heroicon-o-trash class="h-4 w-4" />
+                                    </button>
                                 </form>
                             </div>
                         </td>

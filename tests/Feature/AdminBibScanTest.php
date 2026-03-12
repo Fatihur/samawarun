@@ -58,6 +58,7 @@ class AdminBibScanTest extends TestCase
             'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_FATHER,
             'transfer_proof' => 'participants/payments/a.jpg',
             'status' => Participant::STATUS_VERIFIED,
+            'workflow_status' => Participant::WORKFLOW_COMPLETED,
         ]);
 
         $response = $this->actingAs($admin)->get(route('admin.bib-scan.index', [
@@ -69,6 +70,7 @@ class AdminBibScanTest extends TestCase
         $response->assertSee('Pelari Admin');
         $response->assertSee('10K007');
         $response->assertSee('adminscan@example.com');
+        $response->assertSee('Verified');
     }
 
     public function test_admin_sees_not_found_message_for_missing_bib(): void

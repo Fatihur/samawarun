@@ -190,6 +190,7 @@ class CertificateManagementTest extends TestCase
             'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_MOTHER,
             'transfer_proof' => 'participants/payments/c.jpg',
             'status' => Participant::STATUS_VERIFIED,
+            'workflow_status' => Participant::WORKFLOW_COMPLETED,
             'race_finished_at' => now(),
             'race_duration_seconds' => 4200,
         ]);

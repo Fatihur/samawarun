@@ -4,11 +4,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ $title ?? 'Samawa Run' }}</title>
+        @livewireStyles
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endif
-        {{-- AlpineJS for basic interactivity like mobile menu --}}
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="min-h-screen bg-background-dark font-sans text-white selection:bg-primary selection:text-background-dark">
         @include('layouts.public.header')
@@ -42,5 +41,6 @@
         </main>
 
         @include('layouts.public.footer')
+        @livewireScriptConfig
     </body>
 </html>

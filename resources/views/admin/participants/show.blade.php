@@ -8,20 +8,37 @@
         </a>
 
         {{-- Action Buttons --}}
-        @if($participant->status === 'pending')
+        @if($participant->workflow_status === \App\Models\Participant::WORKFLOW_SUBMITTED)
         <div class="flex items-center gap-2">
             <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" class="inline" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">
                 @csrf @method('PATCH')
                 <button type="submit" data-loading-label="Memverifikasi..." class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95" onclick="return confirm('Verifikasi peserta ini?')">
                     <x-heroicon-o-check-circle class="h-4 w-4" />
-                    Verify
+                    Verifikasi
                 </button>
             </form>
             <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" class="inline" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">
                 @csrf @method('PATCH')
                 <button type="submit" data-loading-label="Menolak..." class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95" onclick="return confirm('Tolak pendaftaran peserta ini?')">
                     <x-heroicon-o-x-circle class="h-4 w-4" />
-                    Reject
+                    Tolak
+                </button>
+            </form>
+        </div>
+        @elseif ($participant->workflow_status === \App\Models\Participant::WORKFLOW_PAYMENT_SUBMITTED)
+        <div class="flex items-center gap-2">
+            <form action="{{ route('admin.participants.payment.approve', $participant) }}" method="POST" class="inline" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">
+                @csrf @method('PATCH')
+                <button type="submit" data-loading-label="Menyetujui..." class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-95" onclick="return confirm('Setujui pembayaran peserta ini?')">
+                    <x-heroicon-o-banknotes class="h-4 w-4" />
+                    Setujui Pembayaran
+                </button>
+            </form>
+            <form action="{{ route('admin.participants.payment.reject', $participant) }}" method="POST" class="inline" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">
+                @csrf @method('PATCH')
+                <button type="submit" data-loading-label="Menolak..." class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95" onclick="return confirm('Tolak pembayaran peserta ini?')">
+                    <x-heroicon-o-x-circle class="h-4 w-4" />
+                    Tolak Pembayaran
                 </button>
             </form>
         </div>
@@ -43,7 +60,7 @@
                 @elseif($participant->status === 'rejected')
                     <span class="inline-flex items-center rounded-full bg-red-50 px-3 py-1 text-xs font-bold text-red-700 border border-red-200">Rejected</span>
                 @else
-                    <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 border border-amber-200">Pending</span>
+                    <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 border border-amber-200">{{ $participant->workflow_status_label }}</span>
                 @endif
             </div>
 

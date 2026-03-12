@@ -22,7 +22,7 @@ class RegistrationController extends Controller
         abort_unless($event->isRegistrationOpen(), 404);
 
         return view('public.registrations.create', [
-            'event' => $event,
+            'event' => $event->load('distanceCategories'),
         ]);
     }
 
@@ -61,14 +61,14 @@ class RegistrationController extends Controller
             'emergency_contact_name' => ['required', 'string', 'max:255'],
             'emergency_contact_phone' => ['required', 'string', 'max:255'],
             'emergency_contact_relationship' => ['required', Rule::in(Participant::EMERGENCY_RELATIONSHIPS)],
-            'transfer_proof' => ['required', 'file', 'mimes:jpg,jpeg,png,pdf', 'max:2048'],
         ]);
 
         $validated['event_id'] = $event->id;
         $validated['distance_category'] = strtoupper((string) $validated['distance_category']);
         $validated['ktp_file'] = $request->file('ktp_file')->store('participants/ktp', 'public');
-        $validated['transfer_proof'] = $request->file('transfer_proof')->store('participants/payments', 'public');
+        $validated['transfer_proof'] = null;
         $validated['status'] = Participant::STATUS_PENDING;
+        $validated['workflow_status'] = Participant::WORKFLOW_SUBMITTED;
 
         $participant = Participant::create($validated);
 

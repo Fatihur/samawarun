@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\ParticipantController as AdminParticipantControll
 use App\Http\Controllers\Admin\RaceTimingController as AdminRaceTimingController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\HomeController;
+use App\Http\Controllers\Public\PaymentController;
 use App\Http\Controllers\Public\RegistrationController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RaceReportController as AdminRaceReportController;
@@ -26,6 +27,8 @@ Route::get('/events/{event}', [EventController::class, 'show'])->name('events.sh
 
 Route::get('/events/{event}/register', [RegistrationController::class, 'create'])->name('registrations.create');
 Route::post('/events/{event}/register', [RegistrationController::class, 'store'])->name('registrations.store');
+Route::get('/registrations/payment/{participant}/{token}', [PaymentController::class, 'create'])->name('registrations.payment.create');
+Route::post('/registrations/payment/{participant}/{token}', [PaymentController::class, 'store'])->name('registrations.payment.store');
 
 Route::prefix('admin')->name('admin.')->group(function (): void {
     Route::middleware('guest')->group(function (): void {
@@ -84,5 +87,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/participants/{participant}', [AdminParticipantController::class, 'show'])->name('participants.show');
         Route::patch('/participants/{participant}/verify', [AdminParticipantController::class, 'verify'])->name('participants.verify');
         Route::patch('/participants/{participant}/reject', [AdminParticipantController::class, 'reject'])->name('participants.reject');
+        Route::patch('/participants/{participant}/payment/approve', [AdminParticipantController::class, 'approvePayment'])->name('participants.payment.approve');
+        Route::patch('/participants/{participant}/payment/reject', [AdminParticipantController::class, 'rejectPayment'])->name('participants.payment.reject');
     });
 });

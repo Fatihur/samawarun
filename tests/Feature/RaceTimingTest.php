@@ -50,6 +50,7 @@ class RaceTimingTest extends TestCase
             'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_FATHER,
             'transfer_proof' => 'participants/payments/a.jpg',
             'status' => Participant::STATUS_VERIFIED,
+            'workflow_status' => Participant::WORKFLOW_COMPLETED,
         ]);
 
         $response = $this->actingAs($admin)->post(route('admin.race-timing.store'), [
@@ -103,6 +104,7 @@ class RaceTimingTest extends TestCase
             'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_MOTHER,
             'transfer_proof' => 'participants/payments/a.jpg',
             'status' => Participant::STATUS_PENDING,
+            'workflow_status' => Participant::WORKFLOW_SUBMITTED,
         ]);
 
         $response = $this->actingAs($admin)->from(route('admin.race-timing.index', ['event_id' => $event->id]))->post(route('admin.race-timing.store'), [

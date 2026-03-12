@@ -31,8 +31,17 @@
         </select>
         <select name="status" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
             <option value="">Semua Status</option>
-            @foreach (['pending', 'verified', 'rejected'] as $status)
-                <option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>
+            @foreach ([
+                'pending' => 'Pending',
+                'verified' => 'Verified',
+                'rejected' => 'Rejected',
+                'submitted' => 'Menunggu Review Pendaftaran',
+                'approved_waiting_payment' => 'Menunggu Pembayaran',
+                'payment_submitted' => 'Pembayaran Direview',
+                'payment_rejected' => 'Pembayaran Ditolak',
+                'completed' => 'Selesai',
+            ] as $status => $label)
+                <option value="{{ $status }}" @selected(request('status') === $status)>{{ $label }}</option>
             @endforeach
         </select>
         <button type="submit" class="rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors active:scale-95">Filter</button>
@@ -43,7 +52,7 @@
     </form>
 
     <div class="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
-        Pilih peserta yang sudah <strong>verified</strong> lalu klik <strong>Download Nomor Dada</strong>.
+        Pilih peserta yang sudah <strong>verified</strong> lalu klik <strong>Download Nomor Dada</strong>. Peserta yang masih menunggu pembayaran atau review pembayaran tidak akan mendapat BIB.
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -88,28 +97,49 @@
                             {{ $participant->bib_number ?? '-' }}
                         </td>
                         <td class="px-5 py-4">
-                            @if($participant->status === \App\Models\Participant::STATUS_PENDING)
-                                <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">Pending</span>
-                            @elseif($participant->status === \App\Models\Participant::STATUS_VERIFIED)
+                            @if($participant->status === \App\Models\Participant::STATUS_VERIFIED)
                                 <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">Verified</span>
                             @elseif($participant->status === \App\Models\Participant::STATUS_REJECTED)
                                 <span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 border border-red-200">Rejected</span>
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">{{ $participant->workflow_status_label }}</span>
                             @endif
                         </td>
                         <td class="px-5 py-4">
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.participants.show', $participant) }}" class="text-xs font-bold text-brand-600 hover:text-brand-800 transition-colors">Detail</a>
+                                <a href="{{ route('admin.participants.show', $participant) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail" aria-label="Lihat detail {{ $participant->name }}">
+                                    <x-heroicon-o-eye class="h-4 w-4" />
+                                </a>
                                 
-                                @if($participant->status === \App\Models\Participant::STATUS_PENDING)
+                                @if($participant->workflow_status === \App\Models\Participant::WORKFLOW_SUBMITTED)
                                     <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" onsubmit="return confirm('Verifikasi peserta ini?')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" data-loading-label="Memverifikasi..." class="text-xs font-bold text-emerald-600 hover:text-emerald-800 transition-colors">Verify</button>
+                                        <button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify" aria-label="Verifikasi {{ $participant->name }}">
+                                            <x-heroicon-o-check class="h-4 w-4" />
+                                        </button>
                                     </form>
                                     <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" onsubmit="return confirm('Tolak peserta ini?')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">
                                         @csrf
                                         @method('PATCH')
-                                        <button type="submit" data-loading-label="Menolak..." class="text-xs font-bold text-red-600 hover:text-red-800 transition-colors">Reject</button>
+                                        <button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject" aria-label="Tolak {{ $participant->name }}">
+                                            <x-heroicon-o-x-mark class="h-4 w-4" />
+                                        </button>
+                                    </form>
+                                @elseif($participant->workflow_status === \App\Models\Participant::WORKFLOW_PAYMENT_SUBMITTED)
+                                    <form action="{{ route('admin.participants.payment.approve', $participant) }}" method="POST" onsubmit="return confirm('Setujui pembayaran peserta ini?')" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment" aria-label="Setujui pembayaran {{ $participant->name }}">
+                                            <x-heroicon-o-banknotes class="h-4 w-4" />
+                                        </button>
+                                    </form>
+                                    <form action="{{ route('admin.participants.payment.reject', $participant) }}" method="POST" onsubmit="return confirm('Tolak pembayaran peserta ini?')" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">
+                                        @csrf
+                                        @method('PATCH')
+                                        <button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment" aria-label="Tolak pembayaran {{ $participant->name }}">
+                                            <x-heroicon-o-x-circle class="h-4 w-4" />
+                                        </button>
                                     </form>
                                 @endif
                             </div>

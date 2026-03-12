@@ -178,7 +178,7 @@
                                         >
                                             <x-heroicon-o-bars-3-bottom-left class="h-4 w-4 shrink-0" />
                                             <span x-text="el.label" class="truncate flex-1"></span>
-                                            <button @click.stop="removeElement(index)" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus">
+                                            <button @click.stop="removeElement(index)" class="text-slate-400 hover:text-red-500 transition-colors" title="Hapus" aria-label="Hapus elemen teks">
                                                 <x-heroicon-o-trash class="h-4 w-4" />
                                             </button>
                                         </div>
@@ -430,9 +430,8 @@
                                 <td class="px-5 py-4 text-sm text-slate-600">{{ $participant->race_finished_at?->format('d M Y H:i:s') ?? '-' }}</td>
                                 <td class="px-5 py-4 font-mono font-bold text-slate-700">{{ $participant->formatted_race_duration ?? '-' }}</td>
                                 <td class="px-5 py-4">
-                                    <a href="{{ route('admin.participants.certificate', $participant) }}" class="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-slate-700">
+                                    <a href="{{ route('admin.participants.certificate', $participant) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF" aria-label="Download sertifikat {{ $participant->name }}">
                                         <x-heroicon-o-document-arrow-down class="h-4 w-4" />
-                                        Download PDF
                                     </a>
                                 </td>
                             </tr>

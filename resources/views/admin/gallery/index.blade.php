@@ -52,14 +52,14 @@
                         {{-- Toggle Active --}}
                         <form action="{{ route('admin.gallery.toggle', $gallery) }}" method="POST" data-loading-title="Mengubah status foto" data-loading-message="Status foto galeri sedang diperbarui...">
                             @csrf @method('PATCH')
-                            <button type="submit" data-loading-label="Memproses..." class="flex h-8 w-8 items-center justify-center rounded-lg {{ $gallery->is_active ? 'bg-emerald-500 text-white' : 'bg-white/20 text-white/70' }} backdrop-blur-sm transition-colors hover:bg-emerald-600 hover:text-white" title="{{ $gallery->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
+                            <button type="submit" data-loading-label="Memproses..." class="flex h-8 w-8 items-center justify-center rounded-lg {{ $gallery->is_active ? 'bg-emerald-500 text-white' : 'bg-white/20 text-white/70' }} backdrop-blur-sm transition-colors hover:bg-emerald-600 hover:text-white" title="{{ $gallery->is_active ? 'Nonaktifkan' : 'Aktifkan' }}" aria-label="{{ $gallery->is_active ? 'Nonaktifkan' : 'Aktifkan' }} foto {{ $gallery->title ?? 'galeri' }}">
                                 <x-heroicon-o-eye class="h-4 w-4" />
                             </button>
                         </form>
                         {{-- Delete --}}
                         <form action="{{ route('admin.gallery.destroy', $gallery) }}" method="POST" onsubmit="return confirm('Yakin hapus foto ini?')" data-loading-title="Menghapus foto" data-loading-message="Foto galeri sedang dihapus...">
                             @csrf @method('DELETE')
-                            <button type="submit" data-loading-label="Menghapus..." class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white/70 transition-colors hover:bg-red-500 hover:text-white" title="Hapus">
+                            <button type="submit" data-loading-label="Menghapus..." class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm text-white/70 transition-colors hover:bg-red-500 hover:text-white" title="Hapus" aria-label="Hapus foto {{ $gallery->title ?? 'galeri' }}">
                                 <x-heroicon-o-trash class="h-4 w-4" />
                             </button>
                         </form>
@@ -79,7 +79,9 @@
                 <form action="{{ route('admin.gallery.update', $gallery) }}" method="POST" class="flex gap-2" data-loading-title="Menyimpan keterangan foto" data-loading-message="Perubahan keterangan galeri sedang disimpan...">
                     @csrf @method('PUT')
                     <input type="text" name="title" value="{{ $gallery->title }}" class="flex-1 rounded-lg border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs text-slate-700 focus:border-brand-500 focus:ring-brand-500" placeholder="Keterangan..." />
-                    <button type="submit" data-loading-label="Menyimpan..." class="rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-600 hover:bg-slate-200 transition-colors">Simpan</button>
+                    <button type="submit" data-loading-label="Menyimpan..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-600 transition-colors hover:bg-slate-200" title="Simpan" aria-label="Simpan keterangan foto {{ $gallery->title ?? 'galeri' }}">
+                        <x-heroicon-o-check class="h-4 w-4" />
+                    </button>
                 </form>
             </div>
         </div>

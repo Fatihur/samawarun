@@ -4,12 +4,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>{{ $title ?? 'Admin Samawa Run' }}</title>
+        @livewireStyles
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/admin.css', 'resources/js/admin.js'])
         @endif
         {{-- TinyMCE is now self-hosted via npm, loaded through admin.js --}}
-        {{-- AlpineJS for interactivity --}}
-        <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     </head>
     <body class="h-full m-0 p-0 overflow-hidden bg-slate-50 font-sans text-slate-800 antialiased selection:bg-brand-500 selection:text-white" x-data="{ sidebarOpen: false }">
         <div class="flex h-screen overflow-hidden bg-slate-50">
@@ -45,5 +44,6 @@
                 </main>
             </div>
         </div>
+        @livewireScriptConfig
     </body>
 </html>

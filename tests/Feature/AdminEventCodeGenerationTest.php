@@ -24,11 +24,11 @@ class AdminEventCodeGenerationTest extends TestCase
             'start_time' => '06:00',
             'registration_deadline' => '2026-02-25 23:59',
             'location' => 'Sumbawa',
-            'price' => 100000,
             'contact' => '08123',
             'bank_account' => 'BCA',
             'is_active' => '1',
             'distance_categories' => [$category->id],
+            'category_prices' => [$category->id => 100000],
         ]);
 
         $response->assertRedirect(route('admin.events.index'));
@@ -64,11 +64,11 @@ class AdminEventCodeGenerationTest extends TestCase
             'start_time' => '07:00',
             'registration_deadline' => '2026-02-26 23:59',
             'location' => 'Sumbawa',
-            'price' => 120000,
             'contact' => '08124',
             'bank_account' => 'BNI',
             'is_active' => '1',
             'distance_categories' => [$category->id],
+            'category_prices' => [$category->id => 120000],
         ]);
 
         $response->assertRedirect(route('admin.events.index'));

@@ -8,7 +8,7 @@
                     <h1 class="text-white text-3xl font-bold leading-tight lg:text-4xl font-display uppercase">Semua Event</h1>
                     <p class="mt-2 text-gray-400 text-sm">Temukan dan daftarkan diri di event lari favorit Anda.</p>
                 </div>
-                <a href="{{ route('home') }}" class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-white transition-colors">
+                <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-white transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                     Kembali ke Home
                 </a>
@@ -47,13 +47,13 @@
                                 <span>{{ $event->location }}</span>
                             </div>
                             <p class="text-gray-400 text-sm mb-6">
-                                Rp {{ number_format($event->price, 0, ',', '.') }}
+                                {{ $event->price_summary }}
                             </p>
                             <div class="mt-auto flex gap-3">
-                                <a href="{{ route('events.show', $event) }}" class="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-center text-background-dark hover:bg-primary-hover transition-colors">
+                                <a href="{{ route('events.show', $event) }}" wire:navigate class="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-center text-background-dark hover:bg-primary-hover transition-colors">
                                     {{ $event->isRegistrationOpen() ? 'Daftar' : 'Lihat Detail' }}
                                 </a>
-                                <a href="{{ route('events.show', $event) }}" class="flex items-center justify-center rounded-lg border border-white/20 bg-transparent px-3 text-white hover:bg-white/5 transition-colors">
+                                <a href="{{ route('events.show', $event) }}" wire:navigate class="flex items-center justify-center rounded-lg border border-white/20 bg-transparent px-3 text-white hover:bg-white/5 transition-colors">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" /></svg>
                                 </a>
                             </div>

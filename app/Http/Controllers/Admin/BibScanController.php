@@ -83,7 +83,9 @@ class BibScanController extends Controller
             'found' => true,
             'name' => $participant->name,
             'bib_number' => $participant->bib_number,
-            'status' => ucfirst($participant->status),
+            'status' => $participant->status === Participant::STATUS_VERIFIED
+                ? 'Verified'
+                : $participant->workflow_status_label,
             'distance_category' => $participant->distance_category,
             'jersey_size' => $participant->jersey_size,
             'email' => $participant->email,

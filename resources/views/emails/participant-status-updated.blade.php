@@ -18,7 +18,7 @@
                     </tr>
                     <tr>
                         <td style="padding:28px 24px 12px;">
-                            @if ($statusBadge === 'TERVERIFIKASI')
+                            @if (str_contains($statusBadge, 'DISETUJUI'))
                                 <span style="display:inline-block; padding:8px 14px; border-radius:999px; background-color:#ecfdf5; color:#047857; font-size:12px; font-weight:700; letter-spacing:0.08em;">{{ $statusBadge }}</span>
                             @else
                                 <span style="display:inline-block; padding:8px 14px; border-radius:999px; background-color:#fef2f2; color:#b91c1c; font-size:12px; font-weight:700; letter-spacing:0.08em;">{{ $statusBadge }}</span>
@@ -108,7 +108,7 @@
                                                 </td>
                                                 <td style="padding:0; width:50%; vertical-align:top;">
                                                     <div style="font-size:11px; font-weight:700; letter-spacing:0.08em; color:#94a3b8; text-transform:uppercase;">Status</div>
-                                                    @if ($statusBadge === 'TERVERIFIKASI')
+                                                    @if (str_contains($statusBadge, 'DISETUJUI'))
                                                         <div style="margin-top:4px; font-size:15px; font-weight:700; color:#047857;">{{ $statusBadge }}</div>
                                                     @else
                                                         <div style="margin-top:4px; font-size:15px; font-weight:700; color:#b91c1c;">{{ $statusBadge }}</div>

@@ -19,11 +19,11 @@
                 Komunitas lari yang aktif menyelenggarakan event lari di Sumbawa. Temukan event, lihat informasi, dan daftar langsung.
             </p>
             <div class="mt-4 flex flex-wrap justify-center gap-4">
-                <a href="{{ route('events.index') }}" class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-primary hover:bg-primary-hover transition-all text-background-dark text-base font-bold shadow-[0_0_20px_rgba(48,232,122,0.3)] active:scale-95">
+                <a href="{{ route('events.index') }}" wire:navigate class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-primary hover:bg-primary-hover transition-all text-background-dark text-base font-bold shadow-[0_0_20px_rgba(48,232,122,0.3)] active:scale-95">
                     Lihat Event
                 </a>
                 @if($upcomingEvents->first())
-                <a href="{{ route('registrations.create', $upcomingEvents->first()) }}" class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all text-base font-bold backdrop-blur-sm active:scale-95">
+                <a href="{{ route('registrations.create', $upcomingEvents->first()) }}" wire:navigate class="flex min-w-[160px] cursor-pointer items-center justify-center rounded-full h-12 px-8 bg-white/10 hover:bg-white/20 border border-white/20 text-white transition-all text-base font-bold backdrop-blur-sm active:scale-95">
                     Daftar Event
                 </a>
                 @endif
@@ -151,7 +151,7 @@
         <div class="mx-auto max-w-6xl relative z-10">
             <div class="flex items-center justify-between mb-10">
                 <h2 class="text-white text-3xl font-bold leading-tight font-display">Event Mendatang</h2>
-                <a href="{{ route('events.index') }}" class="hidden sm:flex items-center gap-1 text-sm font-bold text-primary hover:text-white transition-colors">
+                <a href="{{ route('events.index') }}" wire:navigate class="hidden sm:flex items-center gap-1 text-sm font-bold text-primary hover:text-white transition-colors">
                     Lihat Semua
                     <x-heroicon-o-arrow-right class="h-4 w-4" />
                 </a>
@@ -194,13 +194,13 @@
                                 <span>{{ $event->location }}</span>
                             </div>
                             <p class="text-gray-400 text-sm mb-6 line-clamp-2">
-                                Rp {{ number_format($event->price, 0, ',', '.') }} &bull; {{ $event->date->translatedFormat('l, d F Y') }}
+                                {{ $event->price_summary }} &bull; {{ $event->date->translatedFormat('l, d F Y') }}
                             </p>
                             <div class="mt-auto flex gap-3">
-                                <a href="{{ route('events.show', $event) }}" class="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-center text-background-dark hover:bg-primary-hover transition-colors">
+                                <a href="{{ route('events.show', $event) }}" wire:navigate class="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-center text-background-dark hover:bg-primary-hover transition-colors">
                                     Lihat Detail
                                 </a>
-                                <a href="{{ route('events.show', $event) }}" class="flex items-center justify-center rounded-lg border border-white/20 bg-transparent px-3 text-white hover:bg-white/5 transition-colors">
+                                <a href="{{ route('events.show', $event) }}" wire:navigate class="flex items-center justify-center rounded-lg border border-white/20 bg-transparent px-3 text-white hover:bg-white/5 transition-colors">
                                     <x-heroicon-o-information-circle class="h-5 w-5" />
                                 </a>
                             </div>

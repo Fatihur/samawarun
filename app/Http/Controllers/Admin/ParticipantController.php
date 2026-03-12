@@ -7,6 +7,8 @@ use App\Models\BibSetting;
 use App\Models\DistanceCategory;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Notifications\ParticipantPaymentRejectedNotification;
+use App\Notifications\ParticipantRegistrationApprovedNotification;
 use App\Notifications\ParticipantRejectedNotification;
 use App\Notifications\ParticipantVerifiedNotification;
 use Illuminate\Database\Eloquent\Builder;
@@ -28,7 +30,19 @@ class ParticipantController extends Controller
                 $query->where('event_id', $request->integer('event_id'));
             })
             ->when($request->filled('status'), function (Builder $query) use ($request): void {
-                $query->where('status', $request->string('status')->value());
+                $selectedStatus = $request->string('status')->value();
+
+                if (in_array($selectedStatus, [
+                    Participant::STATUS_PENDING,
+                    Participant::STATUS_VERIFIED,
+                    Participant::STATUS_REJECTED,
+                ], true)) {
+                    $query->where('status', $selectedStatus);
+
+                    return;
+                }
+
+                $query->where('workflow_status', $selectedStatus);
             })
             ->latest()
             ->get();
@@ -48,32 +62,35 @@ class ParticipantController extends Controller
 
     public function verify(Participant $participant): RedirectResponse
     {
-        if ($participant->status === Participant::STATUS_VERIFIED) {
-            return back()->with('success', 'Peserta sudah terverifikasi.');
+        if ($participant->workflow_status === Participant::WORKFLOW_APPROVED_WAITING_PAYMENT) {
+            return back()->with('success', 'Pendaftaran peserta sudah disetujui dan menunggu pembayaran.');
         }
 
         DB::transaction(function () use ($participant): void {
             $locked = Participant::query()->lockForUpdate()->findOrFail($participant->id);
 
-            if ($locked->status === Participant::STATUS_VERIFIED) {
+            if ($locked->workflow_status === Participant::WORKFLOW_APPROVED_WAITING_PAYMENT) {
                 return;
             }
 
-            $locked->status = Participant::STATUS_VERIFIED;
-            $locked->bib_number = $this->buildBibNumber($locked);
-            $locked->save();
+            $locked->status = Participant::STATUS_PENDING;
+            $locked->workflow_status = Participant::WORKFLOW_APPROVED_WAITING_PAYMENT;
+            $locked->registration_reviewed_at = now();
+            $locked->issuePaymentToken();
         });
 
         $participant->refresh()->load('event');
-        $participant->notify(new ParticipantVerifiedNotification($participant));
+        $participant->notify(new ParticipantRegistrationApprovedNotification($participant));
 
-        return back()->with('success', 'Peserta berhasil diverifikasi.');
+        return back()->with('success', 'Pendaftaran peserta disetujui. Link pembayaran telah dikirim ke email peserta.');
     }
 
     public function reject(Participant $participant): RedirectResponse
     {
         $participant->update([
             'status' => Participant::STATUS_REJECTED,
+            'workflow_status' => Participant::WORKFLOW_REGISTRATION_REJECTED,
+            'registration_reviewed_at' => now(),
             'bib_number' => null,
         ]);
 
@@ -81,6 +98,44 @@ class ParticipantController extends Controller
         $participant->notify(new ParticipantRejectedNotification($participant));
 
         return back()->with('success', 'Peserta berhasil ditolak.');
+    }
+
+    public function approvePayment(Participant $participant): RedirectResponse
+    {
+        if ($participant->workflow_status === Participant::WORKFLOW_COMPLETED) {
+            return back()->with('success', 'Pembayaran peserta sudah disetujui sebelumnya.');
+        }
+
+        DB::transaction(function () use ($participant): void {
+            $locked = Participant::query()->lockForUpdate()->findOrFail($participant->id);
+
+            $locked->status = Participant::STATUS_VERIFIED;
+            $locked->workflow_status = Participant::WORKFLOW_COMPLETED;
+            $locked->payment_reviewed_at = now();
+            $locked->bib_number = $this->buildBibNumber($locked);
+            $locked->save();
+        });
+
+        $participant->refresh()->load('event');
+        $participant->notify(new ParticipantVerifiedNotification($participant));
+
+        return back()->with('success', 'Pembayaran disetujui. Bukti pendaftaran dan BIB telah dikirim ke email peserta.');
+    }
+
+    public function rejectPayment(Participant $participant): RedirectResponse
+    {
+        $participant->issuePaymentToken();
+
+        $participant->update([
+            'status' => Participant::STATUS_PENDING,
+            'workflow_status' => Participant::WORKFLOW_PAYMENT_REJECTED,
+            'payment_reviewed_at' => now(),
+        ]);
+
+        $participant->refresh()->load('event');
+        $participant->notify(new ParticipantPaymentRejectedNotification($participant));
+
+        return back()->with('success', 'Pembayaran ditolak. Peserta telah menerima email untuk upload ulang bukti pembayaran.');
     }
 
     public function export(Request $request): StreamedResponse

@@ -1,10 +1,18 @@
 @extends('layouts.public')
 
 @section('content')
-    <section class="px-6 py-16 lg:px-40 bg-background-dark" x-data="registrationForm()">
+    @php
+        $categoryPrices = $event->distanceCategories
+            ->mapWithKeys(fn ($category) => [
+                strtoupper($category->name) => (int) round((float) ($category->pivot?->price ?? $event->price ?? 0)),
+            ])
+            ->toArray();
+    @endphp
+
+    <section class="px-6 py-16 lg:px-40 bg-background-dark" x-data='registrationForm(@json($categoryPrices), @json(strtoupper((string) old("distance_category"))))'>
         <div class="mx-auto max-w-2xl">
             {{-- Back Link --}}
-            <a href="{{ route('events.show', $event) }}" class="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-primary transition-colors mb-8">
+            <a href="{{ route('events.show', $event) }}" wire:navigate class="inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-primary transition-colors mb-8">
                 <x-heroicon-o-arrow-left class="h-4 w-4" />
                 Kembali ke detail event
             </a>
@@ -12,7 +20,7 @@
             {{-- Header --}}
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-white font-display uppercase italic">Pendaftaran</h1>
-                <p class="mt-2 text-gray-400">{{ $event->name }} &bull; Rp {{ number_format($event->price, 0, ',', '.') }}</p>
+                <p class="mt-2 text-gray-400">{{ $event->name }} &bull; {{ $event->price_summary }}</p>
                 @if($event->registration_deadline)
                     <p class="mt-2 text-sm text-amber-300">Deadline pendaftaran: {{ $event->registration_deadline->translatedFormat('d F Y, H:i') }}</p>
                 @endif
@@ -60,8 +68,104 @@
             <form action="{{ route('registrations.store', $event) }}" method="POST" enctype="multipart/form-data" data-loading-title="Mengirim pendaftaran" data-loading-message="Data peserta dan berkas sedang dikirim, mohon tunggu...">
                 @csrf
 
-                {{-- Step 1: Data Diri --}}
+                {{-- Step 1: Detail Event --}}
                 <div x-show="currentStep === 0" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                    <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6 sm:p-8">
+                        <h2 class="text-xl font-bold text-white mb-1 font-display">Detail Perlombaan</h2>
+                        <p class="text-sm text-gray-500 mb-6">Pilih kategori jarak dan ukuran jersey terlebih dahulu</p>
+
+                        <div>
+                            <label class="mb-1.5 block text-sm font-medium text-gray-300">Kategori Jarak <span class="text-red-400">*</span></label>
+                            <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                                @foreach ($event->distanceCategories as $category)
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="distance_category" value="{{ strtoupper($category->name) }}" class="peer hidden" x-model="selectedDistanceCategory" @checked(strtoupper((string) old('distance_category')) === strtoupper($category->name)) required>
+                                    <div class="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-background-dark px-3 py-4 text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:shadow-[0_0_15px_rgba(48,232,122,0.15)] hover:bg-white/5">
+                                        <span class="text-lg font-bold">{{ strtoupper($category->name) }}</span>
+                                        <span class="mt-1 text-xs font-semibold {{ strtoupper((string) old('distance_category')) === strtoupper($category->name) ? 'text-primary/80' : 'text-gray-500' }}">Rp {{ number_format($category->pivot?->price ?? $event->price, 0, ',', '.') }}</span>
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="mt-6 rounded-2xl border border-white/10 bg-background-dark/40 p-5 sm:p-6">
+                            <div class="mb-4">
+                                <h3 class="text-base font-bold text-white">Ukuran Jersey</h3>
+                                <p class="mt-1 text-xs leading-relaxed text-gray-400">Pilih ukuran jersey secara terpisah setelah menentukan kategori jarak.</p>
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
+                                @foreach (['S', 'M', 'L', 'XL', 'XXL'] as $size)
+                                <label class="cursor-pointer">
+                                    <input type="radio" name="jersey_size" value="{{ $size }}" class="peer hidden" @checked(old('jersey_size') === $size) required>
+                                    <div class="flex items-center justify-center rounded-xl border border-white/10 bg-background-dark py-3 text-sm font-bold text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary hover:bg-white/5">
+                                        {{ $size }}
+                                    </div>
+                                </label>
+                                @endforeach
+                            </div>
+
+                            <div x-data="{ previewOpen: false }" class="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4">
+                                <div class="mb-3 flex items-start justify-between gap-3">
+                                    <div>
+                                        <p class="text-sm font-bold text-white">Panduan Ukuran Jersey</p>
+                                        <p class="mt-1 text-xs leading-relaxed text-gray-400">Gunakan ukuran kaos yang biasa dipakai sebagai acuan. Jika berada di antara dua ukuran, disarankan pilih ukuran yang lebih besar untuk kenyamanan saat race.</p>
+                                    </div>
+                                    <div class="rounded-full bg-primary/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-primary">
+                                        Size Chart
+                                    </div>
+                                </div>
+
+                                <button type="button" @click="previewOpen = true" class="mb-4 block w-full overflow-hidden rounded-xl border border-white/10 bg-background-dark p-2 text-left transition hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/60">
+                                    <img src="{{ asset('chart-size.jpeg') }}" alt="Panduan ukuran jersey raglan unisex" class="h-auto w-full object-contain">
+                                </button>
+
+                                <div x-show="previewOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" @click.self="previewOpen = false" @keydown.escape.window="previewOpen = false">
+                                    <div class="relative w-full max-w-5xl">
+                                        <button type="button" @click="previewOpen = false" class="absolute right-3 top-3 z-10 rounded-full bg-black/70 px-3 py-1 text-xs font-bold text-white transition hover:bg-black">
+                                            Tutup
+                                        </button>
+                                        <img src="{{ asset('chart-size.jpeg') }}" alt="Preview panduan ukuran jersey raglan unisex" class="max-h-[90vh] w-full rounded-2xl object-contain shadow-2xl">
+                                    </div>
+                                </div>
+
+                                <div class="overflow-hidden rounded-xl border border-white/10">
+                                    <div class="grid grid-cols-4 bg-white/5 text-[11px] font-bold uppercase tracking-[0.16em] text-gray-400">
+                                        <div class="px-3 py-2">Size</div>
+                                        <div class="px-3 py-2">A / Dada</div>
+                                        <div class="px-3 py-2">B / Panjang</div>
+                                        <div class="px-3 py-2">Catatan</div>
+                                    </div>
+                                    @php
+                                        $jerseySizeChart = [
+                                            ['size' => '2XS', 'chest' => '42 cm', 'length' => '60 cm', 'note' => 'Raglan unisex'],
+                                            ['size' => 'XS', 'chest' => '45 cm', 'length' => '63 cm', 'note' => 'Raglan unisex'],
+                                            ['size' => 'S', 'chest' => '48 cm', 'length' => '66 cm', 'note' => 'Raglan unisex'],
+                                            ['size' => 'M', 'chest' => '51 cm', 'length' => '69 cm', 'note' => 'Raglan unisex'],
+                                            ['size' => 'L', 'chest' => '54 cm', 'length' => '72 cm', 'note' => 'Raglan unisex'],
+                                            ['size' => 'XL', 'chest' => '57 cm', 'length' => '75 cm', 'note' => 'Raglan unisex'],
+                                            ['size' => '2XL', 'chest' => '59 cm', 'length' => '78 cm', 'note' => 'Raglan unisex'],
+                                        ];
+                                    @endphp
+                                    @foreach ($jerseySizeChart as $chart)
+                                        <div class="grid grid-cols-4 border-t border-white/10 text-sm text-gray-300 first:border-t-0">
+                                            <div class="px-3 py-2.5 font-bold text-white">{{ $chart['size'] }}</div>
+                                            <div class="px-3 py-2.5">{{ $chart['chest'] }}</div>
+                                            <div class="px-3 py-2.5">{{ $chart['length'] }}</div>
+                                            <div class="px-3 py-2.5 text-xs sm:text-sm">{{ $chart['note'] }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <p class="mt-3 text-[11px] leading-relaxed text-gray-500">*A = chest, B = front length. Ukuran pada tabel mengikuti angka di gambar dan dapat memiliki toleransi pengukuran sekitar 1-1.5 cm.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Step 2: Data Diri --}}
+                <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
                     <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6 sm:p-8">
                         <h2 class="text-xl font-bold text-white mb-1 font-display">Data Diri</h2>
                         <p class="text-sm text-gray-500 mb-6">Lengkapi informasi data diri Anda</p>
@@ -87,12 +191,17 @@
                                 <label class="mb-1.5 block text-sm font-medium text-gray-300">NIK <span class="text-red-400">*</span></label>
                                 <input name="nik" value="{{ old('nik') }}" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="Nomor Induk Kependudukan (16 digit)" required>
                             </div>
+                            <div class="sm:col-span-2">
+                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Upload KTP <span class="text-red-400">*</span></label>
+                                <input name="ktp_file" type="file" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary focus:outline-none" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <p class="mt-2 text-xs leading-relaxed text-gray-500">Unggah foto atau scan KTP dengan format JPG, JPEG, PNG, atau PDF. Ukuran maksimal 2 MB.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- Step 2: Kontak --}}
-                <div x-show="currentStep === 1" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                {{-- Step 3: Kontak --}}
+                <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
                     <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6 sm:p-8">
                         <h2 class="text-xl font-bold text-white mb-1 font-display">Informasi Kontak</h2>
                         <p class="text-sm text-gray-500 mb-6">Nomor HP & alamat yang bisa dihubungi</p>
@@ -134,89 +243,10 @@
                     </div>
                 </div>
 
-                {{-- Step 3: Detail Event --}}
-                <div x-show="currentStep === 2" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
-                    <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6 sm:p-8">
-                        <h2 class="text-xl font-bold text-white mb-1 font-display">Detail Perlombaan</h2>
-                        <p class="text-sm text-gray-500 mb-6">Pilih kategori jarak dan ukuran jersey</p>
-
-                        <div class="grid gap-5 sm:grid-cols-2">
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Kategori Jarak <span class="text-red-400">*</span></label>
-                                <div class="grid grid-cols-3 gap-3">
-                                    @foreach ($event->distanceCategories as $category)
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="distance_category" value="{{ strtoupper($category->name) }}" class="peer hidden" @checked(strtoupper((string) old('distance_category')) === strtoupper($category->name)) required>
-                                        <div class="flex items-center justify-center rounded-xl border border-white/10 bg-background-dark py-4 text-lg font-bold text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:shadow-[0_0_15px_rgba(48,232,122,0.15)] hover:bg-white/5">
-                                            {{ strtoupper($category->name) }}
-                                        </div>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Ukuran Jersey <span class="text-red-400">*</span></label>
-                                <div class="grid grid-cols-5 gap-2">
-                                    @foreach (['S', 'M', 'L', 'XL', 'XXL'] as $size)
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="jersey_size" value="{{ $size }}" class="peer hidden" @checked(old('jersey_size') === $size) required>
-                                        <div class="flex items-center justify-center rounded-xl border border-white/10 bg-background-dark py-3 text-sm font-bold text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary hover:bg-white/5">
-                                            {{ $size }}
-                                        </div>
-                                    </label>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Step 4: Pembayaran & Upload --}}
-                <div x-show="currentStep === 3" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
-                    <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6 sm:p-8">
-                        <h2 class="text-xl font-bold text-white mb-1 font-display">Pembayaran & Upload</h2>
-                        <p class="text-sm text-gray-500 mb-6">Transfer biaya pendaftaran lalu upload bukti</p>
-
-                        {{-- Bank Account Info --}}
-                        <div class="mb-6 rounded-xl border border-primary/20 bg-primary/5 p-5">
-                            <div class="flex items-start gap-4">
-                                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                                    <x-heroicon-o-credit-card class="h-5 w-5 text-primary" />
-                                </div>
-                                <div class="flex-1">
-                                    <p class="text-xs font-bold uppercase tracking-widest text-primary mb-2">Transfer Pembayaran</p>
-                                    <div class="rounded-lg bg-background-dark px-4 py-3 mb-2">
-                                        <p class="text-xs text-gray-500 mb-1">Nomor Rekening</p>
-                                        <p class="text-xl font-black text-white font-mono tracking-wider">{{ $event->bank_account ?? '-' }}</p>
-                                    </div>
-                                    <div class="flex items-baseline gap-2">
-                                        <span class="text-sm text-gray-400">Jumlah:</span>
-                                        <span class="text-lg font-bold text-white">Rp {{ number_format($event->price, 0, ',', '.') }}</span>
-                                    </div>
-                                    @if($event->contact)
-                                    <p class="mt-2 text-xs text-gray-500">Konfirmasi ke panitia: <span class="text-gray-300 font-semibold">{{ $event->contact }}</span></p>
-                                    @endif
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid gap-5">
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Upload KTP <span class="text-red-400">*</span></label>
-                                <div class="relative">
-                                    <input name="ktp_file" type="file" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary focus:outline-none" accept=".jpg,.jpeg,.png,.pdf" required>
-                                </div>
-                                <p class="mt-1 text-xs text-gray-500">Format: JPG, PNG, atau PDF (maks 2MB)</p>
-                            </div>
-                            <div>
-                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Upload Bukti Transfer <span class="text-red-400">*</span></label>
-                                <div class="relative">
-                                    <input name="transfer_proof" type="file" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary focus:outline-none" accept=".jpg,.jpeg,.png,.pdf" required>
-                                </div>
-                                <p class="mt-1 text-xs text-gray-500">Screenshot/foto bukti transfer pembayaran</p>
-                            </div>
-                        </div>
-                    </div>
+                {{-- Final Step: Informasi Setelah Submit --}}
+                <div x-show="currentStep === 2" class="mt-6 rounded-2xl border border-primary/20 bg-primary/5 p-5 text-sm text-gray-300">
+                    <p class="font-bold text-white">Setelah kirim pendaftaran:</p>
+                    <p class="mt-2 leading-relaxed">Kami akan meninjau data pendaftaran Anda terlebih dahulu. Jika disetujui, link pembayaran akan dikirim ke email. Setelah pembayaran direview dan disetujui admin, Anda akan menerima email berisi bukti pendaftaran, nomor BIB, dan QR code.</p>
                 </div>
 
                 {{-- Navigation Buttons --}}
@@ -227,12 +257,12 @@
                     </button>
                     <div x-show="currentStep === 0"></div>
 
-                    <button type="button" x-show="currentStep < 3" @click="nextStep()" class="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.2)] transition-all hover:bg-primary-hover active:scale-95">
+                    <button type="button" x-show="currentStep < 2" @click="nextStep()" class="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.2)] transition-all hover:bg-primary-hover active:scale-95">
                         Selanjutnya
                         <x-heroicon-o-arrow-right class="h-4 w-4" />
                     </button>
 
-                    <button type="submit" x-show="currentStep === 3" data-loading-label="Mengirim..." class="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.3)] transition-all hover:bg-primary-hover active:scale-95">
+                    <button type="submit" x-show="currentStep === 2" data-loading-label="Mengirim..." class="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-3 text-sm font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.3)] transition-all hover:bg-primary-hover active:scale-95">
                         <x-heroicon-o-check-circle class="h-4 w-4" />
                         Kirim Pendaftaran
                     </button>
@@ -242,12 +272,25 @@
     </section>
 
     <script>
-        function registrationForm() {
+        function registrationForm(categoryPrices, initialDistanceCategory = '') {
             return {
                 currentStep: 0,
-                steps: ['Data Diri', 'Kontak', 'Lomba', 'Bayar'],
+                steps: ['Lomba', 'Data Diri', 'Kontak'],
+                selectedDistanceCategory: initialDistanceCategory,
+                categoryPrices,
+                get selectedCategoryPriceLabel() {
+                    if (!this.selectedDistanceCategory || !this.categoryPrices[this.selectedDistanceCategory]) {
+                        return 'Pilih kategori jarak terlebih dahulu';
+                    }
+
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        maximumFractionDigits: 0,
+                    }).format(this.categoryPrices[this.selectedDistanceCategory]);
+                },
                 nextStep() {
-                    if (this.currentStep < 3) {
+                    if (this.currentStep < 2) {
                         this.currentStep++;
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }

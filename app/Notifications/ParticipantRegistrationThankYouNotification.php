@@ -25,10 +25,12 @@ class ParticipantRegistrationThankYouNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
+        $participant = $this->participant->loadMissing('event');
+
         return (new MailMessage())
-            ->subject('Terima kasih telah mendaftar')
+            ->subject('Pendaftaran berhasil diterima')
             ->view('emails.participant-registration-thank-you', [
-                'participantName' => $this->participant->name,
+                'participant' => $participant,
             ]);
     }
 }

@@ -30,12 +30,12 @@ class ParticipantRejectedNotification extends Notification
             ->view('emails.participant-status-updated', [
                 'participant' => $participant,
                 'statusTitle' => 'Pendaftaran Ditolak',
-                'statusBadge' => 'DITOLAK',
+                'statusBadge' => 'PENDAFTARAN DITOLAK',
                 'statusColor' => '#b91c1c',
                 'statusBackground' => '#fef2f2',
                 'introLines' => [
                     'Mohon maaf, pendaftaran Anda di Samawa Run belum dapat kami verifikasi.',
-                    'Berikut detail data pendaftaran yang tercatat pada sistem kami.',
+                    'Silakan periksa kembali data pendaftaran Anda atau hubungi panitia jika membutuhkan bantuan.',
                 ],
                 'footerMessage' => 'Jika Anda memerlukan bantuan lebih lanjut, silakan hubungi panitia Samawa Run.',
                 'barcode' => null,

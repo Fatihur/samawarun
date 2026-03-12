@@ -4,57 +4,65 @@
     <meta charset="UTF-8">
     <title>Struk Pendaftaran Peserta</title>
     <style>
+        @page {
+            margin: 6px 8px 10px;
+        }
+
         body {
             font-family: DejaVu Sans, sans-serif;
-            color: #1f2937;
+            color: #111827;
             margin: 0;
-            padding: 24px;
-            background: #f8fafc;
+            font-size: 8px;
+            line-height: 1.25;
         }
 
-        .card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            border-radius: 18px;
-            overflow: hidden;
+        .receipt {
+            border: 1px dashed #6b7280;
+            padding: 8px 6px 10px;
         }
 
-        .header {
-            background: #0f766e;
-            color: #ffffff;
-            padding: 24px;
+        .center {
             text-align: center;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
+        .brand {
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
-        .header p {
-            margin: 8px 0 0;
-            font-size: 12px;
-        }
-
-        .content {
-            padding: 24px;
+        .subtitle {
+            margin-top: 2px;
+            font-size: 7px;
+            color: #4b5563;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
         .badge {
+            margin: 6px auto 0;
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #047857;
-            background: #ecfdf5;
-            margin-bottom: 16px;
+            padding: 2px 7px;
+            border: 1px solid #111827;
+            color: #111827;
+            font-size: 7px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .divider {
+            border-top: 1px dashed #4b5563;
+            margin: 8px 0;
         }
 
         .section-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin: 0 0 16px;
+            margin: 0 0 5px;
+            font-size: 7px;
+            font-weight: 700;
+            color: #6b7280;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         table {
@@ -63,155 +71,126 @@
         }
 
         td {
-            width: 50%;
+            padding: 0 0 4px;
             vertical-align: top;
-            padding: 0 0 14px;
         }
 
-        .label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #94a3b8;
-            font-weight: bold;
+        .label-col {
+            width: 38%;
+            color: #6b7280;
+            padding-right: 6px;
         }
 
-        .value {
-            margin-top: 4px;
-            font-size: 14px;
-            color: #0f172a;
+        .value-col {
+            width: 62%;
+            text-align: right;
+            font-weight: 700;
+            color: #111827;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
         }
 
         .bib {
-            font-size: 20px;
-            font-weight: bold;
-            color: #0f766e;
+            font-size: 11px;
+            color: #111827;
+            letter-spacing: 0.08em;
         }
 
-        .barcode-wrap {
-            margin-top: 18px;
-            padding: 18px;
-            border: 1px solid #d1fae5;
-            background: #f0fdf4;
-            border-radius: 16px;
+        .amount {
+            font-size: 10px;
+            color: #111827;
+        }
+
+        .qr-wrap {
+            border: 1px dashed #6b7280;
+            padding: 8px 6px;
             text-align: center;
         }
 
-        .barcode-wrap img {
-            width: 280px;
-            max-width: 100%;
-            height: auto;
+        .qr-wrap img {
+            width: 92px;
+            height: 92px;
         }
 
-        .barcode-text {
-            margin-top: 10px;
-            font-size: 12px;
-            letter-spacing: 0.16em;
-            font-weight: bold;
-            color: #065f46;
+        .qr-code {
+            margin-top: 4px;
+            font-size: 8px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: #111827;
+        }
+
+        .muted {
+            color: #6b7280;
+        }
+
+        .receipt-note {
+            text-align: center;
+            font-size: 7px;
+            color: #4b5563;
+            line-height: 1.35;
         }
 
         .footer {
-            margin-top: 18px;
-            font-size: 12px;
-            color: #475569;
-            line-height: 1.7;
+            margin-top: 8px;
+            font-size: 7px;
+            color: #4b5563;
+            text-align: center;
+            line-height: 1.35;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="header">
-            <h1>Samawa Run</h1>
-            <p>Struk Pendaftaran Peserta</p>
+    <div class="receipt">
+        <div class="center">
+            <div class="brand">Samawa Run</div>
+            <div class="subtitle">Struk Pendaftaran Peserta</div>
+            <div class="badge">TERVERIFIKASI</div>
+            <div class="receipt-note" style="margin-top:6px;">
+                {{ $participant->event?->name ?? '-' }}<br>
+                {{ $participant->event?->date?->format('d M Y') ?? '-' }} {{ $participant->event?->location ? ' - '.$participant->event->location : '' }}
+            </div>
         </div>
 
-        <div class="content">
-            <div class="badge">TERVERIFIKASI</div>
-            <p class="section-title">Detail Peserta</p>
+        <div class="divider"></div>
 
+        <div>
+            <p class="section-title">Ringkasan</p>
             <table>
-                <tr>
-                    <td>
-                        <div class="label">Nama</div>
-                        <div class="value">{{ $participant->name }}</div>
-                    </td>
-                    <td>
-                        <div class="label">Email</div>
-                        <div class="value">{{ $participant->email }}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="label">Telepon</div>
-                        <div class="value">{{ $participant->phone }}</div>
-                    </td>
-                    <td>
-                        <div class="label">Jenis Kelamin</div>
-                        <div class="value">{{ $participant->gender === 'male' ? 'Laki-laki' : 'Perempuan' }}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="label">Tanggal Lahir</div>
-                        <div class="value">{{ $participant->birth_date?->format('d M Y') ?? '-' }}</div>
-                    </td>
-                    <td>
-                        <div class="label">NIK</div>
-                        <div class="value">{{ $participant->nik }}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="label">Event</div>
-                        <div class="value">{{ $participant->event?->name ?? '-' }}</div>
-                    </td>
-                    <td>
-                        <div class="label">Tanggal Event</div>
-                        <div class="value">{{ $participant->event?->date?->format('d M Y') ?? '-' }}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="label">Lokasi</div>
-                        <div class="value">{{ $participant->event?->location ?? '-' }}</div>
-                    </td>
-                    <td>
-                        <div class="label">Kategori Jarak</div>
-                        <div class="value">{{ $participant->distance_category }}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="label">Ukuran Jersey</div>
-                        <div class="value">{{ $participant->jersey_size }}</div>
-                    </td>
-                    <td>
-                        <div class="label">Kontak Darurat</div>
-                        <div class="value">{{ $participant->emergency_contact_display }}</div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="label">BIB</div>
-                        <div class="value bib">{{ $participant->bib_number ?? '-' }}</div>
-                    </td>
-                    <td>
-                        <div class="label">Status</div>
-                        <div class="value">TERVERIFIKASI</div>
-                    </td>
-                </tr>
+                <tr><td class="label-col">Nama</td><td class="value-col">{{ $participant->name }}</td></tr>
+                <tr><td class="label-col">No. BIB</td><td class="value-col bib">{{ $participant->bib_number ?? '-' }}</td></tr>
+                <tr><td class="label-col">Status</td><td class="value-col">PEMBAYARAN DISETUJUI</td></tr>
+                <tr><td class="label-col">Nominal</td><td class="value-col amount">{{ $participant->formatted_payment_amount }}</td></tr>
+                <tr><td class="label-col">Kategori</td><td class="value-col">{{ $participant->distance_category }}</td></tr>
+                <tr><td class="label-col">Jersey</td><td class="value-col">{{ $participant->jersey_size }}</td></tr>
             </table>
+        </div>
 
-            <div class="barcode-wrap">
-                <div style="font-size: 14px; font-weight: bold; color: #065f46; margin-bottom: 10px;">QR Code Peserta</div>
-                <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta">
-                <div class="barcode-text">{{ $barcodeValue }}</div>
-            </div>
+        <div class="divider"></div>
 
-            <div class="footer">
-                Simpan dokumen ini sebagai bukti pendaftaran. Tunjukkan QR Code dan BIB saat diperlukan pada hari pelaksanaan.
-            </div>
+        <div>
+            <p class="section-title">Data Peserta</p>
+            <table>
+                <tr><td class="label-col">Email</td><td class="value-col">{{ $participant->email }}</td></tr>
+                <tr><td class="label-col">Telepon</td><td class="value-col">{{ $participant->phone }}</td></tr>
+                <tr><td class="label-col">Gender</td><td class="value-col">{{ $participant->gender === 'male' ? 'Laki-laki' : 'Perempuan' }}</td></tr>
+                <tr><td class="label-col">Tgl. Lahir</td><td class="value-col">{{ $participant->birth_date?->format('d M Y') ?? '-' }}</td></tr>
+                <tr><td class="label-col">NIK</td><td class="value-col">{{ $participant->nik }}</td></tr>
+                <tr><td class="label-col">Kontak Darurat</td><td class="value-col">{{ $participant->emergency_contact_display }}</td></tr>
+            </table>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="qr-wrap">
+            <div style="font-size:7px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#111827;">QR Code Peserta</div>
+            <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta">
+            <div class="qr-code">{{ $barcodeValue }}</div>
+        </div>
+
+        <div class="footer">
+            Simpan struk ini sebagai bukti pendaftaran resmi.<br>
+            Tunjukkan QR Code dan nomor BIB saat diperlukan.
         </div>
     </div>
 </body>

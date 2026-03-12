@@ -52,7 +52,9 @@
                                 <form action="{{ route('admin.distance-categories.update', $category) }}" method="POST" class="flex items-center gap-2" data-loading-title="Memperbarui kategori" data-loading-message="Perubahan kategori jarak sedang disimpan...">
                                     @csrf @method('PUT')
                                     <input type="text" name="name" value="{{ $category->name }}" class="rounded-lg border border-transparent hover:border-slate-200 focus:border-brand-500 focus:ring-brand-500 bg-transparent hover:bg-white px-2 py-1 text-sm font-semibold transition-all w-32" required>
-                                    <button type="submit" data-loading-label="Menyimpan..." class="invisible group-hover:visible text-xs font-bold text-brand-600 hover:text-brand-700">Simpan</button>
+                                    <button type="submit" data-loading-label="Menyimpan..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-700" title="Simpan" aria-label="Simpan perubahan kategori {{ $category->name }}">
+                                        <x-heroicon-o-check class="h-4 w-4" />
+                                    </button>
                                 </form>
                             </td>
                             <td class="px-6 py-4">
@@ -66,7 +68,7 @@
                             <td class="px-6 py-4 text-right">
                                 <form action="{{ route('admin.distance-categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Yakin hapus kategori ini? Semua event yang menggunakan kategori ini akan terdampak.')" data-loading-title="Menghapus kategori" data-loading-message="Kategori jarak sedang dihapus...">
                                     @csrf @method('DELETE')
-                                    <button type="submit" data-loading-label="Menghapus..." class="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus">
+                                    <button type="submit" data-loading-label="Menghapus..." class="inline-flex items-center justify-center rounded-lg bg-red-50 p-2 text-red-600 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus" aria-label="Hapus kategori {{ $category->name }}">
                                         <x-heroicon-o-trash class="h-4 w-4" />
                                     </button>
                                 </form>

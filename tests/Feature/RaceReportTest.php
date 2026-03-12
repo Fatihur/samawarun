@@ -47,6 +47,7 @@ class RaceReportTest extends TestCase
             'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_FATHER,
             'transfer_proof' => 'participants/payments/a.jpg',
             'status' => Participant::STATUS_VERIFIED,
+            'workflow_status' => Participant::WORKFLOW_COMPLETED,
             'race_finished_at' => now(),
             'race_duration_seconds' => 3600,
         ]);
@@ -94,6 +95,7 @@ class RaceReportTest extends TestCase
             'emergency_contact_relationship' => Participant::EMERGENCY_RELATIONSHIP_MOTHER,
             'transfer_proof' => 'participants/payments/b.jpg',
             'status' => Participant::STATUS_VERIFIED,
+            'workflow_status' => Participant::WORKFLOW_COMPLETED,
         ]);
 
         $response = $this->actingAs($admin)->get(route('admin.race-reports.export'));

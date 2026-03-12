@@ -17,7 +17,7 @@
         <div class="absolute inset-0 bg-gradient-to-t from-background-dark via-background-dark/80 to-transparent"></div>
         <div class="relative z-10 flex h-full flex-col justify-end px-6 py-12 lg:px-20 lg:pb-16">
             <div class="mx-auto w-full max-w-6xl">
-                <a href="{{ route('events.index') }}" class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-primary transition-colors">
+                <a href="{{ route('events.index') }}" wire:navigate class="mb-6 inline-flex items-center gap-2 text-sm font-bold text-gray-400 hover:text-primary transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
                     Kembali ke Daftar Event
                 </a>
@@ -110,9 +110,14 @@
                      <div class="overflow-hidden rounded-2xl border border-white/10 bg-secondary-dark p-6 shadow-2xl">
                         <div class="mb-6 flex flex-col gap-1 border-b border-white/5 pb-6">
                             <p class="text-sm font-medium text-gray-400">Biaya Pendaftaran</p>
-                            <div class="flex items-baseline gap-1">
-                                <span class="text-3xl font-black text-white">Rp {{ number_format($event->price, 0, ',', '.') }}</span>
-                                <span class="text-xs text-gray-500">/ pax</span>
+                            <span class="text-3xl font-black text-white">{{ $event->price_summary }}</span>
+                            <div class="mt-4 space-y-2">
+                                @foreach ($event->category_price_list as $categoryPrice)
+                                    <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
+                                        <span class="font-bold text-white">{{ $categoryPrice['name'] }}</span>
+                                        <span class="font-semibold text-primary">{{ $categoryPrice['formatted_price'] }}</span>
+                                    </div>
+                                @endforeach
                             </div>
                         </div>
                         <div class="mb-6 rounded-xl bg-primary/10 p-4 border border-primary/20">
@@ -131,7 +136,7 @@
                             </div>
                         @endif
                         @if ($isRegistrationOpen)
-                            <a href="{{ route('registrations.create', $event) }}" class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary py-4 text-center text-lg font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.2)] transition-all hover:bg-primary-hover active:scale-95">
+                            <a href="{{ route('registrations.create', $event) }}" wire:navigate class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-primary py-4 text-center text-lg font-bold text-background-dark shadow-[0_0_20px_rgba(48,232,122,0.2)] transition-all hover:bg-primary-hover active:scale-95">
                                 Daftar Sekarang
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-5 w-5"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
                             </a>

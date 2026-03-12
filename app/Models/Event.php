@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Carbon;
 
 class Event extends Model
@@ -86,6 +87,80 @@ class Event extends Model
 
     public function distanceCategories(): BelongsToMany
     {
-        return $this->belongsToMany(DistanceCategory::class);
+        return $this->belongsToMany(DistanceCategory::class)
+            ->withPivot('price')
+            ->withTimestamps();
+    }
+
+    public function getPriceSummaryAttribute(): string
+    {
+        $prices = $this->categoryPrices();
+
+        if ($prices->isEmpty()) {
+            return $this->formatCurrency((float) $this->price);
+        }
+
+        $minPrice = (float) $prices->min();
+        $maxPrice = (float) $prices->max();
+
+        if ($minPrice === $maxPrice) {
+            return $this->formatCurrency($minPrice);
+        }
+
+        return 'Mulai dari '.$this->formatCurrency($minPrice);
+    }
+
+    public function getPriceRangeAttribute(): string
+    {
+        $prices = $this->categoryPrices();
+
+        if ($prices->isEmpty()) {
+            return $this->formatCurrency((float) $this->price);
+        }
+
+        $minPrice = (float) $prices->min();
+        $maxPrice = (float) $prices->max();
+
+        if ($minPrice === $maxPrice) {
+            return $this->formatCurrency($minPrice);
+        }
+
+        return $this->formatCurrency($minPrice).' - '.$this->formatCurrency($maxPrice);
+    }
+
+    public function getCategoryPriceListAttribute(): Collection
+    {
+        return $this->distanceCategories
+            ->map(function (DistanceCategory $category): array {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'price' => (float) ($category->pivot?->price ?? $this->price ?? 0),
+                    'formatted_price' => $this->formatCurrency((float) ($category->pivot?->price ?? $this->price ?? 0)),
+                ];
+            })
+            ->values();
+    }
+
+    public function priceForDistanceCategory(string $distanceCategory): float
+    {
+        $match = $this->distanceCategories
+            ->first(fn (DistanceCategory $category): bool => strtoupper($category->name) === strtoupper($distanceCategory));
+
+        return (float) ($match?->pivot?->price ?? $this->price ?? 0);
+    }
+
+    private function categoryPrices(): Collection
+    {
+        return $this->distanceCategories
+            ->pluck('pivot.price')
+            ->filter(fn ($price): bool => $price !== null)
+            ->map(fn ($price): float => (float) $price)
+            ->values();
+    }
+
+    private function formatCurrency(float $amount): string
+    {
+        return 'Rp '.number_format($amount, 0, ',', '.');
     }
 }

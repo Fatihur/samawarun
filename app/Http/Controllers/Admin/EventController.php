@@ -37,9 +37,7 @@ class EventController extends Controller
         $validated['event_code'] = $this->generateEventCode($validated['date']);
         $event = Event::create($validated);
 
-        if ($request->has('distance_categories')) {
-            $event->distanceCategories()->attach($request->distance_categories);
-        }
+        $event->distanceCategories()->sync($this->buildDistanceCategoryPayload($request));
 
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil ditambahkan.');
     }
@@ -61,8 +59,8 @@ class EventController extends Controller
         }
 
         $event->update($validated);
-        
-        $event->distanceCategories()->sync($request->distance_categories ?? []);
+
+        $event->distanceCategories()->sync($this->buildDistanceCategoryPayload($request));
 
         return redirect()->route('admin.events.index')->with('success', 'Event berhasil diperbarui.');
     }
@@ -84,19 +82,56 @@ class EventController extends Controller
             'start_time' => ['nullable', 'date_format:H:i'],
             'registration_deadline' => ['nullable', 'date'],
             'location' => ['required', 'string', 'max:255'],
-            'price' => ['required', 'numeric', 'min:0'],
+            'price' => ['nullable', 'numeric', 'min:0'],
             'contact' => ['nullable', 'string', 'max:255'],
             'bank_account' => ['nullable', 'string', 'max:255'],
             'is_active' => ['nullable', 'boolean'],
-            'distance_categories' => ['nullable', 'array'],
+            'distance_categories' => ['required', 'array', 'min:1'],
             'distance_categories.*' => ['exists:distance_categories,id'],
+            'category_prices' => ['required', 'array'],
+            'category_prices.*' => ['nullable', 'numeric', 'min:0'],
         ], [
             'name.required' => 'Nama event wajib diisi.',
+            'distance_categories.required' => 'Pilih minimal satu kategori jarak.',
         ]);
 
+        foreach ($request->input('distance_categories', []) as $categoryId) {
+            $price = $request->input('category_prices.'.$categoryId);
+
+            if ($price === null || $price === '') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'category_prices.'.$categoryId => 'Harga wajib diisi untuk setiap kategori jarak yang dipilih.',
+                ]);
+            }
+        }
+
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['price'] = $this->resolveBasePrice($request);
 
         return $validated;
+    }
+
+    private function buildDistanceCategoryPayload(Request $request): array
+    {
+        $payload = [];
+
+        foreach ($request->input('distance_categories', []) as $categoryId) {
+            $payload[(int) $categoryId] = [
+                'price' => (float) $request->input('category_prices.'.$categoryId),
+            ];
+        }
+
+        return $payload;
+    }
+
+    private function resolveBasePrice(Request $request): float
+    {
+        $selectedPrices = collect($request->input('distance_categories', []))
+            ->map(fn ($categoryId) => $request->input('category_prices.'.$categoryId))
+            ->filter(fn ($price) => $price !== null && $price !== '')
+            ->map(fn ($price): float => (float) $price);
+
+        return (float) ($selectedPrices->min() ?? 0);
     }
 
     private function generateEventCode(string $date): string

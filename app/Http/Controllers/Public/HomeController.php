@@ -18,6 +18,7 @@ class HomeController extends Controller
             'upcomingEvents' => Event::query()
                 ->where('is_active', true)
                 ->whereDate('date', '>=', now()->toDateString())
+                ->with('distanceCategories')
                 ->orderBy('date')
                 ->limit(6)
                 ->get(),
@@ -27,4 +28,3 @@ class HomeController extends Controller
         ]);
     }
 }
-

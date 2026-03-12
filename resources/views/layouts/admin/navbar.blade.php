@@ -59,7 +59,7 @@
 
                 <div class="max-h-96 overflow-y-auto">
                     @forelse(Auth::user()->unreadNotifications as $notification)
-                        <a href="{{ route('admin.notifications.read', $notification->id) }}" class="block border-b border-slate-50 px-4 py-4 transition-colors hover:bg-slate-50">
+                        <a href="{{ route('admin.notifications.read', $notification->id) }}" wire:navigate class="block border-b border-slate-50 px-4 py-4 transition-colors hover:bg-slate-50">
                             <div class="flex items-start gap-3">
                                 <div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600">
                                     <x-heroicon-s-user-plus class="h-4 w-4" />
@@ -106,7 +106,7 @@
                     <p class="truncate text-xs font-medium text-slate-500">{{ Auth::user()->email ?? 'admin@samawa.run' }}</p>
                 </div>
                 <div class="py-1">
-                    <a href="{{ route('admin.profile.edit') }}" class="flex items-center px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-brand-600">
+                    <a href="{{ route('admin.profile.edit') }}" wire:navigate wire:current="bg-slate-50 text-brand-600" class="flex items-center px-4 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-brand-600">
                         <x-heroicon-o-user class="mr-3 h-4 w-4" />
                         Edit Profil
                     </a>
