@@ -73,6 +73,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/participants/export', [AdminParticipantController::class, 'export'])->name('participants.export');
         Route::get('/participants/export-pdf', [AdminParticipantController::class, 'exportPdf'])->name('participants.export_pdf');
         Route::get('/race-reports', [AdminRaceReportController::class, 'index'])->name('race-reports.index');
+        Route::get('/race-reports/data', [AdminRaceReportController::class, 'data'])->name('race-reports.data');
         Route::get('/race-reports/export', [AdminRaceReportController::class, 'export'])->name('race-reports.export');
         Route::get('/race-reports/export-pdf', [AdminRaceReportController::class, 'exportPdf'])->name('race-reports.export-pdf');
         Route::get('/certificates/data', [AdminCertificateController::class, 'data'])->name('certificates.data');

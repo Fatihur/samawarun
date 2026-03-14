@@ -10,23 +10,74 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Yajra\DataTables\DataTables;
 
 class RaceReportController extends Controller
 {
     public function index(Request $request): View
     {
-        $participants = $this->buildQuery($request)
-            ->latest()
-            ->get();
-
         $baseQuery = $this->buildQuery($request);
 
         return view('admin.race-reports.index', [
-            'participants' => $participants,
             'events' => Event::query()->orderByDesc('date')->get(),
             'recordedCount' => (clone $baseQuery)->whereNotNull('race_finished_at')->count(),
             'unrecordedCount' => (clone $baseQuery)->whereNull('race_finished_at')->count(),
         ]);
+    }
+
+    public function data(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $query = $this->buildQuery($request);
+
+        // Handle DataTables global search
+        $searchValue = $request->input('search.value');
+        if (!empty($searchValue)) {
+            $query->where(function ($q) use ($searchValue): void {
+                $q->where('name', 'like', '%' . $searchValue . '%')
+                  ->orWhere('email', 'like', '%' . $searchValue . '%')
+                  ->orWhere('bib_number', 'like', '%' . $searchValue . '%')
+                  ->orWhere('distance_category', 'like', '%' . $searchValue . '%')
+                  ->orWhereHas('event', function ($q) use ($searchValue): void {
+                      $q->where('name', 'like', '%' . $searchValue . '%');
+                  });
+            });
+        }
+
+        return DataTables::of($query)
+            ->addColumn('name_email', function (Participant $participant): string {
+                return '<p class="font-bold text-slate-800">' . e($participant->name) . '</p>' .
+                       '<p class="text-xs text-slate-500">' . e($participant->email) . '</p>';
+            })
+            ->addColumn('event_name', function (Participant $participant): string {
+                return e($participant->event?->name ?? 'N/A');
+            })
+            ->addColumn('bib_number_display', function (Participant $participant): string {
+                return '<span class="font-mono font-bold text-slate-700">' . e($participant->bib_number ?? '-') . '</span>';
+            })
+            ->addColumn('distance_badge', function (Participant $participant): string {
+                return '<span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">' . e($participant->distance_category) . '</span>';
+            })
+            ->addColumn('status_label', function (Participant $participant): string {
+                return match ($participant->status) {
+                    Participant::STATUS_VERIFIED => '<span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Verified</span>',
+                    Participant::STATUS_REJECTED => '<span class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">Rejected</span>',
+                    default => '<span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Pending</span>',
+                };
+            })
+            ->addColumn('race_status_label', function (Participant $participant): string {
+                if ($participant->race_finished_at) {
+                    return '<span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Sudah Dicatat</span>';
+                }
+                return '<span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Belum Dicatat</span>';
+            })
+            ->addColumn('finish_time_formatted', function (Participant $participant): string {
+                return $participant->race_finished_at ? $participant->race_finished_at->format('d M Y H:i:s') : '-';
+            })
+            ->addColumn('duration_display', function (Participant $participant): string {
+                return '<span class="font-mono font-bold text-slate-700">' . e($participant->formatted_race_duration ?? '-') . '</span>';
+            })
+            ->rawColumns(['name_email', 'bib_number_display', 'distance_badge', 'status_label', 'race_status_label', 'duration_display'])
+            ->make(true);
     }
 
     public function export(Request $request): StreamedResponse

@@ -18,7 +18,7 @@
         </div>
     </div>
 
-    <form method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4">
+    <form id="filter-form" method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4">
         <select name="event_id" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
             <option value="">Semua Event</option>
             @foreach ($events as $event)
@@ -41,7 +41,7 @@
     <div class="mb-6 grid gap-4 md:grid-cols-3">
         <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total Data</p>
-            <p class="mt-2 text-3xl font-black text-slate-800">{{ $participants->count() }}</p>
+            <p id="total-count" class="mt-2 text-3xl font-black text-slate-800">-</p>
         </div>
         <div class="rounded-2xl border border-emerald-100 bg-emerald-50 p-5 shadow-sm">
             <p class="text-xs font-bold uppercase tracking-wider text-emerald-500">Sudah Dicatat</p>
@@ -54,7 +54,7 @@
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <table class="datatable w-full text-left text-sm">
+        <table id="race-reports-table" class="w-full text-left text-sm">
             <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                     <th class="px-5 py-4">Peserta</th>
@@ -67,45 +67,65 @@
                     <th class="px-5 py-4">Durasi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach ($participants as $participant)
-                    <tr class="transition-colors hover:bg-slate-50/50">
-                        <td class="px-5 py-4">
-                            <p class="font-bold text-slate-800">{{ $participant->name }}</p>
-                            <p class="text-xs text-slate-500">{{ $participant->email }}</p>
-                        </td>
-                        <td class="px-5 py-4 font-semibold text-slate-600">{{ $participant->event?->name ?? 'N/A' }}</td>
-                        <td class="px-5 py-4 font-mono font-bold text-slate-700">{{ $participant->bib_number ?? '-' }}</td>
-                        <td class="px-5 py-4 text-center">
-                            <span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">{{ $participant->distance_category }}</span>
-                        </td>
-                        <td class="px-5 py-4">
-                            @if ($participant->status === \App\Models\Participant::STATUS_PENDING)
-                                <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Pending</span>
-                            @elseif ($participant->status === \App\Models\Participant::STATUS_VERIFIED)
-                                <span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Verified</span>
-                            @else
-                                <span class="inline-flex items-center rounded-full border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700">Rejected</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-4">
-                            @if ($participant->race_finished_at)
-                                <span class="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Sudah Dicatat</span>
-                            @else
-                                <span class="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700">Belum Dicatat</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-4 text-sm text-slate-600">{{ $participant->race_finished_at?->format('d M Y H:i:s') ?? '-' }}</td>
-                        <td class="px-5 py-4 font-mono font-bold text-slate-700">{{ $participant->formatted_race_duration ?? '-' }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
         </table>
-
-        @if ($participants->isEmpty())
-            <div class="border-t border-slate-100 px-5 py-10 text-center text-sm text-slate-500">
-                Belum ada data peserta yang sesuai filter laporan race.
-            </div>
-        @endif
     </div>
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            const table = $('#race-reports-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route("admin.race-reports.data") }}',
+                    data: function(d) {
+                        d.event_id = $('select[name="event_id"]').val();
+                        d.timing_status = $('select[name="timing_status"]').val();
+                    },
+                    dataSrc: function(json) {
+                        // Update total count from recordsTotal
+                        $('#total-count').text(json.recordsTotal.toLocaleString('id-ID'));
+                        return json.data;
+                    }
+                },
+                columns: [
+                    { data: 'name_email', name: 'name' },
+                    { data: 'event_name', name: 'event.name' },
+                    { data: 'bib_number_display', name: 'bib_number' },
+                    { data: 'distance_badge', name: 'distance_category', searchable: false },
+                    { data: 'status_label', name: 'status', searchable: false },
+                    { data: 'race_status_label', name: 'race_finished_at', searchable: false },
+                    { data: 'finish_time_formatted', name: 'race_finished_at' },
+                    { data: 'duration_display', name: 'race_duration_seconds', searchable: false }
+                ],
+                order: [[0, 'asc']],
+                pageLength: 25,
+                language: {
+                    processing: 'Memuat data...',
+                    search: 'Cari:',
+                    lengthMenu: 'Tampilkan _MENU_ data',
+                    info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    infoEmpty: 'Menampilkan 0 sampai 0 dari 0 data',
+                    infoFiltered: '(disaring dari _MAX_ total data)',
+                    paginate: {
+                        first: 'Pertama',
+                        last: 'Terakhir',
+                        next: 'Selanjutnya',
+                        previous: 'Sebelumnya'
+                    },
+                    emptyTable: 'Tidak ada data peserta',
+                    zeroRecords: 'Tidak ditemukan data yang sesuai'
+                }
+            });
+
+            // Reload table when filter form submits
+            $('#filter-form').on('submit', function(e) {
+                e.preventDefault();
+                table.ajax.reload();
+            });
+        });
+    </script>
 @endsection
