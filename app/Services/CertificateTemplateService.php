@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\CertificateTemplate;
 use App\Models\Participant;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -127,7 +129,10 @@ class CertificateTemplateService
         $backgroundBase64 = $this->getBackgroundBase64($template);
         $resolvedElements = $this->resolveElements($template, $participant);
 
-        // Build font CSS for custom fonts
+        // Register custom fonts with DomPDF
+        $this->registerFontsWithDompdf($template->text_elements ?? []);
+
+        // Build font CSS
         $fontCss = $this->buildFontCss($template->text_elements ?? []);
 
         return PDF::loadView('admin.certificates.certificate-pdf', [
@@ -148,7 +153,10 @@ class CertificateTemplateService
             $pages[] = ['elements' => $this->resolveElements($template, $participant)];
         }
 
-        // Build font CSS for custom fonts
+        // Register custom fonts with DomPDF
+        $this->registerFontsWithDompdf($template->text_elements ?? []);
+
+        // Build font CSS
         $fontCss = $this->buildFontCss($template->text_elements ?? []);
 
         return PDF::loadView('admin.certificates.certificate-pdf', [
@@ -240,6 +248,91 @@ class CertificateTemplateService
         }
 
         return $css;
+    }
+
+    private function registerFontsWithDompdf(array $elements): void
+    {
+        $usedFamilies = collect($elements)
+            ->pluck('fontFamily')
+            ->filter()
+            ->unique()
+            ->toArray();
+
+        // Exclude system fonts
+        $systemFonts = ['dejavu sans', 'dejavu serif', 'dejavu sans mono', 'helvetica', 'times', 'courier'];
+        $usedFamilies = array_diff($usedFamilies, $systemFonts);
+
+        if (empty($usedFamilies)) {
+            return;
+        }
+
+        $fontDir = storage_path('fonts');
+
+        if (! is_dir($fontDir)) {
+            return;
+        }
+
+        // Configure DomPDF options
+        $options = new Options();
+        $options->set('fontDir', $fontDir);
+        $options->set('fontCache', $fontDir);
+
+        $dompdf = new Dompdf($options);
+        $fontMetrics = $dompdf->getFontMetrics();
+
+        $files = scandir($fontDir);
+
+        foreach ($files as $file) {
+            if (! str_ends_with($file, '.ttf')) {
+                continue;
+            }
+
+            // Skip cached font files (they have hash in name)
+            if (preg_match('/_[a-f0-9]{32}\.ttf$/', $file)) {
+                continue;
+            }
+
+            $nameParts = explode('_', str_replace('.ttf', '', $file));
+            $stylePart = array_pop($nameParts);
+
+            $fontWeight = 'normal';
+            $fontStyle = 'normal';
+
+            if ($stylePart === 'italic') {
+                if (count($nameParts) > 0 && end($nameParts) === 'bold') {
+                    array_pop($nameParts);
+                    $fontWeight = 'bold';
+                    $fontStyle = 'italic';
+                } else {
+                    $fontStyle = 'italic';
+                }
+            } elseif ($stylePart === 'bold') {
+                $fontWeight = 'bold';
+            } elseif ($stylePart !== 'normal') {
+                $nameParts[] = $stylePart;
+            }
+
+            $fontFamily = ucwords(str_replace('_', ' ', implode('_', $nameParts)));
+
+            // Only register fonts that are actually used
+            if (! in_array($fontFamily, $usedFamilies)) {
+                continue;
+            }
+
+            $fontPath = $fontDir . DIRECTORY_SEPARATOR . $file;
+
+            if (! file_exists($fontPath)) {
+                continue;
+            }
+
+            // Register font with DomPDF
+            $fontMetrics->registerFont(
+                ['family' => $fontFamily, 'style' => $fontStyle, 'weight' => $fontWeight],
+                $fontPath
+            );
+        }
+
+        $fontMetrics->saveFontFamilies();
     }
 
     private function getBackgroundBase64(CertificateTemplate $template): ?string
