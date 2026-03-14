@@ -163,6 +163,16 @@
             font-size: 0.875rem;
             color: #cbd5e1;
         }
+
+        /* Exit hint */
+        .exit-hint {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            opacity: 0.6;
+        }
     </style>
 </head>
 <body>
@@ -193,6 +203,7 @@
     </div>
 
     <div class="corner-hint">{{ $event->name }}</div>
+    <div class="exit-hint">Tekan ESC untuk keluar</div>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
@@ -337,6 +348,13 @@
                 startScanner();
             }, 500);
         }
+
+        // ESC key to exit kiosk
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                window.location.href = '{{ route("admin.bib-scan.index") }}';
+            }
+        });
 
         // Auto-start
         startScanner();
