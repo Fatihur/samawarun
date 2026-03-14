@@ -192,6 +192,9 @@ class CertificateTemplateService
         $css = '';
         $files = scandir($fontDir);
 
+        // Group font files by family
+        $fontFiles = [];
+
         foreach ($files as $file) {
             if (! str_ends_with($file, '.ttf')) {
                 continue;
@@ -235,16 +238,54 @@ class CertificateTemplateService
                 continue;
             }
 
-            // Use base64 encoding for cross-platform compatibility
-            $fontData = base64_encode(file_get_contents($fontPath));
-            $fontUrl = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
+            if (! isset($fontFiles[$fontFamily])) {
+                $fontFiles[$fontFamily] = [];
+            }
 
-            $css .= "@font-face {\n";
-            $css .= "    font-family: '{$fontFamily}';\n";
-            $css .= "    src: url('{$fontUrl}') format('truetype');\n";
-            $css .= "    font-weight: {$fontWeight};\n";
-            $css .= "    font-style: {$fontStyle};\n";
-            $css .= "}\n";
+            $fontFiles[$fontFamily][] = [
+                'path' => $fontPath,
+                'weight' => $fontWeight,
+                'style' => $fontStyle,
+            ];
+        }
+
+        // Generate CSS for each font family
+        foreach ($fontFiles as $fontFamily => $variants) {
+            // Find normal variant as fallback
+            $normalVariant = null;
+            foreach ($variants as $variant) {
+                if ($variant['weight'] === 'normal' && $variant['style'] === 'normal') {
+                    $normalVariant = $variant;
+                    break;
+                }
+            }
+
+            // Generate @font-face for each variant
+            foreach ($variants as $variant) {
+                $fontData = base64_encode(file_get_contents($variant['path']));
+                $fontUrl = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
+
+                $css .= "@font-face {\n";
+                $css .= "    font-family: '{$fontFamily}';\n";
+                $css .= "    src: url('{$fontUrl}') format('truetype');\n";
+                $css .= "    font-weight: {$variant['weight']};\n";
+                $css .= "    font-style: {$variant['style']};\n";
+                $css .= "}\n";
+            }
+
+            // For script fonts with only normal variant, also register for bold/italic to prevent fallback
+            if ($normalVariant !== null && count($variants) === 1) {
+                $fontData = base64_encode(file_get_contents($normalVariant['path']));
+                $fontUrl = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
+
+                // Register as bold
+                $css .= "@font-face {\n";
+                $css .= "    font-family: '{$fontFamily}';\n";
+                $css .= "    src: url('{$fontUrl}') format('truetype');\n";
+                $css .= "    font-weight: bold;\n";
+                $css .= "    font-style: normal;\n";
+                $css .= "}\n";
+            }
         }
 
         return $css;
@@ -330,6 +371,29 @@ class CertificateTemplateService
                 ['family' => $fontFamily, 'style' => $fontStyle, 'weight' => $fontWeight],
                 $fontPath
             );
+
+            // For single-variant fonts (like script fonts), also register for bold to prevent fallback
+            if ($fontWeight === 'normal' && $fontStyle === 'normal') {
+                // Check if this font has only one variant
+                $variantCount = 0;
+                foreach ($files as $f) {
+                    if (str_ends_with($f, '.ttf') && !preg_match('/_[a-f0-9]{32}\.ttf$/', $f)) {
+                        $np = explode('_', str_replace('.ttf', '', $f));
+                        $sp = array_pop($np);
+                        $fn = ucwords(str_replace('_', ' ', implode('_', $np)));
+                        if ($fn === $fontFamily) {
+                            $variantCount++;
+                        }
+                    }
+                }
+
+                if ($variantCount === 1) {
+                    $fontMetrics->registerFont(
+                        ['family' => $fontFamily, 'style' => 'normal', 'weight' => 'bold'],
+                        $fontPath
+                    );
+                }
+            }
         }
 
         $fontMetrics->saveFontFamilies();
