@@ -173,6 +173,35 @@
             color: #cbd5e1;
             opacity: 0.6;
         }
+
+        /* Fullscreen overlay */
+        .fullscreen-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        .fullscreen-overlay.hidden {
+            display: none;
+        }
+
+        .fullscreen-overlay h2 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .fullscreen-overlay p {
+            color: #94a3b8;
+            font-size: 1.125rem;
+        }
     </style>
 </head>
 <body>
@@ -204,6 +233,12 @@
 
     <div class="corner-hint">{{ $event->name }}</div>
     <div class="exit-hint">Tekan ESC untuk keluar</div>
+
+    <!-- Fullscreen Overlay -->
+    <div class="fullscreen-overlay" id="fullscreen-overlay">
+        <h2>Mode Kiosk</h2>
+        <p>Klik di mana saja untuk mulai</p>
+    </div>
 
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
@@ -356,8 +391,44 @@
             }
         });
 
-        // Auto-start
-        startScanner();
+        // Fullscreen functionality
+        const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen().catch(() => {});
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen().catch(() => {});
+            }
+        }
+
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen().catch(() => {});
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen().catch(() => {});
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen().catch(() => {});
+            }
+        }
+
+        // Handle fullscreen overlay click
+        fullscreenOverlay.addEventListener('click', () => {
+            fullscreenOverlay.classList.add('hidden');
+            enterFullscreen();
+            startScanner();
+        });
+
+        // Handle fullscreen change events
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement) {
+                // User exited fullscreen with ESC, go back to index
+                window.location.href = '{{ route("admin.bib-scan.index") }}';
+            }
+        });
     </script>
 </body>
 </html>
