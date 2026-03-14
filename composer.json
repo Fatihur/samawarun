@@ -13,9 +13,10 @@
         "laravel/tinker": "^2.9",
         "livewire/livewire": "^4.2",
         "novay/laravel-word-template": "^2.0",
+        "openai-php/client": "^0.10",
         "picqer/php-barcode-generator": "^3.2",
         "simplesoftwareio/simple-qrcode": "^4.2",
-        "openai-php/client": "^0.10"
+        "yajra/laravel-datatables-oracle": "^11.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

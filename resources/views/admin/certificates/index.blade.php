@@ -352,23 +352,22 @@
             </div>
         @endif
     @else
-        {{-- Generate PDF Tab - keep same as before --}}
+        {{-- Generate PDF Tab with DataTables --}}
         <div class="mb-6 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
             Generate tersedia untuk peserta <strong>verified</strong> yang sudah punya <strong>waktu finish</strong>. Bulk action akan mengunduh <strong>ZIP berisi file PDF per peserta</strong>.
         </div>
 
         <form method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4">
             <input type="hidden" name="tab" value="generate">
-            <select name="event_id" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
+            <select name="event_id" id="cert-event-filter" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
                 <option value="">Pilih Event</option>
                 @foreach ($events as $event)
-                    <option value="{{ $event->id }}" @selected((string) request('event_id', $selectedEvent?->id) === (string) $event->id)>
+                    <option value="{{ $event->id }}" @selected((string) ($selectedEvent?->id) === (string) $event->id)>
                         {{ $event->name }} - {{ $event->date?->format('d M Y') }}
                     </option>
                 @endforeach
             </select>
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, email, atau BIB" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 transition-colors focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500">
-            <button type="submit" class="rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-700 active:scale-95">Filter</button>
+            <button type="button" id="cert-filter-btn" class="rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-slate-700 active:scale-95">Filter</button>
             <a href="{{ route('admin.certificates.index', ['tab' => 'generate']) }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-600 transition-colors hover:bg-slate-50">Reset</a>
         </form>
 
@@ -396,10 +395,10 @@
             </form>
 
             <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                <table class="datatable w-full text-left text-sm">
+                <table id="certificates-table" class="w-full text-left text-sm">
                     <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
                         <tr>
-                            <th class="px-5 py-4" data-orderable="false">
+                            <th class="px-5 py-4">
                                 <label class="inline-flex items-center gap-2">
                                     <input type="checkbox" id="select-all-certificates" class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
                                     <span>Pilih</span>
@@ -410,63 +409,88 @@
                             <th class="px-5 py-4">Kategori</th>
                             <th class="px-5 py-4">Waktu Finish</th>
                             <th class="px-5 py-4">Durasi</th>
-                            <th class="px-5 py-4" data-orderable="false">Aksi</th>
+                            <th class="px-5 py-4">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @foreach ($participants as $participant)
-                            <tr class="transition-colors hover:bg-slate-50/50">
-                                <td class="px-5 py-4">
-                                    <input type="checkbox" name="participant_ids[]" value="{{ $participant->id }}" form="bulk-certificate-form" class="certificate-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                                </td>
-                                <td class="px-5 py-4">
-                                    <p class="font-bold text-slate-800">{{ $participant->name }}</p>
-                                    <p class="text-xs text-slate-500">{{ $participant->email }}</p>
-                                </td>
-                                <td class="px-5 py-4 font-mono font-bold text-slate-700">{{ $participant->bib_number ?? '-' }}</td>
-                                <td class="px-5 py-4">
-                                    <span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">{{ $participant->distance_category }}</span>
-                                </td>
-                                <td class="px-5 py-4 text-sm text-slate-600">{{ $participant->race_finished_at?->format('d M Y H:i:s') ?? '-' }}</td>
-                                <td class="px-5 py-4 font-mono font-bold text-slate-700">{{ $participant->formatted_race_duration ?? '-' }}</td>
-                                <td class="px-5 py-4">
-                                    <a href="{{ route('admin.participants.certificate', $participant) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF" aria-label="Download sertifikat {{ $participant->name }}">
-                                        <x-heroicon-o-document-arrow-down class="h-4 w-4" />
-                                    </a>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
                 </table>
-
-                @if ($participants->isEmpty())
-                    <div class="border-t border-slate-100 px-5 py-10 text-center text-sm text-slate-500">
-                        Belum ada finisher yang sesuai filter untuk event ini.
-                    </div>
-                @endif
             </div>
 
-            <script>
-                const selectAllCertificates = document.getElementById('select-all-certificates');
-                const certificateChecks = Array.from(document.querySelectorAll('.certificate-select'));
+            <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+            <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+            <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
-                if (selectAllCertificates) {
-                    selectAllCertificates.addEventListener('change', function () {
-                        certificateChecks.forEach(function (checkbox) {
-                            checkbox.checked = selectAllCertificates.checked;
-                        });
+            <script>
+                $(document).ready(function() {
+                    const eventId = $('#cert-event-filter').val();
+                    const table = $('#certificates-table').DataTable({
+                        processing: true,
+                        serverSide: true,
+                        ajax: {
+                            url: '{{ route("admin.certificates.data") }}',
+                            data: function(d) {
+                                d.event_id = $('#cert-event-filter').val();
+                            }
+                        },
+                        columns: [
+                            { data: 'select', name: 'select', orderable: false, searchable: false },
+                            { data: 'name_email', name: 'name' },
+                            { data: 'bib_number_display', name: 'bib_number' },
+                            { data: 'distance_badge', name: 'distance_category', searchable: false },
+                            { data: 'finish_time_formatted', name: 'race_finished_at' },
+                            { data: 'duration_display', name: 'race_duration_seconds', searchable: false },
+                            { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                        ],
+                        order: [[1, 'asc']],
+                        pageLength: 25,
+                        language: {
+                            processing: 'Memuat data...',
+                            search: 'Cari:',
+                            lengthMenu: 'Tampilkan _MENU_ data',
+                            info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                            infoEmpty: 'Menampilkan 0 sampai 0 dari 0 data',
+                            infoFiltered: '(disaring dari _MAX_ total data)',
+                            paginate: {
+                                first: 'Pertama',
+                                last: 'Terakhir',
+                                next: 'Selanjutnya',
+                                previous: 'Sebelumnya'
+                            },
+                            emptyTable: 'Tidak ada data peserta',
+                            zeroRecords: 'Tidak ditemukan data yang sesuai'
+                        },
+                        drawCallback: function() {
+                            initCertificateCheckboxHandlers();
+                        }
                     });
 
-                    certificateChecks.forEach(function (checkbox) {
-                        checkbox.addEventListener('change', function () {
-                            const allChecked = certificateChecks.length > 0 && certificateChecks.every(function (item) {
-                                return item.checked;
+                    $('#cert-filter-btn').on('click', function() {
+                        table.ajax.reload();
+                    });
+
+                    function initCertificateCheckboxHandlers() {
+                        const selectAllCertificates = document.getElementById('select-all-certificates');
+                        const certificateChecks = Array.from(document.querySelectorAll('.certificate-select'));
+
+                        if (selectAllCertificates) {
+                            selectAllCertificates.addEventListener('change', function() {
+                                certificateChecks.forEach(function(checkbox) {
+                                    checkbox.checked = selectAllCertificates.checked;
+                                });
                             });
 
-                            selectAllCertificates.checked = allChecked;
-                        });
-                    });
-                }
+                            certificateChecks.forEach(function(checkbox) {
+                                checkbox.addEventListener('change', function() {
+                                    const allChecked = certificateChecks.length > 0 && certificateChecks.every(function(item) {
+                                        return item.checked;
+                                    });
+                                    selectAllCertificates.checked = allChecked;
+                                });
+                            });
+                        }
+                    }
+
+                    initCertificateCheckboxHandlers();
+                });
             </script>
         @endif
     @endif

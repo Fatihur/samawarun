@@ -66,13 +66,16 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::delete('/distance-categories/{distanceCategory}', [AdminDistanceCategoryController::class, 'destroy'])->name('distance-categories.destroy');
         Route::patch('/distance-categories/{distanceCategory}/toggle', [AdminDistanceCategoryController::class, 'toggleActive'])->name('distance-categories.toggle');
 
+        Route::get('/events/data', [AdminEventController::class, 'data'])->name('events.data');
         Route::resource('events', AdminEventController::class)->except(['show']);
 
+        Route::get('/participants/data', [AdminParticipantController::class, 'data'])->name('participants.data');
         Route::get('/participants/export', [AdminParticipantController::class, 'export'])->name('participants.export');
         Route::get('/participants/export-pdf', [AdminParticipantController::class, 'exportPdf'])->name('participants.export_pdf');
         Route::get('/race-reports', [AdminRaceReportController::class, 'index'])->name('race-reports.index');
         Route::get('/race-reports/export', [AdminRaceReportController::class, 'export'])->name('race-reports.export');
         Route::get('/race-reports/export-pdf', [AdminRaceReportController::class, 'exportPdf'])->name('race-reports.export-pdf');
+        Route::get('/certificates/data', [AdminCertificateController::class, 'data'])->name('certificates.data');
         Route::get('/certificates', [AdminCertificateController::class, 'index'])->name('certificates.index');
         Route::post('/certificates/background', [AdminCertificateController::class, 'updateBackground'])->name('certificates.background.update');
         Route::post('/certificates/elements', [AdminCertificateController::class, 'saveElements'])->name('certificates.elements.save');

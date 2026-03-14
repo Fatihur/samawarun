@@ -63,16 +63,13 @@
         <div class="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
             Pilih peserta yang sudah <strong>verified</strong> lalu klik <strong>Download Nomor Dada</strong>. Centang hanya berlaku untuk halaman ini.
         </div>
-        <p class="shrink-0 text-sm font-semibold text-slate-500">
-            Total: <span class="text-slate-800">{{ $participants->total() }}</span> peserta
-        </p>
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <table class="datatable w-full text-left text-sm" data-server-paginated="true">
+        <table id="participants-table" class="w-full text-left text-sm">
             <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
-                    <th class="px-5 py-4" data-orderable="false">
+                    <th class="px-5 py-4">
                         <label class="inline-flex items-center gap-2">
                             <input type="checkbox" id="select-all-verified" class="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
                             <span>Pilih</span>
@@ -83,109 +80,92 @@
                     <th class="px-5 py-4">Jarak</th>
                     <th class="px-5 py-4">BIB</th>
                     <th class="px-5 py-4">Status</th>
-                    <th class="px-5 py-4" data-orderable="false">Aksi</th>
+                    <th class="px-5 py-4">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach ($participants as $participant)
-                    <tr class="transition-colors hover:bg-slate-50/50">
-                        <td class="px-5 py-4">
-                            @if($participant->status === \App\Models\Participant::STATUS_VERIFIED)
-                                <input type="checkbox" name="participant_ids[]" value="{{ $participant->id }}" form="bulk-bib-form" class="participant-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                            @else
-                                <span class="pl-6">-</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-4">
-                            <p class="font-bold text-slate-800">{{ $participant->name }}</p>
-                            <p class="text-xs text-slate-500">{{ $participant->email }}</p>
-                        </td>
-                        <td class="px-5 py-4 font-semibold text-slate-600">
-                            {{ $participant->event?->name ?? 'N/A' }}
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">{{ $participant->distance_category }}</span>
-                        </td>
-                        <td class="px-5 py-4 font-mono font-bold text-slate-600">
-                            {{ $participant->bib_number ?? '-' }}
-                        </td>
-                        <td class="px-5 py-4">
-                            @if($participant->status === \App\Models\Participant::STATUS_VERIFIED)
-                                <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">Verified</span>
-                            @elseif($participant->status === \App\Models\Participant::STATUS_REJECTED)
-                                <span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 border border-red-200">Rejected</span>
-                            @else
-                                <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">{{ $participant->workflow_status_label }}</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.participants.show', $participant) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail" aria-label="Lihat detail {{ $participant->name }}">
-                                    <x-heroicon-o-eye class="h-4 w-4" />
-                                </a>
-
-                                @if($participant->workflow_status === \App\Models\Participant::WORKFLOW_SUBMITTED)
-                                    <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" onsubmit="return confirm('Verifikasi peserta ini?')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify" aria-label="Verifikasi {{ $participant->name }}">
-                                            <x-heroicon-o-check class="h-4 w-4" />
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.participants.reject', $participant) }}" method="POST" onsubmit="return confirm('Tolak peserta ini?')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject" aria-label="Tolak {{ $participant->name }}">
-                                            <x-heroicon-o-x-mark class="h-4 w-4" />
-                                        </button>
-                                    </form>
-                                @elseif($participant->workflow_status === \App\Models\Participant::WORKFLOW_PAYMENT_SUBMITTED)
-                                    <form action="{{ route('admin.participants.payment.approve', $participant) }}" method="POST" onsubmit="return confirm('Setujui pembayaran peserta ini?')" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment" aria-label="Setujui pembayaran {{ $participant->name }}">
-                                            <x-heroicon-o-banknotes class="h-4 w-4" />
-                                        </button>
-                                    </form>
-                                    <form action="{{ route('admin.participants.payment.reject', $participant) }}" method="POST" onsubmit="return confirm('Tolak pembayaran peserta ini?')" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">
-                                        @csrf
-                                        @method('PATCH')
-                                        <button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment" aria-label="Tolak pembayaran {{ $participant->name }}">
-                                            <x-heroicon-o-x-circle class="h-4 w-4" />
-                                        </button>
-                                    </form>
-                                @endif
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
         </table>
     </div>
 
-    <div class="mt-6">
-        {{ $participants->links() }}
-    </div>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
     <script>
-        const selectAll = document.getElementById('select-all-verified');
-        const participantChecks = Array.from(document.querySelectorAll('.participant-select'));
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                participantChecks.forEach(function (checkbox) {
-                    checkbox.checked = selectAll.checked;
-                });
+        $(document).ready(function() {
+            const table = $('#participants-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: '{{ route("admin.participants.data") }}',
+                    data: function(d) {
+                        d.search = $('input[name="search"]').val();
+                        d.event_id = $('select[name="event_id"]').val();
+                        d.status = $('select[name="status"]').val();
+                    }
+                },
+                columns: [
+                    { data: 'select', name: 'select', orderable: false, searchable: false },
+                    { data: 'name_email', name: 'name' },
+                    { data: 'event_name', name: 'event.name' },
+                    { data: 'distance_badge', name: 'distance_category', searchable: false },
+                    { data: 'bib_number_display', name: 'bib_number' },
+                    { data: 'status_label', name: 'status', searchable: false },
+                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                ],
+                order: [[1, 'desc']],
+                pageLength: 25,
+                language: {
+                    processing: 'Memuat data...',
+                    search: 'Cari:',
+                    lengthMenu: 'Tampilkan _MENU_ data',
+                    info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    infoEmpty: 'Menampilkan 0 sampai 0 dari 0 data',
+                    infoFiltered: '(disaring dari _MAX_ total data)',
+                    paginate: {
+                        first: 'Pertama',
+                        last: 'Terakhir',
+                        next: 'Selanjutnya',
+                        previous: 'Sebelumnya'
+                    },
+                    emptyTable: 'Tidak ada data peserta',
+                    zeroRecords: 'Tidak ditemukan data yang sesuai'
+                },
+                drawCallback: function() {
+                    // Re-initialize checkbox handlers after table redraw
+                    initCheckboxHandlers();
+                }
             });
 
-            participantChecks.forEach(function (checkbox) {
-                checkbox.addEventListener('change', function () {
-                    const allChecked = participantChecks.length > 0 && participantChecks.every(function (item) {
-                        return item.checked;
+            // Reload table when filter changes
+            $('form').on('submit', function(e) {
+                e.preventDefault();
+                table.ajax.reload();
+            });
+
+            function initCheckboxHandlers() {
+                const selectAll = document.getElementById('select-all-verified');
+                const participantChecks = Array.from(document.querySelectorAll('.participant-select'));
+
+                if (selectAll) {
+                    selectAll.addEventListener('change', function() {
+                        participantChecks.forEach(function(checkbox) {
+                            checkbox.checked = selectAll.checked;
+                        });
                     });
-                    selectAll.checked = allChecked;
-                });
-            });
-        }
+
+                    participantChecks.forEach(function(checkbox) {
+                        checkbox.addEventListener('change', function() {
+                            const allChecked = participantChecks.length > 0 && participantChecks.every(function(item) {
+                                return item.checked;
+                            });
+                            selectAll.checked = allChecked;
+                        });
+                    });
+                }
+            }
+
+            // Initialize on first load
+            initCheckboxHandlers();
+        });
     </script>
 @endsection

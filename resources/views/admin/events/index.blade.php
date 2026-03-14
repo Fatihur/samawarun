@@ -10,50 +10,55 @@
     </div>
 
     <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <table class="datatable w-full text-left text-sm">
+        <table id="events-table" class="w-full text-left text-sm">
             <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                     <th class="px-5 py-4">Kode</th>
                     <th class="px-5 py-4">Nama</th>
                     <th class="px-5 py-4">Tanggal</th>
                     <th class="px-5 py-4">Status</th>
-                    <th class="px-5 py-4" data-orderable="false">Aksi</th>
+                    <th class="px-5 py-4">Aksi</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
-                @foreach ($events as $event)
-                    <tr class="transition-colors hover:bg-slate-50/50">
-                        <td class="px-5 py-4 font-mono text-xs font-bold text-slate-500">{{ $event->event_code }}</td>
-                        <td class="px-5 py-4 font-semibold text-slate-800">{{ $event->name }}</td>
-                        <td class="px-5 py-4 text-slate-600">{{ $event->date->format('d M Y') }}</td>
-                        <td class="px-5 py-4">
-                            @if($event->is_active)
-                                <span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Aktif</span>
-                            @else
-                                <span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">Nonaktif</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex items-center gap-2">
-                                <a href="{{ route('admin.events.edit', $event) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800" title="Edit" aria-label="Edit {{ $event->name }}">
-                                    <x-heroicon-o-pencil-square class="h-4 w-4" />
-                                </a>
-                                <form action="{{ route('admin.events.destroy', $event) }}" method="POST" onsubmit="return confirm('Hapus event ini?')" data-loading-title="Menghapus event" data-loading-message="Event sedang dihapus, mohon tunggu...">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" data-loading-label="Menghapus..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus" aria-label="Hapus {{ $event->name }}">
-                                        <x-heroicon-o-trash class="h-4 w-4" />
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
         </table>
     </div>
 
-    <div class="mt-6">
-        {{-- Pagination handled by DataTables --}}
-    </div>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('#events-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: '{{ route("admin.events.data") }}',
+                columns: [
+                    { data: 'event_code_formatted', name: 'event_code' },
+                    { data: 'name_formatted', name: 'name' },
+                    { data: 'date_formatted', name: 'date' },
+                    { data: 'status_label', name: 'is_active', searchable: false },
+                    { data: 'actions', name: 'actions', orderable: false, searchable: false }
+                ],
+                order: [[2, 'desc']],
+                pageLength: 25,
+                language: {
+                    processing: 'Memuat data...',
+                    search: 'Cari:',
+                    lengthMenu: 'Tampilkan _MENU_ data',
+                    info: 'Menampilkan _START_ sampai _END_ dari _TOTAL_ data',
+                    infoEmpty: 'Menampilkan 0 sampai 0 dari 0 data',
+                    infoFiltered: '(disaring dari _MAX_ total data)',
+                    paginate: {
+                        first: 'Pertama',
+                        last: 'Terakhir',
+                        next: 'Selanjutnya',
+                        previous: 'Sebelumnya'
+                    },
+                    emptyTable: 'Tidak ada data event',
+                    zeroRecords: 'Tidak ditemukan data yang sesuai'
+                }
+            });
+        });
+    </script>
 @endsection

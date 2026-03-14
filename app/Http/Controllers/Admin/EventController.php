@@ -9,14 +9,46 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Yajra\DataTables\DataTables;
 
 class EventController extends Controller
 {
     public function index(): View
     {
-        return view("admin.events.index", [
-            "events" => Event::query()->latest("date")->get(),
-        ]);
+        return view("admin.events.index");
+    }
+
+    public function data(): \Illuminate\Http\JsonResponse
+    {
+        $events = Event::query()->latest("date");
+
+        return DataTables::of($events)
+            ->addColumn("event_code_formatted", function (Event $event): string {
+                return '<span class="font-mono text-xs font-bold text-slate-500">' . e($event->event_code) . "</span>";
+            })
+            ->addColumn("name_formatted", function (Event $event): string {
+                return '<span class="font-semibold text-slate-800">' . e($event->name) . "</span>";
+            })
+            ->addColumn("date_formatted", function (Event $event): string {
+                return $event->date ? $event->date->format("d M Y") : "-";
+            })
+            ->addColumn("status_label", function (Event $event): string {
+                if ($event->is_active) {
+                    return '<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700">Aktif</span>';
+                }
+                return '<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">Nonaktif</span>';
+            })
+            ->addColumn("actions", function (Event $event): string {
+                $actions = '<div class="flex items-center gap-2">';
+                $actions .= '<a href="' . route("admin.events.edit", $event) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800" title="Edit"><x-heroicon-o-pencil-square class="h-4 w-4" /></a>';
+                $actions .= '<form action="' . route("admin.events.destroy", $event) . '" method="POST" onsubmit="return confirm(\'Hapus event ini?\')" data-loading-title="Menghapus event" data-loading-message="Event sedang dihapus, mohon tunggu...">';
+                $actions .= csrf_field() . method_field("DELETE");
+                $actions .= '<button type="submit" data-loading-label="Menghapus..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus"><x-heroicon-o-trash class="h-4 w-4" /></button></form>';
+                $actions .= "</div>";
+                return $actions;
+            })
+            ->rawColumns(["event_code_formatted", "name_formatted", "status_label", "actions"])
+            ->make(true);
     }
 
     public function create(): View

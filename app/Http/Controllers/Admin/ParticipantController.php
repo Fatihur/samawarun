@@ -19,61 +19,95 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\View\View;
+use Yajra\DataTables\DataTables;
 
 class ParticipantController extends Controller
 {
     public function index(Request $request): View
     {
-        $participants = Participant::query()
+        return view("admin.participants.index", [
+            "events" => Event::query()->orderBy("date")->get(),
+        ]);
+    }
+
+    public function data(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $query = Participant::query()
             ->with("event")
-            ->when($request->filled("event_id"), function (Builder $query) use (
-                $request,
-            ): void {
+            ->select("participants.*")
+            ->when($request->filled("event_id"), function (Builder $query) use ($request): void {
                 $query->where("event_id", $request->integer("event_id"));
             })
-            ->when($request->filled("status"), function (Builder $query) use (
-                $request,
-            ): void {
+            ->when($request->filled("status"), function (Builder $query) use ($request): void {
                 $selectedStatus = $request->string("status")->value();
 
-                if (
-                    in_array(
-                        $selectedStatus,
-                        [
-                            Participant::STATUS_PENDING,
-                            Participant::STATUS_VERIFIED,
-                            Participant::STATUS_REJECTED,
-                        ],
-                        true,
-                    )
-                ) {
+                if (in_array($selectedStatus, [
+                    Participant::STATUS_PENDING,
+                    Participant::STATUS_VERIFIED,
+                    Participant::STATUS_REJECTED,
+                ], true)) {
                     $query->where("status", $selectedStatus);
-
                     return;
                 }
 
                 $query->where("workflow_status", $selectedStatus);
-            })
-            ->when($request->filled("search"), function (Builder $query) use (
-                $request,
-            ): void {
-                $search = trim($request->string("search")->value());
-                $query->where(function (Builder $inner) use ($search): void {
-                    $inner
-                        ->where("name", "like", "%{$search}%")
-                        ->orWhere("email", "like", "%{$search}%")
-                        ->orWhere("bib_number", "like", "%{$search}%")
-                        ->orWhere("phone", "like", "%{$search}%");
-                });
-            })
-            ->latest()
-            ->paginate(25)
-            ->withQueryString();
+            });
 
-        return view("admin.participants.index", [
-            "participants" => $participants,
-            "events" => Event::query()->orderBy("date")->get(),
-        ]);
+        return DataTables::of($query)
+            ->addColumn("select", function (Participant $participant): string {
+                if ($participant->status === Participant::STATUS_VERIFIED) {
+                    return '<input type="checkbox" name="participant_ids[]" value="' . $participant->id . '" form="bulk-bib-form" class="participant-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">';
+                }
+                return '<span class="pl-6">-</span>';
+            })
+            ->addColumn("name_email", function (Participant $participant): string {
+                return '<p class="font-bold text-slate-800">' . e($participant->name) . '</p>' .
+                       '<p class="text-xs text-slate-500">' . e($participant->email) . '</p>';
+            })
+            ->addColumn("event_name", function (Participant $participant): string {
+                return e($participant->event?->name ?? 'N/A');
+            })
+            ->addColumn("distance_badge", function (Participant $participant): string {
+                return '<span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">' . e($participant->distance_category) . '</span>';
+            })
+            ->addColumn("bib_number_display", function (Participant $participant): string {
+                return e($participant->bib_number ?? '-');
+            })
+            ->addColumn("status_label", function (Participant $participant): string {
+                if ($participant->status === Participant::STATUS_VERIFIED) {
+                    return '<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">Verified</span>';
+                } elseif ($participant->status === Participant::STATUS_REJECTED) {
+                    return '<span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 border border-red-200">Rejected</span>';
+                }
+                return '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">' . e($participant->workflow_status_label) . '</span>';
+            })
+            ->addColumn("actions", function (Participant $participant): string {
+                $actions = '<div class="flex items-center gap-2">';
+                $actions .= '<a href="' . route('admin.participants.show', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail"><x-heroicon-o-eye class="h-4 w-4" /></a>';
+
+                if ($participant->workflow_status === Participant::WORKFLOW_SUBMITTED) {
+                    $actions .= '<form action="' . route('admin.participants.verify', $participant) . '" method="POST" onsubmit="return confirm(\'Verifikasi peserta ini?\')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">';
+                    $actions .= csrf_field() . method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify"><x-heroicon-o-check class="h-4 w-4" /></button></form>';
+
+                    $actions .= '<form action="' . route('admin.participants.reject', $participant) . '" method="POST" onsubmit="return confirm(\'Tolak peserta ini?\')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">';
+                    $actions .= csrf_field() . method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject"><x-heroicon-o-x-mark class="h-4 w-4" /></button></form>';
+                } elseif ($participant->workflow_status === Participant::WORKFLOW_PAYMENT_SUBMITTED) {
+                    $actions .= '<form action="' . route('admin.participants.payment.approve', $participant) . '" method="POST" onsubmit="return confirm(\'Setujui pembayaran peserta ini?\')" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">';
+                    $actions .= csrf_field() . method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment"><x-heroicon-o-banknotes class="h-4 w-4" /></button></form>';
+
+                    $actions .= '<form action="' . route('admin.participants.payment.reject', $participant) . '" method="POST" onsubmit="return confirm(\'Tolak pembayaran peserta ini?\')" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">';
+                    $actions .= csrf_field() . method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment"><x-heroicon-o-x-circle class="h-4 w-4" /></button></form>';
+                }
+
+                $actions .= '</div>';
+                return $actions;
+            })
+            ->rawColumns(['select', 'name_email', 'distance_badge', 'status_label', 'actions'])
+            ->make(true);
     }
 
     public function show(Participant $participant): View

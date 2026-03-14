@@ -15,6 +15,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Yajra\DataTables\DataTables;
 
 class CertificateController extends Controller
 {
@@ -34,36 +35,55 @@ class CertificateController extends Controller
 
         $template = $selectedEvent?->certificateTemplate;
 
-        $participants = collect();
-
-        if ($selectedEvent) {
-            $participants = Participant::query()
-                ->with('event')
-                ->where('event_id', $selectedEvent->id)
-                ->where('status', Participant::STATUS_VERIFIED)
-                ->whereNotNull('race_finished_at')
-                ->when($request->filled('search'), function (Builder $query) use ($request): void {
-                    $search = trim((string) $request->string('search')->value());
-
-                    $query->where(function (Builder $innerQuery) use ($search): void {
-                        $innerQuery
-                            ->where('name', 'like', '%'.$search.'%')
-                            ->orWhere('email', 'like', '%'.$search.'%')
-                            ->orWhere('bib_number', 'like', '%'.$search.'%');
-                    });
-                })
-                ->orderBy('name')
-                ->get();
-        }
-
         return view('admin.certificates.index', [
             'activeTab' => in_array($activeTab, ['template', 'generate'], true) ? $activeTab : 'template',
             'events' => $events,
             'selectedEvent' => $selectedEvent,
             'template' => $template,
-            'participants' => $participants,
             'supportedPlaceholders' => $this->certificateTemplateService->supportedPlaceholders(),
         ]);
+    }
+
+    public function data(Request $request): \Illuminate\Http\JsonResponse
+    {
+        $eventId = $request->integer('event_id');
+
+        $query = Participant::query()
+            ->with('event')
+            ->when($eventId > 0, function (Builder $query) use ($eventId): void {
+                $query->where('event_id', $eventId);
+            })
+            ->where('status', Participant::STATUS_VERIFIED)
+            ->whereNotNull('race_finished_at')
+            ->select('participants.*');
+
+        return DataTables::of($query)
+            ->addColumn('select', function (Participant $participant): string {
+                return '<input type="checkbox" name="participant_ids[]" value="' . $participant->id . '" form="bulk-certificate-form" class="certificate-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">';
+            })
+            ->addColumn('name_email', function (Participant $participant): string {
+                return '<p class="font-bold text-slate-800">' . e($participant->name) . '</p>' .
+                       '<p class="text-xs text-slate-500">' . e($participant->email) . '</p>';
+            })
+            ->addColumn('bib_number_display', function (Participant $participant): string {
+                return '<span class="font-mono font-bold text-slate-700">' . e($participant->bib_number ?? '-') . '</span>';
+            })
+            ->addColumn('distance_badge', function (Participant $participant): string {
+                return '<span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">' . e($participant->distance_category) . '</span>';
+            })
+            ->addColumn('finish_time_formatted', function (Participant $participant): string {
+                return $participant->race_finished_at ? $participant->race_finished_at->format('d M Y H:i:s') : '-';
+            })
+            ->addColumn('duration_display', function (Participant $participant): string {
+                return '<span class="font-mono font-bold text-slate-700">' . e($participant->formatted_race_duration ?? '-') . '</span>';
+            })
+            ->addColumn('actions', function (Participant $participant): string {
+                return '<a href="' . route('admin.participants.certificate', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF">
+                            <x-heroicon-o-document-arrow-down class="h-4 w-4" />
+                        </a>';
+            })
+            ->rawColumns(['select', 'name_email', 'bib_number_display', 'distance_badge', 'duration_display', 'actions'])
+            ->make(true);
     }
 
     public function updateBackground(Request $request): RedirectResponse
