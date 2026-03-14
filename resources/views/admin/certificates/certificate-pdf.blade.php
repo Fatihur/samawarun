@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <title>Sertifikat</title>
     <style>
-        {!! $fontFacesCss ?? '' !!}
-        
         * {
             box-sizing: border-box;
             margin: 0;
@@ -95,13 +93,12 @@
                     $topMm = ($y / 100) * $pageH;
                     $widthMm = ($w / 100) * $pageW;
                     
-                    $fontFamilyLower = strtolower($fontFamily);
                 @endphp
                 <div class="text-element" style="
                     left: {{ $leftMm }}mm;
                     top: {{ $topMm }}mm;
                     width: {{ $widthMm }}mm;
-                    font-family: '{{ $fontFamilyLower }}', sans-serif;
+                    font-family: '{{ $fontFamily }}', sans-serif;
                     font-size: {{ $fontSize }}px;
                     font-weight: {{ $fontWeight }};
                     font-style: {{ $fontStyle }};
