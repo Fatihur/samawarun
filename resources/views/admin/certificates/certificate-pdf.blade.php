@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>Sertifikat</title>
     <style>
+        {!! $fontCss ?? '' !!}
+
         * {
             box-sizing: border-box;
             margin: 0;

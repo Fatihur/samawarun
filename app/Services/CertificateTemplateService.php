@@ -4,8 +4,7 @@ namespace App\Services;
 
 use App\Models\CertificateTemplate;
 use App\Models\Participant;
-use Dompdf\Dompdf;
-use Dompdf\Options;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -128,16 +127,14 @@ class CertificateTemplateService
         $backgroundBase64 = $this->getBackgroundBase64($template);
         $resolvedElements = $this->resolveElements($template, $participant);
 
-        // Register custom fonts with DomPDF before generating
-        $this->registerFontsWithDompdf($template->text_elements ?? []);
+        // Build font CSS for custom fonts
+        $fontCss = $this->buildFontCss($template->text_elements ?? []);
 
-        $pdf = app('dompdf.wrapper');
-
-        return $pdf->loadView('admin.certificates.certificate-pdf', [
+        return PDF::loadView('admin.certificates.certificate-pdf', [
             'pages' => [['elements' => $resolvedElements]],
             'backgroundBase64' => $backgroundBase64,
             'orientation' => $orientation,
-            'fontFamilies' => $this->getUsedFontFamilies($template->text_elements ?? []),
+            'fontCss' => $fontCss,
         ])->setPaper('a4', $orientation);
     }
 
@@ -151,42 +148,22 @@ class CertificateTemplateService
             $pages[] = ['elements' => $this->resolveElements($template, $participant)];
         }
 
-        // Register custom fonts with DomPDF before generating
-        $this->registerFontsWithDompdf($template->text_elements ?? []);
+        // Build font CSS for custom fonts
+        $fontCss = $this->buildFontCss($template->text_elements ?? []);
 
-        $pdf = app('dompdf.wrapper');
-
-        return $pdf->loadView('admin.certificates.certificate-pdf', [
+        return PDF::loadView('admin.certificates.certificate-pdf', [
             'pages' => $pages,
             'backgroundBase64' => $backgroundBase64,
             'orientation' => $orientation,
-            'fontFamilies' => $this->getUsedFontFamilies($template->text_elements ?? []),
+            'fontCss' => $fontCss,
         ])->setPaper('a4', $orientation);
     }
     
-    private function getUsedFontFamilies(array $elements): array
+    private function buildFontCss(array $elements): string
     {
         $usedFamilies = collect($elements)
             ->pluck('fontFamily')
             ->filter()
-            ->unique()
-            ->toArray();
-
-        // Return array with original case as keys and lowercase as values for lookup
-        $result = [];
-        foreach ($usedFamilies as $family) {
-            $result[$family] = strtolower($family);
-        }
-
-        return $result;
-    }
-
-    private function registerFontsWithDompdf(array $elements): void
-    {
-        $usedFamilies = collect($elements)
-            ->pluck('fontFamily')
-            ->filter()
-            ->map(fn ($f) => strtolower($f))
             ->unique()
             ->toArray();
 
@@ -195,66 +172,74 @@ class CertificateTemplateService
         $usedFamilies = array_diff($usedFamilies, $systemFonts);
 
         if (empty($usedFamilies)) {
-            return;
+            return '';
         }
 
         $fontDir = storage_path('fonts');
 
         if (! is_dir($fontDir)) {
-            return;
+            return '';
         }
 
-        $options = new Options();
-        $options->set('fontDir', $fontDir);
-        $options->set('fontCache', $fontDir);
-
-        $dompdf = new Dompdf($options);
-        $fontMetrics = $dompdf->getFontMetrics();
-
+        $css = '';
         $files = scandir($fontDir);
 
         foreach ($files as $file) {
-            if (str_ends_with($file, '.ttf') && !str_contains($file, '_')) {
-                // Only process original font files (not cached ones with hashes)
-                $nameParts = explode('_', str_replace('.ttf', '', $file));
-                $stylePart = array_pop($nameParts);
-
-                $fontWeight = 'normal';
-                $fontStyle = 'normal';
-
-                if ($stylePart === 'italic') {
-                    if (count($nameParts) > 0 && end($nameParts) === 'bold') {
-                        array_pop($nameParts);
-                        $fontWeight = 'bold';
-                        $fontStyle = 'italic';
-                    } else {
-                        $fontStyle = 'italic';
-                    }
-                } elseif ($stylePart === 'bold') {
-                    $fontWeight = 'bold';
-                } elseif ($stylePart !== 'normal') {
-                    $nameParts[] = $stylePart;
-                }
-
-                $fontFamily = ucwords(implode(' ', $nameParts));
-
-                // Only register fonts that are actually used
-                if (! in_array(strtolower($fontFamily), $usedFamilies)) {
-                    continue;
-                }
-
-                $fontPath = $fontDir . DIRECTORY_SEPARATOR . $file;
-
-                if (file_exists($fontPath)) {
-                    $fontMetrics->registerFont(
-                        ['family' => $fontFamily, 'style' => $fontStyle, 'weight' => $fontWeight],
-                        $fontPath
-                    );
-                }
+            if (! str_ends_with($file, '.ttf')) {
+                continue;
             }
+
+            // Skip cached font files (they have hash in name)
+            if (preg_match('/_[a-f0-9]{32}\.ttf$/', $file)) {
+                continue;
+            }
+
+            $nameParts = explode('_', str_replace('.ttf', '', $file));
+            $stylePart = array_pop($nameParts);
+
+            $fontWeight = 'normal';
+            $fontStyle = 'normal';
+
+            if ($stylePart === 'italic') {
+                if (count($nameParts) > 0 && end($nameParts) === 'bold') {
+                    array_pop($nameParts);
+                    $fontWeight = 'bold';
+                    $fontStyle = 'italic';
+                } else {
+                    $fontStyle = 'italic';
+                }
+            } elseif ($stylePart === 'bold') {
+                $fontWeight = 'bold';
+            } elseif ($stylePart !== 'normal') {
+                $nameParts[] = $stylePart;
+            }
+
+            $fontFamily = ucwords(str_replace('_', ' ', implode('_', $nameParts)));
+
+            // Only include fonts that are actually used
+            if (! in_array($fontFamily, $usedFamilies)) {
+                continue;
+            }
+
+            $fontPath = $fontDir . DIRECTORY_SEPARATOR . $file;
+
+            if (! file_exists($fontPath)) {
+                continue;
+            }
+
+            // Use base64 encoding for cross-platform compatibility
+            $fontData = base64_encode(file_get_contents($fontPath));
+            $fontUrl = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
+
+            $css .= "@font-face {\n";
+            $css .= "    font-family: '{$fontFamily}';\n";
+            $css .= "    src: url('{$fontUrl}') format('truetype');\n";
+            $css .= "    font-weight: {$fontWeight};\n";
+            $css .= "    font-style: {$fontStyle};\n";
+            $css .= "}\n";
         }
 
-        $fontMetrics->saveFontFamilies();
+        return $css;
     }
 
     private function getBackgroundBase64(CertificateTemplate $template): ?string
