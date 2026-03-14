@@ -247,7 +247,7 @@
     {{-- Countdown --}}
     <div class="countdown-bar" id="countdown-bar" style="width: 0%;"></div>
 
-    <script src="https://unpkg.com/html5-qrcode" defer></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const EVENT_ID = {{ $event->id }};

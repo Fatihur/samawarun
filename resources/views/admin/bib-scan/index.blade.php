@@ -135,7 +135,7 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/html5-qrcode" defer></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const startButton = document.getElementById('start-bib-info-scanner');
@@ -165,8 +165,12 @@
                     return;
                 }
 
-                await html5QrCode.stop();
-                await html5QrCode.clear();
+                try {
+                    await html5QrCode.stop();
+                    await html5QrCode.clear();
+                } catch (e) {
+                    // Ignore errors when stopping
+                }
                 isScanning = false;
                 setStatus('Scanner dihentikan. Anda bisa mulai scan lagi kapan saja.', 'neutral');
             }
@@ -182,12 +186,25 @@
                     return;
                 }
 
+                // Wait for library to be ready
                 if (typeof Html5Qrcode === 'undefined') {
-                    setStatus('Library scanner belum siap dimuat. Coba lagi beberapa detik.', 'error');
+                    setStatus('Library scanner sedang dimuat, mohon tunggu...', 'neutral');
+                    let retries = 0;
+                    const maxRetries = 10;
+                    const checkLibrary = setInterval(function() {
+                        retries++;
+                        if (typeof Html5Qrcode !== 'undefined') {
+                            clearInterval(checkLibrary);
+                            startScanner();
+                        } else if (retries >= maxRetries) {
+                            clearInterval(checkLibrary);
+                            setStatus('Library scanner gagal dimuat. Refresh halaman atau masukkan BIB manual.', 'error');
+                        }
+                    }, 500);
                     return;
                 }
 
-                html5QrCode = html5QrCode || new Html5Qrcode(scannerElementId);
+                html5QrCode = new Html5Qrcode(scannerElementId);
                 setStatus('Meminta akses kamera dan menyiapkan scanner...', 'neutral');
 
                 try {
@@ -196,15 +213,7 @@
                         {
                             fps: 10,
                             aspectRatio: 1.5,
-                            qrbox: { width: 280, height: 120 },
-                            formatsToSupport: [
-                                Html5QrcodeSupportedFormats.CODE_128,
-                                Html5QrcodeSupportedFormats.CODE_39,
-                                Html5QrcodeSupportedFormats.CODE_93,
-                                Html5QrcodeSupportedFormats.EAN_13,
-                                Html5QrcodeSupportedFormats.EAN_8,
-                                Html5QrcodeSupportedFormats.ITF
-                            ]
+                            qrbox: { width: 280, height: 120 }
                         },
                         function (decodedText) {
                             bibInput.value = decodedText.trim().toUpperCase();
@@ -217,19 +226,29 @@
                     );
 
                     isScanning = true;
-                    setStatus('Scanner aktif. Arahkan QR Code bib ke area kamera.', 'success');
+                    setStatus('Scanner aktif. Arahkan barcode BIB ke area kamera.', 'success');
                 } catch (error) {
+                    console.error('Scanner error:', error);
                     setStatus('Kamera tidak bisa dibuka. Pastikan izin kamera aktif atau masukkan BIB manual.', 'error');
+                    html5QrCode = null;
                 }
             }
 
-            startButton?.addEventListener('click', function () {
-                startScanner();
-            });
+            if (startButton) {
+                startButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    startScanner();
+                });
+            }
 
-            stopButton?.addEventListener('click', function () {
-                stopScanner();
-            });
+            if (stopButton) {
+                stopButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    stopScanner();
+                });
+            }
         });
     </script>
 @endsection
