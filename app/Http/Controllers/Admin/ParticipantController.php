@@ -35,6 +35,7 @@ class ParticipantController extends Controller
         $query = Participant::query()
             ->with("event")
             ->select("participants.*")
+            ->latest()
             ->when($request->filled("event_id"), function (Builder $query) use ($request): void {
                 $query->where("event_id", $request->integer("event_id"));
             })
