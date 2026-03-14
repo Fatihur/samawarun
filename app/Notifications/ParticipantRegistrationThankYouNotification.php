@@ -5,13 +5,21 @@ namespace App\Notifications;
 use App\Models\Participant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class ParticipantRegistrationThankYouNotification extends Notification
+class ParticipantRegistrationThankYouNotification
+    extends Notification
+    implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Participant $participant) {}
+    public Participant $participant;
+
+    public function __construct(Participant $participant)
+    {
+        $this->participant = $participant;
+    }
 
     /**
      * Get the notification's delivery channels.
@@ -25,12 +33,14 @@ class ParticipantRegistrationThankYouNotification extends Notification
 
     public function toMail(object $notifiable): MailMessage
     {
-        $participant = $this->participant->loadMissing('event');
+        $participant = $this->participant->loadMissing("event");
 
-        return (new MailMessage())
-            ->subject('Pendaftaran berhasil diterima')
-            ->view('emails.participant-registration-thank-you', [
-                'participant' => $participant,
-            ]);
+        $mail = new MailMessage();
+        $mail->subject("Pendaftaran berhasil diterima");
+        $mail->view("emails.participant-registration-thank-you", [
+            "participant" => $participant,
+        ]);
+
+        return $mail;
     }
 }

@@ -1,64 +1,76 @@
-import $ from 'jquery';
+import $ from "jquery";
 window.$ = window.jQuery = $; // Ensure global availability for older plugins
-import DataTable from 'datatables.net-dt';
-import 'datatables.net-responsive-dt';
+import DataTable from "datatables.net-dt";
+import "datatables.net-responsive-dt";
 
 // Import CSS
-import 'datatables.net-dt/css/dataTables.dataTables.css';
-import 'datatables.net-responsive-dt/css/responsive.dataTables.css';
+import "datatables.net-dt/css/dataTables.dataTables.css";
+import "datatables.net-responsive-dt/css/responsive.dataTables.css";
 
 // TinyMCE - self-hosted via npm (no API key needed)
-import 'tinymce';
-import 'tinymce/themes/silver';
-import 'tinymce/icons/default';
-import 'tinymce/models/dom';
+import "tinymce";
+import "tinymce/themes/silver";
+import "tinymce/icons/default";
+import "tinymce/models/dom";
 
 // TinyMCE plugins
-import 'tinymce/plugins/lists';
-import 'tinymce/plugins/link';
-import 'tinymce/plugins/autolink';
+import "tinymce/plugins/lists";
+import "tinymce/plugins/link";
+import "tinymce/plugins/autolink";
 
 // TinyMCE skins
-import 'tinymce/skins/ui/oxide/skin.min.css';
-import 'tinymce/skins/content/default/content.min.css';
-import 'tinymce/skins/content/default/content.css';
+import "tinymce/skins/ui/oxide/skin.min.css";
+import "tinymce/skins/content/default/content.min.css";
+import "tinymce/skins/content/default/content.css";
 
 // TinyMCE Initialization
-document.addEventListener('DOMContentLoaded', function () {
-    if (document.querySelectorAll('textarea.richtext').length > 0) {
+document.addEventListener("DOMContentLoaded", function () {
+    if (document.querySelectorAll("textarea.richtext").length > 0) {
         tinymce.init({
-            selector: 'textarea.richtext',
+            selector: "textarea.richtext",
             height: 300,
             menubar: false,
             branding: false,
             promotion: false,
-            license_key: 'gpl',
-            plugins: 'lists link autolink',
-            toolbar: 'blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist | link | removeformat',
-            block_formats: 'Paragraph=p; Heading 2=h2; Heading 3=h3; Heading 4=h4',
-            content_style: 'body { font-family: Inter, system-ui, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6; }',
+            license_key: "gpl",
+            plugins: "lists link autolink",
+            toolbar:
+                "blocks | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist | link | removeformat",
+            block_formats:
+                "Paragraph=p; Heading 2=h2; Heading 3=h3; Heading 4=h4",
+            content_style:
+                "body { font-family: Inter, system-ui, sans-serif; font-size: 14px; color: #1e293b; line-height: 1.6; }",
             skin: false,
             content_css: false,
             setup: function (editor) {
-                editor.on('change', function () {
+                editor.on("change", function () {
                     editor.save();
                 });
-            }
+            },
         });
     }
 });
 
 // DataTables Initialization
-$(document).ready(function() {
-    if ($('.datatable').length > 0) {
-        $('.datatable').each(function() {
+$(document).ready(function () {
+    if ($(".datatable").length > 0) {
+        $(".datatable").each(function () {
             if ($.fn.DataTable.isDataTable(this)) {
                 return;
             }
 
+            var isServerPaginated =
+                $(this).data("server-paginated") === true ||
+                $(this).attr("data-server-paginated") === "true";
+
             $(this).DataTable({
                 responsive: true,
                 order: [], // Disable initial sorting, respect backend order
+                // For server-paginated tables, disable client-side pagination,
+                // searching, and info — these are handled server-side.
+                paging: !isServerPaginated,
+                searching: !isServerPaginated,
+                info: !isServerPaginated,
                 language: {
                     emptyTable: "Tidak ada data yang tersedia pada tabel ini",
                     info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ entri",
@@ -71,12 +83,14 @@ $(document).ready(function() {
                         first: "Pertama",
                         last: "Terakhir",
                         next: "Selanjutnya",
-                        previous: "Sebelumnya"
-                    }
+                        previous: "Sebelumnya",
+                    },
                 },
-                drawCallback: function() {
-                    $('.dataTables_paginate > .pagination').addClass('flex items-center gap-1');
-                }
+                drawCallback: function () {
+                    $(".dataTables_paginate > .pagination").addClass(
+                        "flex items-center gap-1",
+                    );
+                },
             });
         });
     }

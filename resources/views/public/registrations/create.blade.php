@@ -65,7 +65,7 @@
             @endif
 
             {{-- Form --}}
-            <form action="{{ route('registrations.store', $event) }}" method="POST" enctype="multipart/form-data" data-loading-title="Mengirim pendaftaran" data-loading-message="Data peserta dan berkas sedang dikirim, mohon tunggu...">
+            <form action="{{ route('registrations.store', $event) }}" method="POST" enctype="multipart/form-data" novalidate data-loading-title="Mengirim pendaftaran" data-loading-message="Data peserta dan berkas sedang dikirim, mohon tunggu...">
                 @csrf
 
                 {{-- Step 1: Detail Event --}}
@@ -193,7 +193,7 @@
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-300">Upload KTP <span class="text-red-400">*</span></label>
-                                <input name="ktp_file" type="file" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary focus:outline-none" accept=".jpg,.jpeg,.png,.pdf" required>
+                                <input name="ktp_file" type="file" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary focus:outline-none" accept=".jpg,.jpeg,.png,.pdf">
                                 <p class="mt-2 text-xs leading-relaxed text-gray-500">Unggah foto atau scan KTP dengan format JPG, JPEG, PNG, atau PDF. Ukuran maksimal 2 MB.</p>
                             </div>
                         </div>
@@ -278,6 +278,7 @@
                 steps: ['Lomba', 'Data Diri', 'Kontak'],
                 selectedDistanceCategory: initialDistanceCategory,
                 categoryPrices,
+                stepErrors: [],
                 get selectedCategoryPriceLabel() {
                     if (!this.selectedDistanceCategory || !this.categoryPrices[this.selectedDistanceCategory]) {
                         return 'Pilih kategori jarak terlebih dahulu';
@@ -289,15 +290,106 @@
                         maximumFractionDigits: 0,
                     }).format(this.categoryPrices[this.selectedDistanceCategory]);
                 },
+                validateStep0() {
+                    this.stepErrors = [];
+
+                    if (!this.selectedDistanceCategory) {
+                        this.stepErrors.push('Pilih kategori jarak terlebih dahulu');
+                    }
+
+                    const jerseySize = document.querySelector('input[name="jersey_size"]:checked');
+                    if (!jerseySize) {
+                        this.stepErrors.push('Pilih ukuran jersey terlebih dahulu');
+                    }
+
+                    return this.stepErrors.length === 0;
+                },
+                validateStep1() {
+                    this.stepErrors = [];
+
+                    const name = document.querySelector('input[name="name"]').value.trim();
+                    if (!name) {
+                        this.stepErrors.push('Nama lengkap wajib diisi');
+                    }
+
+                    const birthDate = document.querySelector('input[name="birth_date"]').value;
+                    if (!birthDate) {
+                        this.stepErrors.push('Tanggal lahir wajib diisi');
+                    }
+
+                    const gender = document.querySelector('select[name="gender"]').value;
+                    if (!gender) {
+                        this.stepErrors.push('Jenis kelamin wajib dipilih');
+                    }
+
+                    const nik = document.querySelector('input[name="nik"]').value.trim();
+                    if (!nik) {
+                        this.stepErrors.push('NIK wajib diisi');
+                    } else if (nik.length < 16) {
+                        this.stepErrors.push('NIK minimal 16 digit');
+                    }
+
+                    const ktpFile = document.querySelector('input[name="ktp_file"]').files[0];
+                    if (!ktpFile) {
+                        this.stepErrors.push('File KTP wajib diupload');
+                    }
+
+                    return this.stepErrors.length === 0;
+                },
                 nextStep() {
+                    if (this.currentStep === 0) {
+                        if (!this.validateStep0()) {
+                            this.showValidationError();
+                            return;
+                        }
+                    } else if (this.currentStep === 1) {
+                        if (!this.validateStep1()) {
+                            this.showValidationError();
+                            return;
+                        }
+                    }
+
                     if (this.currentStep < 2) {
                         this.currentStep++;
+                        this.stepErrors = [];
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
+                },
+                showValidationError() {
+                    const errorMessage = this.stepErrors.join('\n');
+
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'fixed top-24 left-1/2 transform -translate-x-1/2 z-[60] max-w-md w-[calc(100%-2rem)]';
+                    errorDiv.innerHTML = `
+                        <div class="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-4 text-red-100 shadow-lg backdrop-blur-sm">
+                            <div class="flex items-start gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="mt-0.5 h-6 w-6 shrink-0 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                                <div class="flex-1 text-sm font-medium leading-relaxed">
+                                    <p class="font-bold text-white mb-1">Mohon lengkapi data berikut:</p>
+                                    <ul class="list-disc pl-4 space-y-1">
+                                        ${this.stepErrors.map(err => `<li>${err}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                <button type="button" onclick="this.closest('.fixed').remove()" class="ml-auto text-red-400 hover:text-red-200">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(errorDiv);
+
+                    setTimeout(() => {
+                        errorDiv.remove();
+                    }, 5000);
                 },
                 prevStep() {
                     if (this.currentStep > 0) {
                         this.currentStep--;
+                        this.stepErrors = [];
                         window.scrollTo({ top: 0, behavior: 'smooth' });
                     }
                 }

@@ -22,7 +22,8 @@
     </div>
 
     {{-- Filter --}}
-    <form method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4">
+    <form method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, email, BIB, HP..." class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors sm:col-span-2 lg:col-span-1">
         <select name="event_id" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
             <option value="">Semua Event</option>
             @foreach ($events as $event)
@@ -44,19 +45,31 @@
                 <option value="{{ $status }}" @selected(request('status') === $status)>{{ $label }}</option>
             @endforeach
         </select>
-        <button type="submit" class="rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors active:scale-95">Filter</button>
+        <div class="flex gap-2">
+            <button type="submit" class="flex-1 rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors active:scale-95">Filter</button>
+            @if(request()->hasAny(['search', 'event_id', 'status']))
+                <a href="{{ route('admin.participants.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500 hover:bg-slate-50 transition-colors" title="Reset filter">
+                    <x-heroicon-o-x-mark class="h-4 w-4" />
+                </a>
+            @endif
+        </div>
     </form>
 
     <form id="bulk-bib-form" action="{{ route('admin.participants.id-card.bulk') }}" method="POST" class="hidden">
         @csrf
     </form>
 
-    <div class="mb-4 rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
-        Pilih peserta yang sudah <strong>verified</strong> lalu klik <strong>Download Nomor Dada</strong>. Peserta yang masih menunggu pembayaran atau review pembayaran tidak akan mendapat BIB.
+    <div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div class="rounded-xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+            Pilih peserta yang sudah <strong>verified</strong> lalu klik <strong>Download Nomor Dada</strong>. Centang hanya berlaku untuk halaman ini.
+        </div>
+        <p class="shrink-0 text-sm font-semibold text-slate-500">
+            Total: <span class="text-slate-800">{{ $participants->total() }}</span> peserta
+        </p>
     </div>
 
     <div class="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-        <table class="datatable w-full text-left text-sm">
+        <table class="datatable w-full text-left text-sm" data-server-paginated="true">
             <thead class="border-b border-slate-200 bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500">
                 <tr>
                     <th class="px-5 py-4" data-orderable="false">
@@ -110,7 +123,7 @@
                                 <a href="{{ route('admin.participants.show', $participant) }}" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail" aria-label="Lihat detail {{ $participant->name }}">
                                     <x-heroicon-o-eye class="h-4 w-4" />
                                 </a>
-                                
+
                                 @if($participant->workflow_status === \App\Models\Participant::WORKFLOW_SUBMITTED)
                                     <form action="{{ route('admin.participants.verify', $participant) }}" method="POST" onsubmit="return confirm('Verifikasi peserta ini?')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">
                                         @csrf
@@ -149,9 +162,9 @@
             </tbody>
         </table>
     </div>
-    
+
     <div class="mt-6">
-        {{-- Pagination handled by DataTables --}}
+        {{ $participants->links() }}
     </div>
 
     <script>

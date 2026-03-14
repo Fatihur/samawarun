@@ -27,6 +27,25 @@
                     </div>
                 </div>
 
+                @if (session('warning'))
+                    <div class="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
+                        <p>{{ session('warning') }}</p>
+                        @if(session('overwrite_candidate'))
+                            @php($candidate = session('overwrite_candidate'))
+                            <form action="{{ route('admin.race-timing.store') }}" method="POST" class="mt-3">
+                                @csrf
+                                <input type="hidden" name="event_id" value="{{ $candidate['event_id'] }}">
+                                <input type="hidden" name="bib_number" value="{{ $candidate['bib_number'] }}">
+                                <input type="hidden" name="overwrite" value="1">
+                                <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-bold text-white hover:bg-amber-700 active:scale-95 transition-all">
+                                    <x-heroicon-o-arrow-path class="h-4 w-4" />
+                                    Ya, Timpa Waktu Sebelumnya
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                @endif
+
                 <form action="{{ route('admin.race-timing.store') }}" method="POST" class="space-y-6" data-skip-loading="true">
                     @csrf
                     <input type="hidden" name="event_id" value="{{ $selectedEvent->id }}">
