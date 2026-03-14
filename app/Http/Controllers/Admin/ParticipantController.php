@@ -53,6 +53,20 @@ class ParticipantController extends Controller
                 $query->where("workflow_status", $selectedStatus);
             });
 
+        // Handle DataTables global search
+        $searchValue = $request->input('search.value');
+        if (!empty($searchValue)) {
+            $query->where(function (Builder $q) use ($searchValue): void {
+                $q->where("name", "like", "%{$searchValue}%")
+                  ->orWhere("email", "like", "%{$searchValue}%")
+                  ->orWhere("bib_number", "like", "%{$searchValue}%")
+                  ->orWhere("phone", "like", "%{$searchValue}%")
+                  ->orWhereHas("event", function ($q) use ($searchValue): void {
+                      $q->where("name", "like", "%{$searchValue}%");
+                  });
+            });
+        }
+
         return DataTables::of($query)
             ->addColumn("select", function (Participant $participant): string {
                 if ($participant->status === Participant::STATUS_VERIFIED) {
@@ -82,25 +96,32 @@ class ParticipantController extends Controller
                 return '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">' . e($participant->workflow_status_label) . '</span>';
             })
             ->addColumn("actions", function (Participant $participant): string {
+                // SVG Icons
+                $eyeSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>';
+                $checkSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
+                $xMarkSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>';
+                $banknotesSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V19.5M3.375 4.5c.381 0 .668-.284.745-.646.127-.621.468-1.193.984-1.593a4.488 4.488 0 012.62-.832c1.043 0 2.032.379 2.82 1.064l.157.138c.403.358.93.558 1.476.558h.186c.545 0 1.073-.2 1.476-.558l.157-.138a4.486 4.486 0 012.82-1.064 4.488 4.488 0 012.62.832c.516.4.857.972.984 1.593.077.362.364.646.745.646M3.375 4.5h15.75M3.375 4.5c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125m-15 6.75h15m-15 0c0 .966.784 1.75 1.75 1.75h11.5a1.75 1.75 0 001.75-1.75m-15 0c0-.966.784-1.75 1.75-1.75h11.5a1.75 1.75 0 011.75 1.75" /></svg>';
+                $xCircleSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+
                 $actions = '<div class="flex items-center gap-2">';
-                $actions .= '<a href="' . route('admin.participants.show', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail"><x-heroicon-o-eye class="h-4 w-4" /></a>';
+                $actions .= '<a href="' . route('admin.participants.show', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail">' . $eyeSvg . '</a>';
 
                 if ($participant->workflow_status === Participant::WORKFLOW_SUBMITTED) {
                     $actions .= '<form action="' . route('admin.participants.verify', $participant) . '" method="POST" onsubmit="return confirm(\'Verifikasi peserta ini?\')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">';
                     $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify"><x-heroicon-o-check class="h-4 w-4" /></button></form>';
+                    $actions .= '<button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify">' . $checkSvg . '</button></form>';
 
                     $actions .= '<form action="' . route('admin.participants.reject', $participant) . '" method="POST" onsubmit="return confirm(\'Tolak peserta ini?\')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">';
                     $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject"><x-heroicon-o-x-mark class="h-4 w-4" /></button></form>';
+                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject">' . $xMarkSvg . '</button></form>';
                 } elseif ($participant->workflow_status === Participant::WORKFLOW_PAYMENT_SUBMITTED) {
                     $actions .= '<form action="' . route('admin.participants.payment.approve', $participant) . '" method="POST" onsubmit="return confirm(\'Setujui pembayaran peserta ini?\')" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">';
                     $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment"><x-heroicon-o-banknotes class="h-4 w-4" /></button></form>';
+                    $actions .= '<button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment">' . $banknotesSvg . '</button></form>';
 
                     $actions .= '<form action="' . route('admin.participants.payment.reject', $participant) . '" method="POST" onsubmit="return confirm(\'Tolak pembayaran peserta ini?\')" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">';
                     $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment"><x-heroicon-o-x-circle class="h-4 w-4" /></button></form>';
+                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment">' . $xCircleSvg . '</button></form>';
                 }
 
                 $actions .= '</div>';

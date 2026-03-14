@@ -468,22 +468,26 @@
                     });
 
                     function initCertificateCheckboxHandlers() {
-                        const selectAllCertificates = document.getElementById('select-all-certificates');
-                        const certificateChecks = Array.from(document.querySelectorAll('.certificate-select'));
+                        const selectAll = document.getElementById('select-all-certificates');
 
-                        if (selectAllCertificates) {
-                            selectAllCertificates.addEventListener('change', function() {
-                                certificateChecks.forEach(function(checkbox) {
-                                    checkbox.checked = selectAllCertificates.checked;
+                        if (selectAll) {
+                            // Remove and re-add to prevent duplicate listeners
+                            selectAll.replaceWith(selectAll.cloneNode(true));
+                            const newSelectAll = document.getElementById('select-all-certificates');
+
+                            newSelectAll.addEventListener('change', function() {
+                                document.querySelectorAll('.certificate-select').forEach(function(checkbox) {
+                                    checkbox.checked = newSelectAll.checked;
                                 });
                             });
 
-                            certificateChecks.forEach(function(checkbox) {
+                            document.querySelectorAll('.certificate-select').forEach(function(checkbox) {
                                 checkbox.addEventListener('change', function() {
-                                    const allChecked = certificateChecks.length > 0 && certificateChecks.every(function(item) {
+                                    const allChecks = Array.from(document.querySelectorAll('.certificate-select'));
+                                    const allChecked = allChecks.length > 0 && allChecks.every(function(item) {
                                         return item.checked;
                                     });
-                                    selectAllCertificates.checked = allChecked;
+                                    newSelectAll.checked = allChecked;
                                 });
                             });
                         }

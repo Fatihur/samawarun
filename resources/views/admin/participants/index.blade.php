@@ -22,8 +22,7 @@
     </div>
 
     {{-- Filter --}}
-    <form method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, email, BIB, HP..." class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors sm:col-span-2 lg:col-span-1">
+    <form id="filter-form" method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
         <select name="event_id" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
             <option value="">Semua Event</option>
             @foreach ($events as $event)
@@ -47,7 +46,7 @@
         </select>
         <div class="flex gap-2">
             <button type="submit" class="flex-1 rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors active:scale-95">Filter</button>
-            @if(request()->hasAny(['search', 'event_id', 'status']))
+            @if(request()->hasAny(['event_id', 'status']))
                 <a href="{{ route('admin.participants.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500 hover:bg-slate-50 transition-colors" title="Reset filter">
                     <x-heroicon-o-x-mark class="h-4 w-4" />
                 </a>
@@ -98,7 +97,6 @@
                 ajax: {
                     url: '{{ route("admin.participants.data") }}',
                     data: function(d) {
-                        d.search = $('input[name="search"]').val();
                         d.event_id = $('select[name="event_id"]').val();
                         d.status = $('select[name="status"]').val();
                     }
@@ -131,13 +129,12 @@
                     zeroRecords: 'Tidak ditemukan data yang sesuai'
                 },
                 drawCallback: function() {
-                    // Re-initialize checkbox handlers after table redraw
                     initCheckboxHandlers();
                 }
             });
 
-            // Reload table when filter changes
-            $('form').on('submit', function(e) {
+            // Reload table when filter form submits
+            $('#filter-form').on('submit', function(e) {
                 e.preventDefault();
                 table.ajax.reload();
             });
@@ -147,24 +144,28 @@
                 const participantChecks = Array.from(document.querySelectorAll('.participant-select'));
 
                 if (selectAll) {
-                    selectAll.addEventListener('change', function() {
-                        participantChecks.forEach(function(checkbox) {
-                            checkbox.checked = selectAll.checked;
+                    // Remove existing listener to avoid duplicates
+                    selectAll.replaceWith(selectAll.cloneNode(true));
+                    const newSelectAll = document.getElementById('select-all-verified');
+
+                    newSelectAll.addEventListener('change', function() {
+                        document.querySelectorAll('.participant-select').forEach(function(checkbox) {
+                            checkbox.checked = newSelectAll.checked;
                         });
                     });
 
-                    participantChecks.forEach(function(checkbox) {
+                    document.querySelectorAll('.participant-select').forEach(function(checkbox) {
                         checkbox.addEventListener('change', function() {
-                            const allChecked = participantChecks.length > 0 && participantChecks.every(function(item) {
+                            const allChecks = Array.from(document.querySelectorAll('.participant-select'));
+                            const allChecked = allChecks.length > 0 && allChecks.every(function(item) {
                                 return item.checked;
                             });
-                            selectAll.checked = allChecked;
+                            newSelectAll.checked = allChecked;
                         });
                     });
                 }
             }
 
-            // Initialize on first load
             initCheckboxHandlers();
         });
     </script>

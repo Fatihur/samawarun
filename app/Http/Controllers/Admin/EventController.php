@@ -18,11 +18,21 @@ class EventController extends Controller
         return view("admin.events.index");
     }
 
-    public function data(): \Illuminate\Http\JsonResponse
+    public function data(Request $request): \Illuminate\Http\JsonResponse
     {
-        $events = Event::query()->latest("date");
+        $query = Event::query()->latest("date");
 
-        return DataTables::of($events)
+        // Handle DataTables global search
+        $searchValue = $request->input('search.value');
+        if (!empty($searchValue)) {
+            $query->where(function ($q) use ($searchValue): void {
+                $q->where("name", "like", "%{$searchValue}%")
+                  ->orWhere("event_code", "like", "%{$searchValue}%")
+                  ->orWhere("location", "like", "%{$searchValue}%");
+            });
+        }
+
+        return DataTables::of($query)
             ->addColumn("event_code_formatted", function (Event $event): string {
                 return '<span class="font-mono text-xs font-bold text-slate-500">' . e($event->event_code) . "</span>";
             })
@@ -39,11 +49,15 @@ class EventController extends Controller
                 return '<span class="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-500">Nonaktif</span>';
             })
             ->addColumn("actions", function (Event $event): string {
+                // SVG Icons
+                $editSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>';
+                $trashSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>';
+
                 $actions = '<div class="flex items-center gap-2">';
-                $actions .= '<a href="' . route("admin.events.edit", $event) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800" title="Edit"><x-heroicon-o-pencil-square class="h-4 w-4" /></a>';
+                $actions .= '<a href="' . route("admin.events.edit", $event) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition-colors hover:bg-blue-100 hover:text-blue-800" title="Edit">' . $editSvg . '</a>';
                 $actions .= '<form action="' . route("admin.events.destroy", $event) . '" method="POST" onsubmit="return confirm(\'Hapus event ini?\')" data-loading-title="Menghapus event" data-loading-message="Event sedang dihapus, mohon tunggu...">';
                 $actions .= csrf_field() . method_field("DELETE");
-                $actions .= '<button type="submit" data-loading-label="Menghapus..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus"><x-heroicon-o-trash class="h-4 w-4" /></button></form>';
+                $actions .= '<button type="submit" data-loading-label="Menghapus..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-500 transition-colors hover:bg-red-100 hover:text-red-700" title="Hapus">' . $trashSvg . '</button></form>';
                 $actions .= "</div>";
                 return $actions;
             })

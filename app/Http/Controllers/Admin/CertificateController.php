@@ -57,6 +57,17 @@ class CertificateController extends Controller
             ->whereNotNull('race_finished_at')
             ->select('participants.*');
 
+        // Handle DataTables global search
+        $searchValue = $request->input('search.value');
+        if (!empty($searchValue)) {
+            $query->where(function ($q) use ($searchValue): void {
+                $q->where('name', 'like', '%' . $searchValue . '%')
+                  ->orWhere('email', 'like', '%' . $searchValue . '%')
+                  ->orWhere('bib_number', 'like', '%' . $searchValue . '%')
+                  ->orWhere('distance_category', 'like', '%' . $searchValue . '%');
+            });
+        }
+
         return DataTables::of($query)
             ->addColumn('select', function (Participant $participant): string {
                 return '<input type="checkbox" name="participant_ids[]" value="' . $participant->id . '" form="bulk-certificate-form" class="certificate-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">';
@@ -78,9 +89,10 @@ class CertificateController extends Controller
                 return '<span class="font-mono font-bold text-slate-700">' . e($participant->formatted_race_duration ?? '-') . '</span>';
             })
             ->addColumn('actions', function (Participant $participant): string {
-                return '<a href="' . route('admin.participants.certificate', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF">
-                            <x-heroicon-o-document-arrow-down class="h-4 w-4" />
-                        </a>';
+                // SVG Icon for download
+                $downloadSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>';
+
+                return '<a href="' . route('admin.participants.certificate', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF">' . $downloadSvg . '</a>';
             })
             ->rawColumns(['select', 'name_email', 'bib_number_display', 'distance_badge', 'duration_display', 'actions'])
             ->make(true);
