@@ -148,7 +148,7 @@
             }
         </script>
 
-    @else
+    @elseif ($activeTab === 'template')
         {{-- Template Tab --}}
         <form action="{{ route('admin.bib-settings.update') }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm" data-loading-title="Menyimpan desain template" data-loading-message="Template nomor dada sedang diperbarui...">
             @csrf
