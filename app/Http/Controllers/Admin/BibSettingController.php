@@ -15,7 +15,8 @@ class BibSettingController extends Controller
 {
     public function index(): View
     {
-        $activeTab = request()->string('tab')->value() === 'template' ? 'template' : 'format';
+        $tab = request()->string('tab')->value();
+        $activeTab = in_array($tab, ['template', 'kiosk']) ? $tab : 'format';
 
         return view('admin.bib-settings.index', [
             'setting' => BibSetting::current(),
@@ -81,6 +82,72 @@ class BibSettingController extends Controller
             return redirect()
                 ->route('admin.bib-settings.index', ['tab' => 'template'])
                 ->with('success', 'Pengaturan desain template berhasil diperbarui.');
+        }
+
+        if ($section === 'kiosk') {
+            $validated = $request->validate([
+                'kiosk_sponsor_text' => ['nullable', 'string', 'max:100'],
+                'header_logos' => ['nullable', 'array'],
+                'header_logos.*' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg', 'max:2048'],
+                'footer_logos' => ['nullable', 'array'],
+                'footer_logos.*' => ['nullable', 'file', 'mimes:jpg,jpeg,png,svg', 'max:2048'],
+                'remove_header_logos' => ['nullable', 'array'],
+                'remove_footer_logos' => ['nullable', 'array'],
+            ]);
+
+            // Get existing logos
+            $headerLogos = $setting->kiosk_header_logos ?? [];
+            $footerLogos = $setting->kiosk_footer_logos ?? [];
+
+            // Remove selected header logos
+            if ($request->has('remove_header_logos')) {
+                foreach ($request->input('remove_header_logos') as $index) {
+                    if (isset($headerLogos[$index])) {
+                        Storage::disk('public')->delete($headerLogos[$index]);
+                        unset($headerLogos[$index]);
+                    }
+                }
+                $headerLogos = array_values($headerLogos);
+            }
+
+            // Remove selected footer logos
+            if ($request->has('remove_footer_logos')) {
+                foreach ($request->input('remove_footer_logos') as $index) {
+                    if (isset($footerLogos[$index])) {
+                        Storage::disk('public')->delete($footerLogos[$index]);
+                        unset($footerLogos[$index]);
+                    }
+                }
+                $footerLogos = array_values($footerLogos);
+            }
+
+            // Upload new header logos
+            if ($request->hasFile('header_logos')) {
+                foreach ($request->file('header_logos') as $file) {
+                    if ($file) {
+                        $headerLogos[] = $file->store('kiosk/logos', 'public');
+                    }
+                }
+            }
+
+            // Upload new footer logos
+            if ($request->hasFile('footer_logos')) {
+                foreach ($request->file('footer_logos') as $file) {
+                    if ($file) {
+                        $footerLogos[] = $file->store('kiosk/logos', 'public');
+                    }
+                }
+            }
+
+            $setting->update([
+                'kiosk_sponsor_text' => $validated['kiosk_sponsor_text'] ?: 'Sponsored by',
+                'kiosk_header_logos' => $headerLogos,
+                'kiosk_footer_logos' => $footerLogos,
+            ]);
+
+            return redirect()
+                ->route('admin.bib-settings.index', ['tab' => 'kiosk'])
+                ->with('success', 'Pengaturan kiosk berhasil diperbarui.');
         }
 
         $validated = $request->validate([

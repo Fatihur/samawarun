@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BibSetting;
 use App\Models\Event;
 use App\Models\Participant;
 use Illuminate\Http\Request;
@@ -29,9 +30,11 @@ class BibScanController extends Controller
         ]);
 
         $event = Event::findOrFail($request->query('event_id'));
+        $settings = BibSetting::current();
 
         return view('admin.bib-scan.kiosk', [
             'event' => $event,
+            'settings' => $settings,
         ]);
     }
 

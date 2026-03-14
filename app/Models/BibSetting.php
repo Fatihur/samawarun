@@ -24,6 +24,9 @@ class BibSetting extends Model
         'show_event_date',
         'show_event_location',
         'background_image_path',
+        'kiosk_header_logos',
+        'kiosk_footer_logos',
+        'kiosk_sponsor_text',
     ];
 
     protected function casts(): array
@@ -36,6 +39,8 @@ class BibSetting extends Model
             'name_font_size' => 'integer',
             'show_event_date' => 'boolean',
             'show_event_location' => 'boolean',
+            'kiosk_header_logos' => 'array',
+            'kiosk_footer_logos' => 'array',
         ];
     }
 
@@ -56,6 +61,9 @@ class BibSetting extends Model
             'show_event_date' => true,
             'show_event_location' => true,
             'background_image_path' => null,
+            'kiosk_header_logos' => null,
+            'kiosk_footer_logos' => null,
+            'kiosk_sponsor_text' => 'Sponsored by',
         ];
     }
 

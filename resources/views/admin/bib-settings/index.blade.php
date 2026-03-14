@@ -14,6 +14,10 @@
             <x-heroicon-o-paint-brush class="h-4 w-4" />
             Desain Template
         </a>
+        <a href="{{ route('admin.bib-settings.index', ['tab' => 'kiosk']) }}" class="inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-colors {{ $activeTab === 'kiosk' ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100' }}">
+            <x-heroicon-o-computer-desktop class="h-4 w-4" />
+            Kiosk Scan
+        </a>
     </div>
 
     @if ($activeTab === 'format')
@@ -299,6 +303,95 @@
 
             <button type="submit" data-loading-label="Menyimpan..." class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
                 Simpan Desain Template
+            </button>
+        </form>
+
+    @elseif ($activeTab === 'kiosk')
+        {{-- Kiosk Tab --}}
+        <form action="{{ route('admin.bib-settings.update') }}" method="POST" enctype="multipart/form-data" class="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 shadow-sm" data-loading-title="Menyimpan pengaturan kiosk" data-loading-message="Pengaturan kiosk sedang diperbarui...">
+            @csrf
+            @method('PUT')
+            <input type="hidden" name="section" value="kiosk">
+
+            <div class="mb-6 rounded-xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <strong>Info:</strong> Logo akan ditampilkan di halaman kiosk scan BIB. Logo header muncul di bagian atas, logo footer dengan teks sponsor di bagian bawah.
+            </div>
+
+            {{-- Section: Sponsor Text --}}
+            <div class="mb-8">
+                <h3 class="mb-4 text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="h-5 w-1 rounded-full bg-brand-500"></span>
+                    Teks Sponsor
+                </h3>
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-slate-700">Teks di Atas Logo Footer</label>
+                    <input type="text" name="kiosk_sponsor_text" value="{{ old('kiosk_sponsor_text', $setting->kiosk_sponsor_text ?: 'Sponsored by') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="Contoh: Sponsored by, Didukung oleh, Partner:">
+                    <p class="mt-1.5 text-xs text-slate-400">Teks yang muncul di atas logo-logo footer.</p>
+                </div>
+            </div>
+
+            {{-- Section: Header Logos --}}
+            <div class="mb-8">
+                <h3 class="mb-4 text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="h-5 w-1 rounded-full bg-brand-500"></span>
+                    Logo Header
+                </h3>
+
+                {{-- Existing Header Logos --}}
+                @if($setting->kiosk_header_logos && count($setting->kiosk_header_logos) > 0)
+                <div class="mb-4 grid gap-3 sm:grid-cols-3">
+                    @foreach($setting->kiosk_header_logos as $index => $logo)
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <img src="{{ Storage::url($logo) }}" alt="Header Logo {{ $index + 1 }}" class="h-16 w-full object-contain mb-2">
+                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-red-600 cursor-pointer">
+                            <input type="checkbox" name="remove_header_logos[]" value="{{ $index }}" class="rounded border-slate-300 text-red-600">
+                            Hapus logo ini
+                        </label>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- Upload New Header Logos --}}
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tambah Logo Header</label>
+                    <input type="file" name="header_logos[]" accept=".jpg,.jpeg,.png,.svg" multiple class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-bold file:text-brand-600 focus:outline-none">
+                    <p class="mt-1.5 text-xs text-slate-400">Bisa pilih multiple file. JPG/PNG/SVG, maks 2MB per file. Logo akan ditampilkan di bagian atas halaman kiosk.</p>
+                </div>
+            </div>
+
+            {{-- Section: Footer Logos --}}
+            <div class="mb-8">
+                <h3 class="mb-4 text-base font-bold text-slate-800 flex items-center gap-2">
+                    <span class="h-5 w-1 rounded-full bg-brand-500"></span>
+                    Logo Footer (Sponsor)
+                </h3>
+
+                {{-- Existing Footer Logos --}}
+                @if($setting->kiosk_footer_logos && count($setting->kiosk_footer_logos) > 0)
+                <div class="mb-4 grid gap-3 sm:grid-cols-4">
+                    @foreach($setting->kiosk_footer_logos as $index => $logo)
+                    <div class="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                        <img src="{{ Storage::url($logo) }}" alt="Footer Logo {{ $index + 1 }}" class="h-12 w-full object-contain mb-2">
+                        <label class="inline-flex items-center gap-2 text-xs font-semibold text-red-600 cursor-pointer">
+                            <input type="checkbox" name="remove_footer_logos[]" value="{{ $index }}" class="rounded border-slate-300 text-red-600">
+                            Hapus logo ini
+                        </label>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+
+                {{-- Upload New Footer Logos --}}
+                <div>
+                    <label class="mb-1.5 block text-sm font-semibold text-slate-700">Tambah Logo Footer</label>
+                    <input type="file" name="footer_logos[]" accept=".jpg,.jpeg,.png,.svg" multiple class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-bold file:text-brand-600 focus:outline-none">
+                    <p class="mt-1.5 text-xs text-slate-400">Bisa pilih multiple file. JPG/PNG/SVG, maks 2MB per file. Logo akan ditampilkan di bagian bawah halaman kiosk dengan teks sponsor di atasnya.</p>
+                </div>
+            </div>
+
+            <button type="submit" data-loading-label="Menyimpan..." class="rounded-xl bg-brand-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
+                Simpan Pengaturan Kiosk
             </button>
         </form>
     @endif

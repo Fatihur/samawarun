@@ -27,6 +27,27 @@
             padding: 2rem;
         }
 
+        /* Header Logos */
+        .header-logos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            padding: 1.5rem 2rem;
+            background: linear-gradient(to bottom, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,0) 100%);
+            z-index: 100;
+        }
+
+        .header-logos img {
+            max-height: 60px;
+            max-width: 150px;
+            object-fit: contain;
+        }
+
         /* Timer */
         .timer-display {
             position: fixed;
@@ -36,6 +57,7 @@
             font-weight: 700;
             color: #94a3b8;
             font-variant-numeric: tabular-nums;
+            z-index: 101;
         }
 
         .timer-display.active {
@@ -47,6 +69,7 @@
             text-align: center;
             width: 100%;
             max-width: 500px;
+            margin-top: 80px;
         }
 
         .scanner-section.hidden {
@@ -155,23 +178,51 @@
             75% { transform: translateX(10px); }
         }
 
-        /* Corner hint */
-        .corner-hint {
+        /* Footer Section */
+        .footer-section {
             position: fixed;
-            bottom: 1rem;
-            left: 1rem;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            padding: 1.5rem 2rem 2rem;
+            background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0.9) 70%, rgba(255,255,255,0) 100%);
+            z-index: 100;
+        }
+
+        .sponsor-text {
             font-size: 0.875rem;
-            color: #cbd5e1;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .footer-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-logos img {
+            max-height: 40px;
+            max-width: 120px;
+            object-fit: contain;
         }
 
         /* Exit hint */
         .exit-hint {
             position: fixed;
-            bottom: 1rem;
+            bottom: 0.5rem;
             right: 1rem;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             color: #cbd5e1;
-            opacity: 0.6;
+            opacity: 0.5;
+            z-index: 101;
         }
 
         /* Fullscreen overlay */
@@ -205,6 +256,17 @@
     </style>
 </head>
 <body>
+    <!-- Header Logos -->
+    @if($settings->kiosk_header_logos && count($settings->kiosk_header_logos) > 0)
+    <div class="header-logos">
+        @foreach($settings->kiosk_header_logos as $logo)
+            @if($logo)
+                <img src="{{ Storage::url($logo) }}" alt="Logo">
+            @endif
+        @endforeach
+    </div>
+    @endif
+
     <div class="timer-display" id="timer-display">30</div>
 
     <div class="container">
@@ -231,8 +293,23 @@
         </div>
     </div>
 
-    <div class="corner-hint">{{ $event->name }}</div>
-    <div class="exit-hint">Tekan ESC untuk keluar</div>
+    <!-- Footer Section -->
+    @if($settings->kiosk_footer_logos && count($settings->kiosk_footer_logos) > 0)
+    <div class="footer-section">
+        @if($settings->kiosk_sponsor_text)
+            <div class="sponsor-text">{{ $settings->kiosk_sponsor_text }}</div>
+        @endif
+        <div class="footer-logos">
+            @foreach($settings->kiosk_footer_logos as $logo)
+                @if($logo)
+                    <img src="{{ Storage::url($logo) }}" alt="Sponsor Logo">
+                @endif
+            @endforeach
+        </div>
+    </div>
+    @endif
+
+    <div class="exit-hint">ESC untuk keluar</div>
 
     <!-- Fullscreen Overlay -->
     <div class="fullscreen-overlay" id="fullscreen-overlay">
