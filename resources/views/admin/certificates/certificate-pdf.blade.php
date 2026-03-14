@@ -96,11 +96,12 @@
                     $widthMm = ($w / 100) * $pageW;
                     
                 @endphp
+                <!-- font: {{ e($fontFamily) }}, placeholder: {{ $element['placeholder'] ?? 'none' }} -->
                 <div class="text-element" style="
                     left: {{ $leftMm }}mm;
                     top: {{ $topMm }}mm;
                     width: {{ $widthMm }}mm;
-                    font-family: '{{ $fontFamily }}', sans-serif;
+                    font-family: {{ e($fontFamily) }}, sans-serif;
                     font-size: {{ $fontSize }}px;
                     font-weight: {{ $fontWeight }};
                     font-style: {{ $fontStyle }};
