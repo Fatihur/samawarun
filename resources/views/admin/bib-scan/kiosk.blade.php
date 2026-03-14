@@ -27,6 +27,21 @@
             padding: 2rem;
         }
 
+        /* Timer */
+        .timer-display {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #94a3b8;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-display.active {
+            color: #3b82f6;
+        }
+
         /* Scanner Section */
         .scanner-section {
             text-align: center;
@@ -76,54 +91,34 @@
         }
 
         .info-section.active {
-            display: block;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
         }
 
         .info-bib {
-            font-size: 1.5rem;
-            font-weight: 600;
+            font-size: 4rem;
+            font-weight: 800;
             color: #3b82f6;
-            margin-bottom: 1rem;
+            line-height: 1;
         }
 
         .info-name {
-            font-size: 3rem;
-            font-weight: 800;
+            font-size: 6rem;
+            font-weight: 900;
             color: #1e293b;
-            margin-bottom: 1.5rem;
-            text-transform: capitalize;
+            line-height: 1.1;
+            text-transform: uppercase;
+            max-width: 90vw;
+            word-wrap: break-word;
         }
 
         .info-category {
-            font-size: 1.25rem;
-            color: #64748b;
-            margin-bottom: 3rem;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .info-item {
-            text-align: center;
-        }
-
-        .info-label {
-            font-size: 0.875rem;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-value {
-            font-size: 1.25rem;
+            font-size: 3rem;
             font-weight: 600;
-            color: #1e293b;
+            color: #64748b;
+            text-transform: uppercase;
         }
 
         /* Not Found */
@@ -138,14 +133,14 @@
         }
 
         .not-found h2 {
-            font-size: 2rem;
-            font-weight: 700;
+            font-size: 4rem;
+            font-weight: 800;
             color: #dc2626;
             margin-bottom: 1rem;
         }
 
         .not-found p {
-            font-size: 1.125rem;
+            font-size: 2rem;
             color: #64748b;
         }
 
@@ -164,13 +159,15 @@
         .corner-hint {
             position: fixed;
             bottom: 1rem;
-            right: 1rem;
-            font-size: 0.75rem;
+            left: 1rem;
+            font-size: 0.875rem;
             color: #cbd5e1;
         }
     </style>
 </head>
 <body>
+    <div class="timer-display" id="timer-display">30</div>
+
     <div class="container">
         <!-- Scanner Section -->
         <div class="scanner-section" id="scanner-section">
@@ -186,17 +183,6 @@
             <div class="info-bib" id="info-bib">-</div>
             <div class="info-name" id="info-name">-</div>
             <div class="info-category" id="info-category">-</div>
-
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Jersey</div>
-                    <div class="info-value" id="info-jersey">-</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Status</div>
-                    <div class="info-value" id="info-status">-</div>
-                </div>
-            </div>
         </div>
 
         <!-- Not Found -->
@@ -212,14 +198,16 @@
     <script>
         const EVENT_ID = {{ $event->id }};
         const LOOKUP_URL = '{{ route("admin.bib-scan.kiosk.lookup") }}';
-        const DISPLAY_DURATION = 8; // seconds
+        const DISPLAY_DURATION = 30; // seconds
 
         const scannerSection = document.getElementById('scanner-section');
         const infoSection = document.getElementById('info-section');
         const notFound = document.getElementById('not-found');
+        const timerDisplay = document.getElementById('timer-display');
 
         let html5QrCode = null;
         let displayTimer = null;
+        let countdownInterval = null;
 
         async function startScanner() {
             if (typeof Html5Qrcode === 'undefined') {
@@ -263,6 +251,27 @@
             }
         }
 
+        function startCountdown() {
+            let remaining = DISPLAY_DURATION;
+            timerDisplay.textContent = remaining;
+            timerDisplay.classList.add('active');
+
+            clearInterval(countdownInterval);
+            countdownInterval = setInterval(() => {
+                remaining--;
+                timerDisplay.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+
+        function stopCountdown() {
+            clearInterval(countdownInterval);
+            timerDisplay.classList.remove('active');
+            timerDisplay.textContent = DISPLAY_DURATION;
+        }
+
         function showInfo(data) {
             // Stop scanner
             if (html5QrCode) {
@@ -276,12 +285,13 @@
             notFound.classList.remove('active');
             infoSection.classList.add('active');
 
-            // Fill data
+            // Fill data (only BIB, name, category)
             document.getElementById('info-bib').textContent = data.bib_number;
             document.getElementById('info-name').textContent = data.name;
-            document.getElementById('info-category').textContent = 'Category ' + data.distance_category;
-            document.getElementById('info-jersey').textContent = data.jersey_size;
-            document.getElementById('info-status').textContent = data.status;
+            document.getElementById('info-category').textContent = data.distance_category;
+
+            // Start countdown
+            startCountdown();
 
             // Auto reset after delay
             clearTimeout(displayTimer);
@@ -305,6 +315,9 @@
 
             document.getElementById('nf-bib').textContent = bibNumber;
 
+            // Start countdown
+            startCountdown();
+
             // Auto reset after delay
             clearTimeout(displayTimer);
             displayTimer = setTimeout(() => {
@@ -316,6 +329,8 @@
             infoSection.classList.remove('active');
             notFound.classList.remove('active');
             scannerSection.classList.remove('hidden');
+
+            stopCountdown();
 
             // Restart scanner
             setTimeout(() => {
