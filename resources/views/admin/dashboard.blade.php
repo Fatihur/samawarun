@@ -185,7 +185,7 @@
             @else
                 <div class="flex h-48 flex-col items-center justify-center text-center">
                     <div class="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                        <x-heroicon-o-calendar-x-mark class="h-6 w-6" />
+                        <x-heroicon-o-x-circle class="h-6 w-6" />
                     </div>
                     <p class="mt-3 text-sm text-slate-500">Tidak ada event aktif</p>
                     <a href="{{ route('admin.events.create') }}" class="mt-2 text-sm font-medium text-brand-600 hover:text-brand-700">Buat Event Baru</a>
