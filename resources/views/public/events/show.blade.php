@@ -36,7 +36,7 @@
                         </div>
                         <div>
                             <p class="text-xs font-medium text-gray-400">Tanggal</p>
-                            <p class="font-bold text-white">{{ $event->date->format('dmY') }}</p>
+                            <p class="font-bold text-white">{{ $event->date->translatedFormat('d F Y') }}</p>
                         </div>
                     </div>
                     <div class="hidden h-8 w-px bg-white/10 sm:block"></div>
@@ -131,7 +131,7 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-primary mt-0.5 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 <div>
                                     <p class="text-xs font-bold uppercase text-primary">Tanggal Event</p>
-                                    <p class="text-sm font-medium text-white">{{ $event->date->format('dmY') }}</p>
+                                    <p class="text-sm font-medium text-white">{{ $event->date->translatedFormat('d F Y') }}</p>
                                 </div>
                             </div>
                         </div>
