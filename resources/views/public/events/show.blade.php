@@ -135,14 +135,14 @@
                     </button>
 
                     {{-- Prev Button --}}
-                    <button onclick="changeImage(-1); event.stopPropagation();" class="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white shadow-lg hover:bg-white/30 transition-all hover:scale-105 border border-white/30">
+                    <button onclick="changeImage(-1); event.stopPropagation();" class="absolute left-4 sm:left-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white shadow-lg hover:bg-white/30 transition-all hover:scale-105 border border-white/30" style="top: 50%; transform: translateY(-50%);">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-7 w-7">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
                         </svg>
                     </button>
 
                     {{-- Next Button --}}
-                    <button onclick="changeImage(1); event.stopPropagation();" class="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white shadow-lg hover:bg-white/30 transition-all hover:scale-105 border border-white/30">
+                    <button onclick="changeImage(1); event.stopPropagation();" class="absolute right-4 sm:right-8 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-white/20 text-white shadow-lg hover:bg-white/30 transition-all hover:scale-105 border border-white/30" style="top: 50%; transform: translateY(-50%);">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="h-7 w-7">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
                         </svg>
