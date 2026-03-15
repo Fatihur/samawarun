@@ -74,7 +74,7 @@ class Event extends Model
         return 'slug';
     }
 
-    private function generateSlug(): string
+    public function generateSlug(): string
     {
         $slug = \Illuminate\Support\Str::slug($this->name);
         $count = static::where('slug', 'like', $slug . '%')->where('id', '!=', $this->id ?? 0)->count();
