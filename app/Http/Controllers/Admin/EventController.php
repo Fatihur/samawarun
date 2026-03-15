@@ -182,6 +182,7 @@ class EventController extends Controller
                 "location" => ["required", "string", "max:255"],
                 "price" => ["nullable", "numeric", "min:0"],
                 "contact" => ["nullable", "string", "max:255"],
+                "slug" => ["nullable", "string", "max:255", "unique:events,slug" . ($event ? ",{$event->id}" : "")],
                 "bank_account" => ["nullable", "string", "max:255"],
                 "is_active" => ["nullable", "boolean"],
                 "gallery_images" => ["nullable", "array"],

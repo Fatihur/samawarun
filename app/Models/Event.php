@@ -28,6 +28,7 @@ class Event extends Model
     protected $fillable = [
         'event_code',
         'name',
+        'slug',
         'poster',
         'description',
         'date',
@@ -49,6 +50,36 @@ class Event extends Model
             'price' => 'decimal:2',
             'is_active' => 'boolean',
         ];
+    }
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (Event $event): void {
+            if (empty($event->slug)) {
+                $event->slug = $event->generateSlug();
+            }
+        });
+
+        static::updating(function (Event $event): void {
+            if (empty($event->slug)) {
+                $event->slug = $event->generateSlug();
+            }
+        });
+    }
+
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
+    private function generateSlug(): string
+    {
+        $slug = \Illuminate\Support\Str::slug($this->name);
+        $count = static::where('slug', 'like', $slug . '%')->where('id', '!=', $this->id ?? 0)->count();
+
+        return $count > 0 ? "{$slug}-{$count}" : $slug;
     }
 
     public function isRegistrationOpen(): bool

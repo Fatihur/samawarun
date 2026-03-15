@@ -4,6 +4,11 @@
         <label class="mb-1.5 block text-sm font-semibold text-slate-700">Nama Event</label>
         <input type="text" name="name" value="{{ old('name', $event->name ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors" required>
     </div>
+    <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Slug URL</label>
+        <input type="text" name="slug" value="{{ old('slug', $event->slug ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors" placeholder="auto-generate-dari-nama">
+        <p class="mt-1 text-xs text-slate-500">Otomatis dibuat dari nama event. Boleh dikosongkan.</p>
+    </div>
     <div class="md:col-span-2">
         <label class="mb-1.5 block text-sm font-semibold text-slate-700">Poster</label>
         <input type="file" name="poster" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-bold file:text-brand-600 focus:outline-none" accept="image/*">
