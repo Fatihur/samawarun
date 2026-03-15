@@ -106,19 +106,117 @@
                         <span class="h-8 w-1 rounded-full bg-primary"></span>
                         Dokumentasi Event
                     </h2>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        @foreach($event->galleries as $gallery)
-                        <div class="group relative aspect-square overflow-hidden rounded-xl border border-white/10">
-                            <img src="{{ asset('storage/'.$gallery->image_path) }}" alt="{{ $gallery->title ?? 'Dokumentasi' }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">
-                            @if($gallery->title)
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="gallery-grid">
+                        @foreach($event->galleries as $index => $gallery)
+                        <div class="group relative aspect-square overflow-hidden rounded-xl border border-white/10 cursor-pointer" onclick="openLightbox({{ $index }})">
+                            <img src="{{ asset('storage/'.$gallery->image_path) }}" alt="{{ $gallery->caption ?? 'Dokumentasi' }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" data-gallery-img="{{ $index }}">
+                            @if($gallery->caption)
                             <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
-                                <p class="text-xs font-medium text-white truncate">{{ $gallery->title }}</p>
+                                <p class="text-xs font-medium text-white truncate">{{ $gallery->caption }}</p>
                             </div>
                             @endif
+                            <div class="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-8 w-8 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10 7.5v5m-2.5-2.5h5" />
+                                </svg>
+                            </div>
                         </div>
                         @endforeach
                     </div>
                 </div>
+
+                {{-- Lightbox --}}
+                <div id="lightbox" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-sm" onclick="closeLightboxOnBackground(event)">
+                    {{-- Close Button --}}
+                    <button onclick="closeLightbox()" class="absolute top-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    {{-- Prev Button --}}
+                    <button onclick="changeImage(-1)" class="absolute left-4 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                        </svg>
+                    </button>
+
+                    {{-- Next Button --}}
+                    <button onclick="changeImage(1)" class="absolute right-4 top-1/2 -translate-y-1/2 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="h-6 w-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </button>
+
+                    {{-- Image Counter --}}
+                    <div class="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 rounded-full bg-black/50 px-4 py-2 text-sm text-white">
+                        <span id="lightbox-counter">1</span> / {{ $event->galleries->count() }}
+                    </div>
+
+                    {{-- Main Image --}}
+                    <div class="flex h-full w-full items-center justify-center p-4 sm:p-16">
+                        <img id="lightbox-img" src="" alt="" class="max-h-full max-w-full object-contain">
+                    </div>
+
+                    {{-- Caption --}}
+                    <div id="lightbox-caption" class="absolute bottom-16 left-0 right-0 text-center text-white text-sm px-4"></div>
+                </div>
+
+                <script>
+                    const galleryImages = [
+                        @foreach($event->galleries as $gallery)
+                        { src: '{{ asset('storage/'.$gallery->image_path) }}', caption: '{{ $gallery->caption ?? '' }}' },
+                        @endforeach
+                    ];
+                    let currentIndex = 0;
+
+                    function openLightbox(index) {
+                        currentIndex = index;
+                        updateLightboxImage();
+                        document.getElementById('lightbox').classList.remove('hidden');
+                        document.body.style.overflow = 'hidden';
+                    }
+
+                    function closeLightbox() {
+                        document.getElementById('lightbox').classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }
+
+                    function closeLightboxOnBackground(event) {
+                        if (event.target.id === 'lightbox') {
+                            closeLightbox();
+                        }
+                    }
+
+                    function changeImage(direction) {
+                        currentIndex += direction;
+                        if (currentIndex < 0) {
+                            currentIndex = galleryImages.length - 1;
+                        } else if (currentIndex >= galleryImages.length) {
+                            currentIndex = 0;
+                        }
+                        updateLightboxImage();
+                    }
+
+                    function updateLightboxImage() {
+                        const img = document.getElementById('lightbox-img');
+                        const caption = document.getElementById('lightbox-caption');
+                        const counter = document.getElementById('lightbox-counter');
+
+                        img.src = galleryImages[currentIndex].src;
+                        caption.textContent = galleryImages[currentIndex].caption || '';
+                        counter.textContent = currentIndex + 1;
+                    }
+
+                    // Keyboard navigation
+                    document.addEventListener('keydown', function(e) {
+                        if (document.getElementById('lightbox').classList.contains('hidden')) return;
+
+                        if (e.key === 'Escape') closeLightbox();
+                        if (e.key === 'ArrowLeft') changeImage(-1);
+                        if (e.key === 'ArrowRight') changeImage(1);
+                    });
+                </script>
                 @endif
             </div>
 
