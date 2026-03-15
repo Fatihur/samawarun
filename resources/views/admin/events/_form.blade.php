@@ -34,13 +34,37 @@
         <input type="number" step="0.01" min="0" name="price" value="{{ old('price', $event->price ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 placeholder-slate-400 focus:outline-none" readonly>
         <p class="mt-1 text-xs text-slate-500">Terisi otomatis dari harga kategori termurah yang dipilih.</p>
     </div>
-    <div>
-        <label class="mb-1.5 block text-sm font-semibold text-slate-700">Kontak Panitia</label>
-        <input type="text" name="contact" value="{{ old('contact', $event->contact ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
-    </div>
     <div class="md:col-span-2">
         <label class="mb-1.5 block text-sm font-semibold text-slate-700">Nomor Rekening</label>
         <input type="text" name="bank_account" value="{{ old('bank_account', $event->bank_account ?? '') }}" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
+    </div>
+
+    {{-- Gallery Event --}}
+    <div class="md:col-span-2 pt-4 border-t border-slate-200">
+        <label class="mb-3 block text-sm font-semibold text-slate-700">Galeri Event</label>
+
+        {{-- Existing Gallery Images --}}
+        @if(isset($event) && $event->galleries && $event->galleries->count() > 0)
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+                @foreach($event->galleries as $gallery)
+                    <div class="relative group aspect-square rounded-xl border border-slate-200 overflow-hidden">
+                        <img src="{{ asset('storage/'.$gallery->image_path) }}" alt="Gallery" class="h-full w-full object-cover">
+                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" name="delete_galleries[]" value="{{ $gallery->id }}" class="rounded border-slate-300 text-red-600 focus:ring-red-500">
+                                <span class="text-white text-xs">Hapus</span>
+                            </label>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+        {{-- Upload New Images --}}
+        <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6">
+            <input type="file" name="gallery_images[]" multiple accept="image/*" class="w-full text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-brand-50 file:px-4 file:py-2 file:text-sm file:font-bold file:text-brand-600 hover:file:bg-brand-100 file:cursor-pointer file:transition-colors">
+            <p class="mt-2 text-xs text-slate-500">Upload multiple foto untuk galeri event. Format: JPG, PNG, WEBP. Maks 2MB per file.</p>
+        </div>
     </div>
     <div class="md:col-span-2">
         <label class="inline-flex items-center gap-2.5 text-sm font-semibold text-slate-700 cursor-pointer">

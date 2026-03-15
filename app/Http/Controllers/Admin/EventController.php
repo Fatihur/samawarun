@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\DistanceCategory;
 use App\Models\Event;
+use App\Models\EventGallery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -86,11 +87,19 @@ class EventController extends Controller
         }
 
         $validated["event_code"] = $this->generateEventCode($validated["date"]);
-        $event = Event::create($validated);
+
+        // Remove gallery-related fields from event data
+        $eventData = $validated;
+        unset($eventData['gallery_images'], $eventData['delete_galleries']);
+
+        $event = Event::create($eventData);
 
         $event
             ->distanceCategories()
             ->sync($this->buildDistanceCategoryPayload($request));
+
+        // Handle gallery image uploads
+        $this->syncGalleryImages($request, $event);
 
         return redirect()
             ->route("admin.events.index")
@@ -100,7 +109,7 @@ class EventController extends Controller
     public function edit(Event $event): View
     {
         return view("admin.events.edit", [
-            "event" => $event->load("distanceCategories"),
+            "event" => $event->load(["distanceCategories", "galleries"]),
             "distanceCategories" => DistanceCategory::where("is_active", true)
                 ->orderBy("name")
                 ->get(),
@@ -120,11 +129,18 @@ class EventController extends Controller
                 ->store("event-posters", "public");
         }
 
-        $event->update($validated);
+        // Remove gallery-related fields from event data
+        $eventData = $validated;
+        unset($eventData['gallery_images'], $eventData['delete_galleries']);
+
+        $event->update($eventData);
 
         $event
             ->distanceCategories()
             ->sync($this->buildDistanceCategoryPayload($request));
+
+        // Handle gallery image uploads and deletions
+        $this->syncGalleryImages($request, $event);
 
         return redirect()
             ->route("admin.events.index")
@@ -168,6 +184,10 @@ class EventController extends Controller
                 "contact" => ["nullable", "string", "max:255"],
                 "bank_account" => ["nullable", "string", "max:255"],
                 "is_active" => ["nullable", "boolean"],
+                "gallery_images" => ["nullable", "array"],
+                "gallery_images.*" => ["image", "mimes:jpg,jpeg,png,webp", "max:2048"],
+                "delete_galleries" => ["nullable", "array"],
+                "delete_galleries.*" => ["exists:event_galleries,id"],
                 "distance_categories" => ["required", "array", "min:1"],
                 "distance_categories.*" => ["exists:distance_categories,id"],
                 "category_prices" => ["required", "array"],
@@ -193,6 +213,9 @@ class EventController extends Controller
 
         $validated["is_active"] = $request->boolean("is_active");
         $validated["price"] = $this->resolveBasePrice($request);
+
+        // Remove contact from validation since it's being removed from the form
+        unset($validated['contact']);
 
         return $validated;
     }
@@ -237,5 +260,36 @@ class EventController extends Controller
         $nextNumber = $latestCode ? ((int) substr($latestCode, -3)) + 1 : 1;
 
         return $prefix . str_pad((string) $nextNumber, 3, "0", STR_PAD_LEFT);
+    }
+
+    private function syncGalleryImages(Request $request, Event $event): void
+    {
+        // Handle deletions
+        if ($request->has('delete_galleries')) {
+            $galleriesToDelete = EventGallery::where('event_id', $event->id)
+                ->whereIn('id', $request->input('delete_galleries'))
+                ->get();
+
+            foreach ($galleriesToDelete as $gallery) {
+                if ($gallery->image_path) {
+                    Storage::disk('public')->delete($gallery->image_path);
+                }
+                $gallery->delete();
+            }
+        }
+
+        // Handle new uploads
+        if ($request->hasFile('gallery_images')) {
+            $maxOrder = EventGallery::where('event_id', $event->id)->max('sort_order') ?? 0;
+
+            foreach ($request->file('gallery_images') as $index => $image) {
+                $path = $image->store('event-galleries', 'public');
+                EventGallery::create([
+                    'event_id' => $event->id,
+                    'image_path' => $path,
+                    'sort_order' => $maxOrder + $index + 1,
+                ]);
+            }
+        }
     }
 }

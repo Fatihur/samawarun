@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Carbon;
 
 class Event extends Model
 {
@@ -90,6 +89,11 @@ class Event extends Model
         return $this->belongsToMany(DistanceCategory::class)
             ->withPivot('price')
             ->withTimestamps();
+    }
+
+    public function galleries(): HasMany
+    {
+        return $this->hasMany(EventGallery::class)->orderBy('sort_order');
     }
 
     public function getPriceSummaryAttribute(): string

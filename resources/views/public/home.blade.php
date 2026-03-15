@@ -194,7 +194,7 @@
                                 <span>{{ $event->location }}</span>
                             </div>
                             <p class="text-gray-400 text-sm mb-6 line-clamp-2">
-                                {{ $event->price_summary }} &bull; {{ $event->date->translatedFormat('l, d F Y') }}
+                                {{ $event->date->format('dmY') }}
                             </p>
                             <div class="mt-auto flex gap-3">
                                 <a href="{{ route('events.show', $event) }}" wire:navigate class="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-center text-background-dark hover:bg-primary-hover transition-colors">

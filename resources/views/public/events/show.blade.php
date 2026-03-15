@@ -36,7 +36,7 @@
                         </div>
                         <div>
                             <p class="text-xs font-medium text-gray-400">Tanggal</p>
-                            <p class="font-bold text-white">{{ $event->date->translatedFormat('d F Y') }}</p>
+                            <p class="font-bold text-white">{{ $event->date->format('dmY') }}</p>
                         </div>
                     </div>
                     <div class="hidden h-8 w-px bg-white/10 sm:block"></div>
@@ -91,41 +91,47 @@
                         <span class="h-8 w-1 rounded-full bg-primary"></span>
                         Informasi Event
                     </h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="rounded-xl border border-white/10 bg-secondary-dark p-5">
-                            <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Kontak Panitia</p>
-                            <p class="text-white font-bold text-lg">{{ $event->contact ?? '-' }}</p>
-                        </div>
+                    <div class="grid grid-cols-1 gap-4">
                         <div class="rounded-xl border border-white/10 bg-secondary-dark p-5">
                             <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Nomor Rekening</p>
                             <p class="text-white font-bold text-lg break-all">{{ $event->bank_account ?? '-' }}</p>
                         </div>
                     </div>
                 </div>
+
+                {{-- Gallery Dokumentasi --}}
+                @if($event->galleries->isNotEmpty())
+                <div>
+                    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold text-white font-display">
+                        <span class="h-8 w-1 rounded-full bg-primary"></span>
+                        Dokumentasi Event
+                    </h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        @foreach($event->galleries as $gallery)
+                        <div class="group relative aspect-square overflow-hidden rounded-xl border border-white/10">
+                            <img src="{{ asset('storage/'.$gallery->image_path) }}" alt="{{ $gallery->title ?? 'Dokumentasi' }}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110">
+                            @if($gallery->title)
+                            <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                                <p class="text-xs font-medium text-white truncate">{{ $gallery->title }}</p>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </div>
 
             {{-- Sidebar / Register --}}
             <div class="relative lg:col-span-1">
                 <div class="sticky top-28 flex flex-col gap-6">
                      <div class="overflow-hidden rounded-2xl border border-white/10 bg-secondary-dark p-6 shadow-2xl">
-                        <div class="mb-6 flex flex-col gap-1 border-b border-white/5 pb-6">
-                            <p class="text-sm font-medium text-gray-400">Biaya Pendaftaran</p>
-                            <span class="text-3xl font-black text-white">{{ $event->price_summary }}</span>
-                            <div class="mt-4 space-y-2">
-                                @foreach ($event->category_price_list as $categoryPrice)
-                                    <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm">
-                                        <span class="font-bold text-white">{{ $categoryPrice['name'] }}</span>
-                                        <span class="font-semibold text-primary">{{ $categoryPrice['formatted_price'] }}</span>
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
                         <div class="mb-6 rounded-xl bg-primary/10 p-4 border border-primary/20">
                             <div class="flex items-start gap-3">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-primary mt-0.5 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 <div>
                                     <p class="text-xs font-bold uppercase text-primary">Tanggal Event</p>
-                                    <p class="text-sm font-medium text-white">{{ $event->date->translatedFormat('l, d F Y') }}</p>
+                                    <p class="text-sm font-medium text-white">{{ $event->date->format('dmY') }}</p>
                                 </div>
                             </div>
                         </div>

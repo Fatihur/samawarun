@@ -24,7 +24,7 @@ class EventController extends Controller
         abort_unless($event->is_active, 404);
 
         return view('public.events.show', [
-            'event' => $event->load('distanceCategories'),
+            'event' => $event->load(['distanceCategories', 'galleries' => fn ($q) => $q->orderBy('sort_order')]),
             'isRegistrationOpen' => $event->isRegistrationOpen(),
         ]);
     }
