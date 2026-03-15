@@ -21,6 +21,12 @@ class RegistrationController extends Controller
         abort_unless($event->is_active, 404);
         abort_unless($event->isRegistrationOpen(), 404);
 
+        // Ensure slug exists for route generation
+        if (empty($event->slug)) {
+            $event->slug = $event->generateSlug();
+            $event->saveQuietly();
+        }
+
         return view("public.registrations.create", [
             "event" => $event->load("distanceCategories"),
         ]);
@@ -29,6 +35,12 @@ class RegistrationController extends Controller
     public function store(Request $request, Event $event): RedirectResponse
     {
         abort_unless($event->is_active, 404);
+
+        // Ensure slug exists for route generation
+        if (empty($event->slug)) {
+            $event->slug = $event->generateSlug();
+            $event->saveQuietly();
+        }
 
         if (!$event->isRegistrationOpen()) {
             return redirect()

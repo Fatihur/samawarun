@@ -23,6 +23,12 @@ class EventController extends Controller
     {
         abort_unless($event->is_active, 404);
 
+        // Ensure slug exists for route generation
+        if (empty($event->slug)) {
+            $event->slug = $event->generateSlug();
+            $event->saveQuietly();
+        }
+
         return view('public.events.show', [
             'event' => $event->load(['distanceCategories', 'galleries' => fn ($q) => $q->orderBy('sort_order')]),
             'isRegistrationOpen' => $event->isRegistrationOpen(),
