@@ -85,20 +85,6 @@
                     </div>
                 </div>
 
-                {{-- Event Info Cards --}}
-                <div>
-                    <h2 class="mb-6 flex items-center gap-3 text-2xl font-bold text-white font-display">
-                        <span class="h-8 w-1 rounded-full bg-primary"></span>
-                        Informasi Event
-                    </h2>
-                    <div class="grid grid-cols-1 gap-4">
-                        <div class="rounded-xl border border-white/10 bg-secondary-dark p-5">
-                            <p class="text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Nomor Rekening</p>
-                            <p class="text-white font-bold text-lg break-all">{{ $event->bank_account ?? '-' }}</p>
-                        </div>
-                    </div>
-                </div>
-
                 {{-- Gallery Dokumentasi --}}
                 @if($event->galleries->isNotEmpty())
                 <div>
@@ -282,10 +268,22 @@
                                 $hasQuota = $category->pivot?->quota !== null;
                             @endphp
                             <div class="flex items-center justify-between rounded-lg border {{ $isFull ? 'border-red-500/30 bg-red-500/10' : 'border-white/10 bg-white/5' }} px-4 py-3">
-                                <div>
+                                <div class="flex-1">
                                     <p class="font-bold text-white">{{ $categoryName }}</p>
                                     @if($hasQuota)
-                                        <p class="text-xs text-gray-400">{{ $registeredCount }}/{{ $category->pivot->quota }} peserta</p>
+                                        @php
+                                            $progress = $category->pivot->quota > 0 ? round(($registeredCount / $category->pivot->quota) * 100) : 0;
+                                            $progressColor = $progress >= 90 ? 'bg-red-500' : ($progress >= 70 ? 'bg-amber-500' : 'bg-primary');
+                                        @endphp
+                                        <div class="mt-2 w-full max-w-[200px]">
+                                            <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
+                                                <span>Terisi {{ $progress }}%</span>
+                                                <span>{{ $registeredCount }}/{{ $category->pivot->quota }}</span>
+                                            </div>
+                                            <div class="h-1.5 w-full rounded-full bg-gray-700/50">
+                                                <div class="h-1.5 rounded-full {{ $progressColor }} transition-all duration-300" style="width: {{ $progress }}%"></div>
+                                            </div>
+                                        </div>
                                     @else
                                         <p class="text-xs text-gray-400">{{ $registeredCount }} peserta terdaftar</p>
                                     @endif

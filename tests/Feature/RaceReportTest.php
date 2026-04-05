@@ -83,7 +83,6 @@ class RaceReportTest extends TestCase
             'birth_date' => '1998-02-10',
             'gender' => 'male',
             'nik' => '1234567890123457',
-            'ktp_file' => 'participants/ktp/b.jpg',
             'phone' => '081234567891',
             'email' => 'csv@example.com',
             'address' => 'Sumbawa',
