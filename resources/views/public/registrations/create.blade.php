@@ -7,6 +7,7 @@
                 strtoupper($category->name) => (int) round((float) ($category->pivot?->price ?? $event->price ?? 0)),
             ])
             ->toArray();
+        $categoryInfo = $categoryInfo ?? [];
     @endphp
 
     <section class="px-6 py-16 lg:px-40 bg-background-dark" x-data='registrationForm(@json($categoryPrices), @json(strtoupper((string) old("distance_category"))))'>
@@ -20,7 +21,7 @@
             {{-- Header --}}
             <div class="mb-8">
                 <h1 class="text-3xl font-bold text-white font-display uppercase italic">Pendaftaran</h1>
-                <p class="mt-2 text-gray-400">{{ $event->name }} &bull; {{ $event->price_summary }}</p>
+                <p class="mt-2 text-gray-400">{{ $event->name }}</p>
                 @if($event->registration_deadline)
                     <p class="mt-2 text-sm text-amber-300">Deadline pendaftaran: {{ $event->registration_deadline->translatedFormat('d F Y, H:i') }}</p>
                 @endif
@@ -78,11 +79,32 @@
                             <label class="mb-1.5 block text-sm font-medium text-gray-300">Kategori Jarak <span class="text-red-400">*</span></label>
                             <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
                                 @foreach ($event->distanceCategories as $category)
-                                <label class="cursor-pointer">
-                                    <input type="radio" name="distance_category" value="{{ strtoupper($category->name) }}" class="peer hidden" x-model="selectedDistanceCategory" @checked(strtoupper((string) old('distance_category')) === strtoupper($category->name)) required>
-                                    <div class="flex flex-col items-center justify-center rounded-xl border border-white/10 bg-background-dark px-3 py-4 text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:shadow-[0_0_15px_rgba(48,232,122,0.15)] hover:bg-white/5">
-                                        <span class="text-lg font-bold">{{ strtoupper($category->name) }}</span>
-                                        <span class="mt-1 text-xs font-semibold {{ strtoupper((string) old('distance_category')) === strtoupper($category->name) ? 'text-primary/80' : 'text-gray-500' }}">Rp {{ number_format($category->pivot?->price ?? $event->price, 0, ',', '.') }}</span>
+                                @php
+                                    $categoryName = strtoupper($category->name);
+                                    $info = $categoryInfo[$categoryName] ?? null;
+                                    $isFull = $info['is_full'] ?? false;
+                                    $remaining = $info['remaining'] ?? null;
+                                    $quota = $info['quota'] ?? null;
+                                    $registeredCount = $info['registered_count'] ?? 0;
+                                @endphp
+                                <label class="cursor-pointer {{ $isFull ? 'opacity-50' : '' }}">
+                                    <input type="radio" name="distance_category" value="{{ $categoryName }}" class="peer hidden" 
+                                        x-model="selectedDistanceCategory" 
+                                        @checked(strtoupper((string) old('distance_category')) === $categoryName) 
+                                        @disabled($isFull)
+                                        required>
+                                    <div class="relative flex flex-col items-center justify-center rounded-xl border border-white/10 bg-background-dark px-3 py-4 text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary peer-checked:shadow-[0_0_15px_rgba(48,232,122,0.15)] hover:bg-white/5 {{ $isFull ? 'cursor-not-allowed' : '' }}">
+                                        @if($isFull)
+                                            <span class="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-red-500/20 px-2 py-0.5 text-[10px] font-bold text-red-400">PENUH</span>
+                                        @elseif($remaining !== null && $remaining <= 10)
+                                            <span class="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-400">SISA {{ $remaining }}</span>
+                                        @endif
+                                        <span class="text-lg font-bold {{ $isFull ? 'line-through' : '' }}">{{ $categoryName }}</span>
+                                        @if($quota !== null)
+                                            <span class="mt-1 text-[10px] text-gray-600">{{ $registeredCount }}/{{ $quota }} peserta</span>
+                                        @else
+                                            <span class="mt-1 text-[10px] text-gray-600">{{ $registeredCount }} peserta</span>
+                                        @endif
                                     </div>
                                 </label>
                                 @endforeach
@@ -190,11 +212,6 @@
                             <div class="sm:col-span-2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-300">NIK <span class="text-red-400">*</span></label>
                                 <input name="nik" value="{{ old('nik') }}" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="Nomor Induk Kependudukan (16 digit)" required>
-                            </div>
-                            <div class="sm:col-span-2">
-                                <label class="mb-1.5 block text-sm font-medium text-gray-300">Upload KTP <span class="text-red-400">*</span></label>
-                                <input name="ktp_file" type="file" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-gray-400 file:mr-4 file:rounded-lg file:border-0 file:bg-primary/10 file:px-4 file:py-2 file:text-sm file:font-bold file:text-primary focus:outline-none" accept=".jpg,.jpeg,.png,.pdf">
-                                <p class="mt-2 text-xs leading-relaxed text-gray-500">Unggah foto atau scan KTP dengan format JPG, JPEG, PNG, atau PDF. Ukuran maksimal 2 MB.</p>
                             </div>
                         </div>
                     </div>
@@ -327,11 +344,6 @@
                         this.stepErrors.push('NIK wajib diisi');
                     } else if (nik.length < 16) {
                         this.stepErrors.push('NIK minimal 16 digit');
-                    }
-
-                    const ktpFile = document.querySelector('input[name="ktp_file"]').files[0];
-                    if (!ktpFile) {
-                        this.stepErrors.push('File KTP wajib diupload');
                     }
 
                     return this.stepErrors.length === 0;

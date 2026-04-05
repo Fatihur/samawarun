@@ -46,9 +46,6 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4 shrink-0"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
                                 <span>{{ $event->location }}</span>
                             </div>
-                            <p class="text-gray-400 text-sm mb-6">
-                                {{ $event->price_summary }}
-                            </p>
                             <div class="mt-auto flex gap-3">
                                 <a href="{{ route('events.show', $event) }}" wire:navigate class="flex-1 rounded-lg bg-primary py-2.5 text-sm font-bold text-center text-background-dark hover:bg-primary-hover transition-colors">
                                     {{ $event->isRegistrationOpen() ? 'Daftar' : 'Lihat Detail' }}

@@ -29,6 +29,20 @@ class RegistrationController extends Controller
 
         return view("public.registrations.create", [
             "event" => $event->load("distanceCategories"),
+            "categoryInfo" => $event->distanceCategories->mapWithKeys(function ($category) use ($event) {
+                $categoryName = strtoupper($category->name);
+                $remaining = $event->getRemainingQuotaForCategory($categoryName);
+                
+                return [
+                    $categoryName => [
+                        'price' => (int) round((float) ($category->pivot?->price ?? $event->price ?? 0)),
+                        'quota' => $category->pivot?->quota,
+                        'remaining' => $remaining,
+                        'is_full' => $remaining !== null && $remaining <= 0,
+                        'registered_count' => $event->getRegisteredCountForCategory($categoryName),
+                    ]
+                ];
+            })->toArray(),
         ]);
     }
 
@@ -63,22 +77,17 @@ class RegistrationController extends Controller
                 "nik" => [
                     "required",
                     "string",
-                    "max:32",
-                    Rule::unique("participants")->where(
-                        fn($q) => $q
-                            ->where("event_id", $event->id)
-                            ->where(
-                                "workflow_status",
-                                "!=",
-                                \App\Models\Participant::WORKFLOW_REGISTRATION_REJECTED,
-                            ),
-                    ),
-                ],
-                "ktp_file" => [
-                    "required",
-                    "file",
-                    "mimes:jpg,jpeg,png,pdf",
-                    "max:2048",
+                    "size:16",
+                    Rule::unique("participants")
+                        ->where(
+                            fn($q) => $q
+                                ->where("event_id", $event->id)
+                                ->where(
+                                    "workflow_status",
+                                    "!=",
+                                    \App\Models\Participant::WORKFLOW_REGISTRATION_REJECTED,
+                                ),
+                        ),
                 ],
                 "phone" => ["required", "string", "max:255"],
                 "email" => [
@@ -102,7 +111,7 @@ class RegistrationController extends Controller
                         string $attribute,
                         mixed $value,
                         \Closure $fail,
-                    ) use ($allowedDistances): void {
+                    ) use ($allowedDistances, $event): void {
                         if (
                             !in_array(
                                 strtoupper((string) $value),
@@ -111,6 +120,10 @@ class RegistrationController extends Controller
                             )
                         ) {
                             $fail("Kategori jarak yang dipilih tidak valid.");
+                        }
+
+                        if ($event->isCategoryFull(strtoupper((string) $value))) {
+                            $fail("Kuota untuk kategori jarak ini sudah penuh. Silakan pilih kategori lain.");
                         }
                     },
                 ],
@@ -135,9 +148,6 @@ class RegistrationController extends Controller
         $validated["distance_category"] = strtoupper(
             (string) $validated["distance_category"],
         );
-        $validated["ktp_file"] = $request
-            ->file("ktp_file")
-            ->store("participants/ktp", "public");
         $validated["transfer_proof"] = null;
         $validated["status"] = Participant::STATUS_PENDING;
         $validated["workflow_status"] = Participant::WORKFLOW_SUBMITTED;
