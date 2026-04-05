@@ -106,7 +106,6 @@ class ParticipantSeeder extends Seeder
                     'birth_date' => fake()->dateTimeBetween('-55 years', '-17 years')->format('Y-m-d'),
                     'gender' => fake()->randomElement(['male', 'female']),
                     'nik' => fake()->numerify('################'),
-                    'ktp_file' => 'participants/ktp/sample-'.$event->id.'-'.($i + 1).'.jpg',
                     'phone' => fake()->phoneNumber(),
                     'email' => fake()->unique()->safeEmail(),
                     'address' => fake()->address(),

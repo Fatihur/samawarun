@@ -59,7 +59,6 @@ class Participant extends Model
         'birth_date',
         'gender',
         'nik',
-        'ktp_file',
         'phone',
         'email',
         'address',

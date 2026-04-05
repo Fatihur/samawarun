@@ -179,7 +179,6 @@ class CertificateManagementTest extends TestCase
             'birth_date' => '1998-02-10',
             'gender' => 'male',
             'nik' => '1234567890123458',
-            'ktp_file' => 'participants/ktp/c.jpg',
             'phone' => '081234567892',
             'email' => 'pdf@example.com',
             'address' => 'Sumbawa',

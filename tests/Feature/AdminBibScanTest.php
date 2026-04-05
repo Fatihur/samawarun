@@ -47,7 +47,6 @@ class AdminBibScanTest extends TestCase
             'birth_date' => '1998-02-10',
             'gender' => 'male',
             'nik' => '1234567890123456',
-            'ktp_file' => 'participants/ktp/a.jpg',
             'phone' => '081234567890',
             'email' => 'adminscan@example.com',
             'address' => 'Sumbawa',

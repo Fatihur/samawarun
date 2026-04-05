@@ -93,26 +93,6 @@
 
         {{-- Right Column: Attachments --}}
         <div class="flex flex-col gap-6">
-            {{-- KTP --}}
-            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center">
-                <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 self-start">Kartu Identitas (KTP)</h2>
-                @if($participant->ktp_file)
-                <div class="relative group cursor-pointer w-full rounded-xl overflow-hidden border border-slate-100 bg-slate-50 hover:border-brand-200 transition-colors" @click="lightboxOpen = true; lightboxImage = '{{ asset('storage/'.$participant->ktp_file) }}'">
-                    <img src="{{ asset('storage/'.$participant->ktp_file) }}" alt="KTP" class="w-full object-contain max-h-[300px]">
-                    <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
-                        <div class="bg-white/90 text-slate-800 px-4 py-2 rounded-lg font-bold text-sm shadow-lg flex items-center gap-2">
-                            <x-heroicon-o-arrows-pointing-out class="w-4 h-4" />
-                            Perbesar
-                        </div>
-                    </div>
-                </div>
-                @else
-                <div class="w-full rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 px-4 py-12 text-center text-slate-500">
-                    Tidak ada file KTP
-                </div>
-                @endif
-            </div>
-
             {{-- Bukti Transfer --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm flex flex-col items-center">
                 <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 mb-4 self-start">Bukti Transfer</h2>

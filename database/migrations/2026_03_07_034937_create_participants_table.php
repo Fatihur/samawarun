@@ -19,7 +19,6 @@ return new class extends Migration
             $table->date('birth_date');
             $table->enum('gender', ['male', 'female']);
             $table->string('nik', 32);
-            $table->string('ktp_file');
             $table->string('phone');
             $table->string('email');
             $table->text('address');

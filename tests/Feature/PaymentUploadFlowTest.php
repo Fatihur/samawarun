@@ -36,7 +36,6 @@ class PaymentUploadFlowTest extends TestCase
             'birth_date' => '1998-01-20',
             'gender' => 'male',
             'nik' => '1234567890123456',
-            'ktp_file' => 'participants/ktp/test.jpg',
             'phone' => '081234567890',
             'email' => 'bayar@example.com',
             'address' => 'Sumbawa',
