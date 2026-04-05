@@ -77,6 +77,15 @@
             Galeri / Dokumentasi
         </a>
 
+        {{-- Sistem --}}
+        <div class="pt-4 pb-1">
+            <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Sistem</p>
+        </div>
+        <a href="{{ route('admin.database.index') }}" wire:navigate wire:current="bg-brand-500/10 text-brand-400" class="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors {{ request()->routeIs('admin.database.*') ? 'bg-brand-500/10 text-brand-400' : 'hover:bg-slate-800 hover:text-white' }}">
+            <x-heroicon-o-circle-stack class="h-5 w-5 {{ request()->routeIs('admin.database.*') ? 'text-brand-500' : 'text-slate-400 group-hover:text-white' }}" />
+            Database
+        </a>
+
     </nav>
 
     

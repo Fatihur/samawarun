@@ -18,6 +18,7 @@ use App\Http\Controllers\Public\RegistrationController;
 use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
 use App\Http\Controllers\Admin\RaceReportController as AdminRaceReportController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\DatabaseManagementController as AdminDatabaseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -95,5 +96,13 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::patch('/participants/{participant}/reject', [AdminParticipantController::class, 'reject'])->name('participants.reject');
         Route::patch('/participants/{participant}/payment/approve', [AdminParticipantController::class, 'approvePayment'])->name('participants.payment.approve');
         Route::patch('/participants/{participant}/payment/reject', [AdminParticipantController::class, 'rejectPayment'])->name('participants.payment.reject');
+
+        // Database Management Routes
+        Route::get('/database', [AdminDatabaseController::class, 'index'])->name('database.index');
+        Route::post('/database/backup', [AdminDatabaseController::class, 'backup'])->name('database.backup');
+        Route::post('/database/restore', [AdminDatabaseController::class, 'restore'])->name('database.restore');
+        Route::post('/database/delete', [AdminDatabaseController::class, 'delete'])->name('database.delete');
+        Route::get('/database/download/{filename}', [AdminDatabaseController::class, 'download'])->name('database.download');
+        Route::delete('/database/backup/{filename}', [AdminDatabaseController::class, 'destroyBackup'])->name('database.backup.destroy');
     });
 });
