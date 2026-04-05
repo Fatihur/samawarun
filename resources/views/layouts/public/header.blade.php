@@ -37,7 +37,5 @@
                  class="md:hidden border-t border-white/10 bg-secondary-dark px-4 py-4 shadow-xl flex flex-col gap-4">
                 <a class="block rounded-lg px-4 py-3 text-base font-medium transition-colors hover:bg-white/5 {{ request()->routeIs('home') ? 'bg-primary/10 text-primary' : 'text-gray-300' }}" href="{{ route('home') }}" wire:navigate>Home</a>
                 <a class="block rounded-lg px-4 py-3 text-base font-medium transition-colors hover:bg-white/5 {{ request()->routeIs('events.*') ? 'bg-primary/10 text-primary' : 'text-gray-300' }}" href="{{ route('events.index') }}" wire:navigate>Events</a>
-                <hr class="border-white/10">
-                <a class="block rounded-lg px-4 py-3 text-base font-medium text-gray-300 transition-colors hover:bg-white/5" href="{{ route('admin.login') }}">Admin Panel</a>
             </div>
         </header>
