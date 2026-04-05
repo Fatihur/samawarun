@@ -67,6 +67,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::patch('/distance-categories/{distanceCategory}/toggle', [AdminDistanceCategoryController::class, 'toggleActive'])->name('distance-categories.toggle');
 
         Route::get('/events/data', [AdminEventController::class, 'data'])->name('events.data');
+        Route::get('/events/{event}/quota', [AdminEventController::class, 'getQuota'])->name('events.quota.get');
+        Route::post('/events/{event}/quota', [AdminEventController::class, 'updateQuota'])->name('events.quota.update');
         Route::resource('events', AdminEventController::class)->except(['show']);
 
         Route::get('/participants/data', [AdminParticipantController::class, 'data'])->name('participants.data');

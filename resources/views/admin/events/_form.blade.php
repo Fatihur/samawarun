@@ -87,6 +87,9 @@
                     $existingCategoryPrices = $event->distanceCategories
                         ? $event->distanceCategories->mapWithKeys(fn ($category) => [$category->id => $category->pivot?->price ?? $event->price])->toArray()
                         : [];
+                    $existingCategoryQuotas = $event->distanceCategories
+                        ? $event->distanceCategories->mapWithKeys(fn ($category) => [$category->id => $category->pivot?->quota])->toArray()
+                        : [];
                 @endphp
                 @foreach($distanceCategories as $category)
                     <div class="rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all hover:border-brand-300 hover:bg-white">
@@ -99,6 +102,7 @@
                                     @checked(in_array($category->id, $selectedCategories))
                                     class="category-price-toggle h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500"
                                     data-target="category-price-{{ $category->id }}"
+                                    data-quota-target="category-quota-{{ $category->id }}"
                                 >
                                 <span>{{ $category->name }}</span>
                             </label>
@@ -120,6 +124,27 @@
                                     >
                                 </div>
                                 @error('category_prices.'.$category->id)
+                                    <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div class="w-full md:w-48">
+                                <label class="mb-1 block text-xs font-bold uppercase tracking-wider text-slate-500">Kuota</label>
+                                <div class="relative">
+                                    <input
+                                        id="category-quota-{{ $category->id }}"
+                                        type="number"
+                                        min="1"
+                                        name="category_quotas[{{ $category->id }}]"
+                                        value="{{ old('category_quotas.'.$category->id, $existingCategoryQuotas[$category->id] ?? '') }}"
+                                        class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                                        @disabled(! in_array($category->id, $selectedCategories))
+                                        placeholder="Unlimited"
+                                    >
+                                    <span class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-xs text-slate-400">orang</span>
+                                </div>
+                                <p class="mt-1 text-xs text-slate-500">Kosongkan untuk kuota tak terbatas</p>
+                                @error('category_quotas.'.$category->id)
                                     <p class="mt-1 text-xs text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
@@ -148,16 +173,21 @@
 
         function syncCategoryPriceState(toggle) {
             const targetId = toggle.dataset.target;
-            const input = document.getElementById(targetId);
+            const priceInput = document.getElementById(targetId);
+            const quotaInput = document.getElementById(targetId.replace('category-price', 'category-quota'));
 
-            if (!input) {
-                return;
+            if (priceInput) {
+                priceInput.disabled = !toggle.checked;
+                if (!toggle.checked) {
+                    priceInput.value = '';
+                }
             }
 
-            input.disabled = !toggle.checked;
-
-            if (!toggle.checked) {
-                input.value = '';
+            if (quotaInput) {
+                quotaInput.disabled = !toggle.checked;
+                if (!toggle.checked) {
+                    quotaInput.value = '';
+                }
             }
         }
 
@@ -188,10 +218,9 @@
                 syncBasePrice();
             });
 
-            const input = document.getElementById(toggle.dataset.target);
-
-            if (input) {
-                input.addEventListener('input', syncBasePrice);
+            const priceInput = document.getElementById(toggle.dataset.target);
+            if (priceInput) {
+                priceInput.addEventListener('input', syncBasePrice);
             }
         });
 

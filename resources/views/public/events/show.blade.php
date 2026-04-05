@@ -265,6 +265,46 @@
                         </p>
                     </div>
 
+                    {{-- Kuota Per Kategori --}}
+                    @if($event->distanceCategories->isNotEmpty())
+                    <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6">
+                        <h3 class="mb-4 flex items-center gap-2 font-bold text-white uppercase text-sm tracking-widest">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-5 w-5 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>
+                            Kuota Kategori
+                        </h3>
+                        <div class="space-y-3">
+                            @foreach($event->distanceCategories as $category)
+                            @php
+                                $categoryName = strtoupper($category->name);
+                                $registeredCount = $event->getRegisteredCountForCategory($categoryName);
+                                $remainingQuota = $event->getRemainingQuotaForCategory($categoryName);
+                                $isFull = $remainingQuota !== null && $remainingQuota <= 0;
+                                $hasQuota = $category->pivot?->quota !== null;
+                            @endphp
+                            <div class="flex items-center justify-between rounded-lg border {{ $isFull ? 'border-red-500/30 bg-red-500/10' : 'border-white/10 bg-white/5' }} px-4 py-3">
+                                <div>
+                                    <p class="font-bold text-white">{{ $categoryName }}</p>
+                                    @if($hasQuota)
+                                        <p class="text-xs text-gray-400">{{ $registeredCount }}/{{ $category->pivot->quota }} peserta</p>
+                                    @else
+                                        <p class="text-xs text-gray-400">{{ $registeredCount }} peserta terdaftar</p>
+                                    @endif
+                                </div>
+                                <div class="text-right">
+                                    @if($isFull)
+                                        <span class="rounded-full bg-red-500/20 px-2 py-1 text-xs font-bold text-red-400">PENUH</span>
+                                    @elseif($remainingQuota !== null && $remainingQuota <= 10)
+                                        <span class="rounded-full bg-amber-500/20 px-2 py-1 text-xs font-bold text-amber-400">SISA {{ $remainingQuota }}</span>
+                                    @else
+                                        <span class="text-xs text-primary font-bold">TERSEDIA</span>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
                     {{-- Share Event --}}
                     <div class="rounded-2xl border border-white/10 bg-secondary-dark p-6">
                         <h3 class="mb-4 flex items-center gap-2 font-bold text-white uppercase text-sm tracking-widest">

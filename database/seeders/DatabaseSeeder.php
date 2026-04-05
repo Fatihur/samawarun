@@ -40,11 +40,11 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        $this->call([
-            DistanceCategorySeeder::class,
-            BibSettingSeeder::class,
-            EventSeeder::class,
-            ParticipantSeeder::class,
-        ]);
+        // $this->call([
+        //     DistanceCategorySeeder::class,
+        //     BibSettingSeeder::class,
+        //     EventSeeder::class,
+        //     ParticipantSeeder::class,
+        // ]);
     }
 }

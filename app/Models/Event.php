@@ -118,7 +118,7 @@ class Event extends Model
     public function distanceCategories(): BelongsToMany
     {
         return $this->belongsToMany(DistanceCategory::class)
-            ->withPivot('price')
+            ->withPivot(['price', 'quota'])
             ->withTimestamps();
     }
 
@@ -171,10 +171,47 @@ class Event extends Model
                     'id' => $category->id,
                     'name' => $category->name,
                     'price' => (float) ($category->pivot?->price ?? $this->price ?? 0),
+                    'quota' => $category->pivot?->quota,
                     'formatted_price' => $this->formatCurrency((float) ($category->pivot?->price ?? $this->price ?? 0)),
+                    'registered_count' => $this->getRegisteredCountForCategory($category->name),
+                    'remaining_quota' => $this->getRemainingQuotaForCategory($category->name),
                 ];
             })
             ->values();
+    }
+
+    public function getRegisteredCountForCategory(string $distanceCategory): int
+    {
+        return $this->participants()
+            ->where('distance_category', strtoupper($distanceCategory))
+            ->where('workflow_status', '!=', Participant::WORKFLOW_REGISTRATION_REJECTED)
+            ->count();
+    }
+
+    public function getRemainingQuotaForCategory(string $distanceCategory): ?int
+    {
+        $category = $this->distanceCategories
+            ->first(fn (DistanceCategory $cat): bool => strtoupper($cat->name) === strtoupper($distanceCategory));
+
+        if (! $category || $category->pivot?->quota === null) {
+            return null; // Unlimited quota
+        }
+
+        $registeredCount = $this->getRegisteredCountForCategory($distanceCategory);
+
+        return max(0, $category->pivot->quota - $registeredCount);
+    }
+
+    public function hasQuotaAvailable(string $distanceCategory): bool
+    {
+        $remaining = $this->getRemainingQuotaForCategory($distanceCategory);
+
+        return $remaining === null || $remaining > 0;
+    }
+
+    public function isCategoryFull(string $distanceCategory): bool
+    {
+        return ! $this->hasQuotaAvailable($distanceCategory);
     }
 
     public function priceForDistanceCategory(string $distanceCategory): float
