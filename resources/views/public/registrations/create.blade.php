@@ -100,13 +100,13 @@
                                             <span class="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-400">SISA {{ $remaining }}</span>
                                         @endif
                                         <span class="text-lg font-bold {{ $isFull ? 'line-through' : '' }}">{{ $categoryName }}</span>
-                                        @if($quota !== null)
+                                         @if($quota !== null)
                                             @php
                                                 $progress = $quota > 0 ? round(($registeredCount / $quota) * 100) : 0;
                                                 $progressColor = $progress >= 90 ? 'bg-red-500' : ($progress >= 70 ? 'bg-amber-500' : 'bg-primary');
                                             @endphp
                                             <div class="mt-1 w-full px-2">
-                                                <div class="flex items-center justify-between text-[9px] text-gray-500 mb-0.5">
+                                                <div class="text-[9px] text-gray-500 mb-0.5 text-center">
                                                     <span>Terisi {{ $progress }}%</span>
                                                 </div>
                                                 <div class="h-1 w-full rounded-full bg-gray-700/30">

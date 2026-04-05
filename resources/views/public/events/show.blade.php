@@ -278,7 +278,6 @@
                                         <div class="mt-2 w-full max-w-[200px]">
                                             <div class="flex items-center justify-between text-[10px] text-gray-400 mb-1">
                                                 <span>Terisi {{ $progress }}%</span>
-                                                <span>{{ $registeredCount }}/{{ $category->pivot->quota }}</span>
                                             </div>
                                             <div class="h-1.5 w-full rounded-full bg-gray-700/50">
                                                 <div class="h-1.5 rounded-full {{ $progressColor }} transition-all duration-300" style="width: {{ $progress }}%"></div>
@@ -292,7 +291,7 @@
                                     @if($isFull)
                                         <span class="rounded-full bg-red-500/20 px-2 py-1 text-xs font-bold text-red-400">PENUH</span>
                                     @elseif($remainingQuota !== null && $remainingQuota <= 10)
-                                        <span class="rounded-full bg-amber-500/20 px-2 py-1 text-xs font-bold text-amber-400">SISA {{ $remainingQuota }}</span>
+                                        <span class="rounded-full bg-amber-500/20 px-2 py-1 text-xs font-bold text-amber-400">TERBATAS</span>
                                     @else
                                         <span class="text-xs text-primary font-bold">TERSEDIA</span>
                                     @endif
