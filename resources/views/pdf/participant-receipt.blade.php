@@ -101,22 +101,17 @@
             color: #111827;
         }
 
-        .header-section {
-            position: relative;
-            overflow: hidden;
-            padding-right: 100px;
-        }
-
         .qr-top-right {
-            position: absolute;
-            top: 0;
-            right: 0;
+            float: right;
             text-align: center;
+            margin-left: 8px;
+            margin-bottom: 4px;
         }
 
         .qr-top-right img {
-            width: 75px;
-            height: 75px;
+            width: 70px;
+            height: 70px;
+            display: block;
         }
 
         .qr-code {
@@ -124,7 +119,13 @@
             font-weight: 700;
             letter-spacing: 0.08em;
             color: #111827;
-            margin-top: 2px;
+            margin-top: 1px;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
         }
 
         .muted {
@@ -132,10 +133,14 @@
         }
 
         .receipt-note {
-            text-align: left;
+            text-align: center;
             font-size: 7px;
             color: #4b5563;
             line-height: 1.35;
+        }
+
+        .header-left {
+            overflow: hidden;
         }
 
         .footer {
@@ -149,17 +154,19 @@
 </head>
 <body>
     <div class="receipt">
-        <div class="header-section">
+        <div class="clearfix">
             <div class="qr-top-right">
                 <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta">
                 <div class="qr-code">{{ $barcodeValue }}</div>
             </div>
-            <div class="brand">Samawa Run</div>
-            <div class="subtitle">Struk Pendaftaran Peserta</div>
-            <div class="badge">TERVERIFIKASI</div>
-            <div class="receipt-note" style="margin-top:6px;">
-                {{ $participant->event?->name ?? '-' }}<br>
-                {{ $participant->event?->date?->format('d M Y') ?? '-' }} {{ $participant->event?->location ? ' - '.$participant->event->location : '' }}
+            <div class="header-left center">
+                <div class="brand">Samawa Run</div>
+                <div class="subtitle">Struk Pendaftaran Peserta</div>
+                <div class="badge">TERVERIFIKASI</div>
+                <div class="receipt-note" style="margin-top:6px;">
+                    {{ $participant->event?->name ?? '-' }}<br>
+                    {{ $participant->event?->date?->format('d M Y') ?? '-' }} {{ $participant->event?->location ? ' - '.$participant->event->location : '' }}
+                </div>
             </div>
         </div>
 
