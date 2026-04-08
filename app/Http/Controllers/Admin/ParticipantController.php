@@ -27,6 +27,12 @@ class ParticipantController extends Controller
     {
         return view("admin.participants.index", [
             "events" => Event::query()->orderBy("date")->get(),
+            "distanceCategories" => Participant::query()
+                ->distinct()
+                ->pluck("distance_category")
+                ->filter()
+                ->sort()
+                ->values(),
         ]);
     }
 
@@ -38,6 +44,9 @@ class ParticipantController extends Controller
             ->latest()
             ->when($request->filled("event_id"), function (Builder $query) use ($request): void {
                 $query->where("event_id", $request->integer("event_id"));
+            })
+            ->when($request->filled("distance_category"), function (Builder $query) use ($request): void {
+                $query->where("distance_category", $request->string("distance_category")->value());
             })
             ->when($request->filled("status"), function (Builder $query) use ($request): void {
                 $selectedStatus = $request->string("status")->value();
@@ -258,6 +267,11 @@ class ParticipantController extends Controller
             ): void {
                 $query->where("event_id", $request->integer("event_id"));
             })
+            ->when($request->filled("distance_category"), function (Builder $query) use (
+                $request,
+            ): void {
+                $query->where("distance_category", $request->string("distance_category")->value());
+            })
             ->when($request->filled("status"), function (Builder $query) use (
                 $request,
             ): void {
@@ -333,6 +347,11 @@ class ParticipantController extends Controller
                 $request,
             ): void {
                 $query->where("event_id", $request->integer("event_id"));
+            })
+            ->when($request->filled("distance_category"), function (Builder $query) use (
+                $request,
+            ): void {
+                $query->where("distance_category", $request->string("distance_category")->value());
             })
             ->when($request->filled("status"), function (Builder $query) use (
                 $request,

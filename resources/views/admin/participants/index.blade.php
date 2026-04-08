@@ -22,11 +22,17 @@
     </div>
 
     {{-- Filter --}}
-    <form id="filter-form" method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-4">
+    <form id="filter-form" method="GET" class="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-5">
         <select name="event_id" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
             <option value="">Semua Event</option>
             @foreach ($events as $event)
                 <option value="{{ $event->id }}" @selected((string) request('event_id') === (string) $event->id)>{{ $event->name }}</option>
+            @endforeach
+        </select>
+        <select name="distance_category" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
+            <option value="">Semua Kategori</option>
+            @foreach ($distanceCategories as $category)
+                <option value="{{ $category }}" @selected(request('distance_category') === $category)>{{ $category }}</option>
             @endforeach
         </select>
         <select name="status" class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
@@ -46,7 +52,7 @@
         </select>
         <div class="flex gap-2">
             <button type="submit" class="flex-1 rounded-xl bg-slate-800 px-5 py-3 text-sm font-bold text-white hover:bg-slate-700 transition-colors active:scale-95">Filter</button>
-            @if(request()->hasAny(['event_id', 'status']))
+            @if(request()->hasAny(['event_id', 'status', 'distance_category']))
                 <a href="{{ route('admin.participants.index') }}" class="inline-flex items-center justify-center rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-500 hover:bg-slate-50 transition-colors" title="Reset filter">
                     <x-heroicon-o-x-mark class="h-4 w-4" />
                 </a>
@@ -98,6 +104,7 @@
                     url: '{{ route("admin.participants.data") }}',
                     data: function(d) {
                         d.event_id = $('select[name="event_id"]').val();
+                        d.distance_category = $('select[name="distance_category"]').val();
                         d.status = $('select[name="status"]').val();
                     }
                 },
