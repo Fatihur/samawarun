@@ -65,7 +65,6 @@ class RegistrationController extends Controller
         $allowedDistances = $event->distanceCategories
             ->pluck("name")
             ->map(fn(string $name): string => strtoupper($name))
-            ->intersect(Event::DISTANCES)
             ->values()
             ->toArray();
 
