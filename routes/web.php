@@ -86,6 +86,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/certificates/preview', [AdminCertificateController::class, 'previewPdf'])->name('certificates.preview');
         Route::get('/participants/{participant}/certificate', [AdminCertificateController::class, 'downloadParticipant'])->name('participants.certificate');
         Route::post('/certificates/bulk', [AdminCertificateController::class, 'downloadBulk'])->name('certificates.bulk');
+        Route::post('/participants/{participant}/certificate/send-email', [AdminCertificateController::class, 'sendEmail'])->name('participants.certificate.send-email');
+        Route::post('/certificates/send-email-bulk', [AdminCertificateController::class, 'sendEmailBulk'])->name('certificates.send-email-bulk');
         Route::get('/race-timing', [AdminRaceTimingController::class, 'index'])->name('race-timing.index');
         Route::post('/race-timing', [AdminRaceTimingController::class, 'store'])->name('race-timing.store');
         Route::post('/participants/id-card/bulk', [AdminParticipantController::class, 'exportIdCardBulk'])->name('participants.id-card.bulk');

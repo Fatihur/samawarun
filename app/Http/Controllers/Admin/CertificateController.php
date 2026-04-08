@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CertificateTemplate;
 use App\Models\Event;
 use App\Models\Participant;
+use App\Notifications\CertificateEmailNotification;
 use App\Services\CertificateTemplateService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
@@ -91,8 +92,14 @@ class CertificateController extends Controller
             ->addColumn('actions', function (Participant $participant): string {
                 // SVG Icon for download
                 $downloadSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>';
+                // SVG Icon for email
+                $emailSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>';
 
-                return '<a href="' . route('admin.participants.certificate', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF">' . $downloadSvg . '</a>';
+                $downloadBtn = '<a href="' . route('admin.participants.certificate', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition-colors hover:bg-slate-700" title="Download PDF">' . $downloadSvg . '</a>';
+                
+                $emailBtn = '<form method="POST" action="' . route('admin.participants.certificate.send-email', $participant) . '" class="inline" onsubmit="return confirm(\'Kirim email sertifikat ke ' . e($participant->email) . '?\');">' . csrf_field() . '<button type="submit" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-white transition-colors hover:bg-brand-700" title="Kirim Email">' . $emailSvg . '</button></form>';
+
+                return '<div class="flex items-center gap-2">' . $downloadBtn . $emailBtn . '</div>';
             })
             ->rawColumns(['select', 'name_email', 'bib_number_display', 'distance_badge', 'duration_display', 'actions'])
             ->make(true);
@@ -263,5 +270,78 @@ class CertificateController extends Controller
         }
 
         return null;
+    }
+
+    public function sendEmail(Participant $participant): RedirectResponse
+    {
+        $participant->load('event.certificateTemplate');
+
+        $guard = $this->ensureParticipantCanReceiveCertificate($participant);
+
+        if ($guard instanceof RedirectResponse) {
+            return $guard;
+        }
+
+        try {
+            $participant->notify(new CertificateEmailNotification($participant));
+
+            return back()->with('success', 'Email sertifikat berhasil dikirim ke ' . $participant->email);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal mengirim email: ' . $e->getMessage());
+        }
+    }
+
+    public function sendEmailBulk(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'participant_ids' => ['required', 'array', 'min:1'],
+            'participant_ids.*' => ['integer'],
+        ], [
+            'participant_ids.required' => 'Pilih minimal satu peserta untuk kirim email sertifikat.',
+        ]);
+
+        $participants = Participant::query()
+            ->with('event.certificateTemplate')
+            ->whereIn('id', $validated['participant_ids'])
+            ->where('status', Participant::STATUS_VERIFIED)
+            ->whereNotNull('race_finished_at')
+            ->orderBy('name')
+            ->get();
+
+        if ($participants->isEmpty()) {
+            return back()->with('error', 'Tidak ada peserta valid untuk dikirim email sertifikat.');
+        }
+
+        $sentCount = 0;
+        $failedCount = 0;
+        $failedEmails = [];
+
+        foreach ($participants as $participant) {
+            $guard = $this->ensureParticipantCanReceiveCertificate($participant);
+
+            if ($guard instanceof RedirectResponse) {
+                $failedCount++;
+                $failedEmails[] = $participant->email;
+                continue;
+            }
+
+            try {
+                $participant->notify(new CertificateEmailNotification($participant));
+                $sentCount++;
+            } catch (\Exception $e) {
+                $failedCount++;
+                $failedEmails[] = $participant->email;
+            }
+        }
+
+        if ($sentCount === 0) {
+            return back()->with('error', 'Gagal mengirim semua email sertifikat.');
+        }
+
+        if ($failedCount > 0) {
+            return back()->with('warning', "Email sertifikat berhasil dikirim ke {$sentCount} peserta. {$failedCount} peserta gagal: " . implode(', ', array_slice($failedEmails, 0, 3)) . (count($failedEmails) > 3 ? '...' : ''));
+        }
+
+        return back()->with('success', "Email sertifikat berhasil dikirim ke {$sentCount} peserta.");
     }
 }

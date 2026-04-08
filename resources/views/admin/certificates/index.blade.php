@@ -384,13 +384,23 @@
                 <div class="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
                     Template aktif: <strong>{{ $template->name }}</strong>
                 </div>
-                <button form="bulk-certificate-form" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95">
-                    <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
-                    Bulk Download PDF
-                </button>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="submitBulkEmailForm()" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
+                        <x-heroicon-o-envelope class="h-4 w-4" />
+                        Kirim Email Bulk
+                    </button>
+                    <button form="bulk-certificate-form" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95">
+                        <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
+                        Bulk Download PDF
+                    </button>
+                </div>
             </div>
 
             <form id="bulk-certificate-form" action="{{ route('admin.certificates.bulk') }}" method="POST" class="hidden">
+                @csrf
+            </form>
+
+            <form id="bulk-email-form" action="{{ route('admin.certificates.send-email-bulk') }}" method="POST" class="hidden">
                 @csrf
             </form>
 
@@ -495,7 +505,62 @@
 
                     initCertificateCheckboxHandlers();
                 });
-            </script>
+
+                function initCertificateCheckboxHandlers() {
+                    const selectAll = document.getElementById('select-all-certificates');
+
+                    if (selectAll) {
+                        // Remove and re-add to prevent duplicate listeners
+                        selectAll.replaceWith(selectAll.cloneNode(true));
+                        const newSelectAll = document.getElementById('select-all-certificates');
+
+                        newSelectAll.addEventListener('change', function() {
+                            document.querySelectorAll('.certificate-select').forEach(function(checkbox) {
+                                checkbox.checked = newSelectAll.checked;
+                            });
+                        });
+
+                        document.querySelectorAll('.certificate-select').forEach(function(checkbox) {
+                            checkbox.addEventListener('change', function() {
+                                const allChecks = Array.from(document.querySelectorAll('.certificate-select'));
+                                const allChecked = allChecks.length > 0 && allChecks.every(function(item) {
+                                    return item.checked;
+                                });
+                                newSelectAll.checked = allChecked;
+                            });
+                        });
+                    }
+                }
+
+                function submitBulkEmailForm() {
+                    const checkedBoxes = document.querySelectorAll('.certificate-select:checked');
+                    if (checkedBoxes.length === 0) {
+                        alert('Pilih minimal satu peserta untuk kirim email sertifikat.');
+                        return;
+                    }
+                    
+                    if (!confirm('Kirim email sertifikat ke ' + checkedBoxes.length + ' peserta?')) {
+                        return;
+                    }
+                    
+                    const form = document.getElementById('bulk-email-form');
+                    // Clear existing inputs
+                    form.innerHTML = '@csrf';
+                    
+                    checkedBoxes.forEach(function(checkbox) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'participant_ids[]';
+                        input.value = checkbox.value;
+                        form.appendChild(input);
+                    });
+                    
+                    form.submit();
+                }
+
+                initCertificateCheckboxHandlers();
+            });
+        </script>
         @endif
     @endif
 
