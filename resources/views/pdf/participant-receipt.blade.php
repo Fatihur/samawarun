@@ -101,23 +101,30 @@
             color: #111827;
         }
 
-        .qr-wrap {
-            border: 1px dashed #6b7280;
-            padding: 8px 6px;
+        .header-section {
+            position: relative;
+            overflow: hidden;
+            padding-right: 100px;
+        }
+
+        .qr-top-right {
+            position: absolute;
+            top: 0;
+            right: 0;
             text-align: center;
         }
 
-        .qr-wrap img {
-            width: 92px;
-            height: 92px;
+        .qr-top-right img {
+            width: 75px;
+            height: 75px;
         }
 
         .qr-code {
-            margin-top: 4px;
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 700;
             letter-spacing: 0.08em;
             color: #111827;
+            margin-top: 2px;
         }
 
         .muted {
@@ -125,7 +132,7 @@
         }
 
         .receipt-note {
-            text-align: center;
+            text-align: left;
             font-size: 7px;
             color: #4b5563;
             line-height: 1.35;
@@ -142,7 +149,11 @@
 </head>
 <body>
     <div class="receipt">
-        <div class="center">
+        <div class="header-section">
+            <div class="qr-top-right">
+                <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta">
+                <div class="qr-code">{{ $barcodeValue }}</div>
+            </div>
             <div class="brand">Samawa Run</div>
             <div class="subtitle">Struk Pendaftaran Peserta</div>
             <div class="badge">TERVERIFIKASI</div>
@@ -181,12 +192,6 @@
         </div>
 
         <div class="divider"></div>
-
-        <div class="qr-wrap">
-            <div style="font-size:7px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#111827;">QR Code Peserta</div>
-            <img src="data:image/svg+xml;base64,{{ $barcode }}" alt="QR Code Peserta">
-            <div class="qr-code">{{ $barcodeValue }}</div>
-        </div>
 
         <div class="footer">
             Simpan struk ini sebagai bukti pendaftaran resmi.<br>
