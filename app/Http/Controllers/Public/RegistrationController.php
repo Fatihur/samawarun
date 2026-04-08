@@ -128,7 +128,7 @@ class RegistrationController extends Controller
                 ],
                 "jersey_size" => [
                     "required",
-                    Rule::in(["S", "M", "L", "XL", "XXL"]),
+                    Rule::in(["2XS", "XS", "S", "M", "L", "XL", "XXL"]),
                 ],
                 "emergency_contact_name" => ["required", "string", "max:255"],
                 "emergency_contact_phone" => ["required", "string", "max:255"],

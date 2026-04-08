@@ -128,8 +128,8 @@
                                 <p class="mt-1 text-xs leading-relaxed text-gray-400">Pilih ukuran jersey secara terpisah setelah menentukan kategori jarak.</p>
                             </div>
 
-                            <div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
-                                @foreach (['S', 'M', 'L', 'XL', 'XXL'] as $size)
+                            <div class="grid grid-cols-4 gap-2 sm:grid-cols-7">
+                                @foreach (['2XS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'] as $size)
                                 <label class="cursor-pointer">
                                     <input type="radio" name="jersey_size" value="{{ $size }}" class="peer hidden" @checked(old('jersey_size') === $size) required>
                                     <div class="flex items-center justify-center rounded-xl border border-white/10 bg-background-dark py-3 text-sm font-bold text-gray-400 transition-all peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary hover:bg-white/5">

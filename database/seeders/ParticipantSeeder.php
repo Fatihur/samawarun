@@ -110,7 +110,7 @@ class ParticipantSeeder extends Seeder
                     'email' => fake()->unique()->safeEmail(),
                     'address' => fake()->address(),
                     'distance_category' => $distance,
-                    'jersey_size' => fake()->randomElement(['S', 'M', 'L', 'XL', 'XXL']),
+                    'jersey_size' => fake()->randomElement(['2XS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']),
                     'emergency_contact_name' => fake()->name(),
                     'emergency_contact_phone' => fake()->phoneNumber(),
                     'emergency_contact_relationship' => fake()->randomElement(Participant::EMERGENCY_RELATIONSHIPS),
