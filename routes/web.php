@@ -99,6 +99,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::patch('/participants/{participant}/reject', [AdminParticipantController::class, 'reject'])->name('participants.reject');
         Route::patch('/participants/{participant}/payment/approve', [AdminParticipantController::class, 'approvePayment'])->name('participants.payment.approve');
         Route::patch('/participants/{participant}/payment/reject', [AdminParticipantController::class, 'rejectPayment'])->name('participants.payment.reject');
+        Route::post('/participants/send-payment-reminders', [AdminParticipantController::class, 'sendPaymentReminders'])->name('participants.send-payment-reminders');
 
         // Database Management Routes
         Route::get('/database', [AdminDatabaseController::class, 'index'])->name('database.index');

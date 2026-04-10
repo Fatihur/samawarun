@@ -515,4 +515,30 @@ class ParticipantController extends Controller
                 STR_PAD_LEFT,
             );
     }
+
+    public function sendPaymentReminders(): RedirectResponse
+    {
+        $participants = Participant::query()
+            ->where('workflow_status', Participant::WORKFLOW_APPROVED_WAITING_PAYMENT)
+            ->whereNotNull('payment_token')
+            ->get();
+
+        if ($participants->isEmpty()) {
+            return back()->with(
+                'info',
+                'Tidak ada peserta yang menunggu pembayaran saat ini.',
+            );
+        }
+
+        $sentCount = 0;
+        foreach ($participants as $participant) {
+            $participant->notify(new PaymentReminderNotification($participant));
+            $sentCount++;
+        }
+
+        return back()->with(
+            'success',
+            "Berhasil mengirim pengingat pembayaran ke {$sentCount} peserta.",
+        );
+    }
 }

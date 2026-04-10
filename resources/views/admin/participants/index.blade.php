@@ -13,6 +13,13 @@
                     <x-heroicon-o-document-arrow-down class="h-5 w-5" />
                     Export CSV
                 </a>
+                <form action="{{ route('admin.participants.send-payment-reminders') }}" method="POST" class="inline" onsubmit="return confirm('Kirim pengingat pembayaran ke semua peserta yang menunggu pembayaran?')" data-loading-title="Mengirim pengingat" data-loading-message="Email pengingat sedang dikirim ke semua peserta yang menunggu pembayaran...">
+                    @csrf
+                    <button type="submit" data-loading-label="Mengirim..." class="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-amber-600 active:scale-95">
+                        <x-heroicon-o-bell-alert class="h-4 w-4" />
+                        Kirim Pengingat
+                    </button>
+                </form>
             </div>
             <button form="bulk-bib-form" type="submit" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-indigo-700 active:scale-95">
                 <x-heroicon-o-arrow-down-tray class="h-4 w-4" />
