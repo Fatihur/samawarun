@@ -242,6 +242,10 @@
                             <div>
                                 <label class="mb-1.5 block text-sm font-medium text-gray-300">Email <span class="text-red-400">*</span></label>
                                 <input name="email" value="{{ old('email') }}" type="email" class="w-full rounded-xl border border-white/10 bg-background-dark px-4 py-3 text-sm text-white placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors" placeholder="email@contoh.com" required>
+                                <p class="mt-1.5 flex items-center gap-1.5 text-xs text-amber-400">
+                                    <x-heroicon-o-exclamation-triangle class="h-3.5 w-3.5" />
+                                    Pastikan email ditulis dengan benar. Informasi penting akan dikirim ke email ini.
+                                </p>
                             </div>
                             <div class="sm:col-span-2">
                                 <label class="mb-1.5 block text-sm font-medium text-gray-300">Alamat <span class="text-red-400">*</span></label>
