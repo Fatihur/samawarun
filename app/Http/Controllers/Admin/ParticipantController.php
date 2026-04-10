@@ -87,7 +87,9 @@ class ParticipantController extends Controller
                 return '<span class="pl-6">-</span>';
             })
             ->addColumn('name_email', function (Participant $participant): string {
-                return '<p class="font-bold text-slate-800">'.e($participant->name).'</p>'.
+                $age = $participant->birth_date ? $participant->birth_date->age : '-';
+
+                return '<p class="font-bold text-slate-800">'.e($participant->name).' <span class="ml-1 inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-bold text-slate-600">'.$age.' th</span></p>'.
                        '<p class="text-xs text-slate-500">'.e($participant->email).'</p>';
             })
             ->addColumn('event_name', function (Participant $participant): string {
