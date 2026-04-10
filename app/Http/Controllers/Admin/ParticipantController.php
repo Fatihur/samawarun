@@ -108,15 +108,15 @@ class ParticipantController extends Controller
                     return '<span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 border border-red-200">Rejected</span>';
                 }
 
-                $statusLabel = '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">'.e($participant->workflow_status_label).'</span>';
+                $workflowLabel = e($participant->workflow_status_label);
 
-                // Tambahkan badge hari menunggu pembayaran
+                // Tambahkan hari menunggu pembayaran ke dalam label
                 if ($participant->workflow_status === Participant::WORKFLOW_APPROVED_WAITING_PAYMENT && $participant->registration_reviewed_at) {
-                    $daysWaiting = $participant->registration_reviewed_at->diffInDays(now());
-                    $statusLabel .= '<span class="ml-1 inline-flex items-center rounded bg-rose-100 px-1.5 py-0.5 text-[10px] font-bold text-rose-600">'.$daysWaiting.' hari</span>';
+                    $daysWaiting = (int) $participant->registration_reviewed_at->diffInDays(now());
+                    $workflowLabel .= ' • '.$daysWaiting.' hari';
                 }
 
-                return $statusLabel;
+                return '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">'.$workflowLabel.'</span>';
             })
             ->addColumn('actions', function (Participant $participant): string {
                 // SVG Icons
