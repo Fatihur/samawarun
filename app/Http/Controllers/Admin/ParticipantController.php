@@ -11,6 +11,7 @@ use App\Notifications\ParticipantPaymentRejectedNotification;
 use App\Notifications\ParticipantRegistrationApprovedNotification;
 use App\Notifications\ParticipantRejectedNotification;
 use App\Notifications\ParticipantVerifiedNotification;
+use App\Notifications\PaymentReminderNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
