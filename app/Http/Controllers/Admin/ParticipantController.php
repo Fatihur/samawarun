@@ -16,20 +16,20 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Illuminate\View\View;
 use Yajra\DataTables\DataTables;
 
 class ParticipantController extends Controller
 {
     public function index(Request $request): View
     {
-        return view("admin.participants.index", [
-            "events" => Event::query()->orderBy("date")->get(),
-            "distanceCategories" => Participant::query()
+        return view('admin.participants.index', [
+            'events' => Event::query()->orderBy('date')->get(),
+            'distanceCategories' => Participant::query()
                 ->distinct()
-                ->pluck("distance_category")
+                ->pluck('distance_category')
                 ->filter()
                 ->sort()
                 ->values(),
@@ -39,73 +39,76 @@ class ParticipantController extends Controller
     public function data(Request $request): \Illuminate\Http\JsonResponse
     {
         $query = Participant::query()
-            ->with("event")
-            ->select("participants.*")
+            ->with('event')
+            ->select('participants.*')
             ->latest()
-            ->when($request->filled("event_id"), function (Builder $query) use ($request): void {
-                $query->where("event_id", $request->integer("event_id"));
+            ->when($request->filled('event_id'), function (Builder $query) use ($request): void {
+                $query->where('event_id', $request->integer('event_id'));
             })
-            ->when($request->filled("distance_category"), function (Builder $query) use ($request): void {
-                $query->where("distance_category", $request->string("distance_category")->value());
+            ->when($request->filled('distance_category'), function (Builder $query) use ($request): void {
+                $query->where('distance_category', $request->string('distance_category')->value());
             })
-            ->when($request->filled("status"), function (Builder $query) use ($request): void {
-                $selectedStatus = $request->string("status")->value();
+            ->when($request->filled('status'), function (Builder $query) use ($request): void {
+                $selectedStatus = $request->string('status')->value();
 
                 if (in_array($selectedStatus, [
                     Participant::STATUS_PENDING,
                     Participant::STATUS_VERIFIED,
                     Participant::STATUS_REJECTED,
                 ], true)) {
-                    $query->where("status", $selectedStatus);
+                    $query->where('status', $selectedStatus);
+
                     return;
                 }
 
-                $query->where("workflow_status", $selectedStatus);
+                $query->where('workflow_status', $selectedStatus);
             });
 
         // Handle DataTables global search
         $searchValue = $request->input('search.value');
-        if (!empty($searchValue)) {
+        if (! empty($searchValue)) {
             $query->where(function (Builder $q) use ($searchValue): void {
-                $q->where("name", "like", "%{$searchValue}%")
-                  ->orWhere("email", "like", "%{$searchValue}%")
-                  ->orWhere("bib_number", "like", "%{$searchValue}%")
-                  ->orWhere("phone", "like", "%{$searchValue}%")
-                  ->orWhereHas("event", function ($q) use ($searchValue): void {
-                      $q->where("name", "like", "%{$searchValue}%");
-                  });
+                $q->where('name', 'like', "%{$searchValue}%")
+                    ->orWhere('email', 'like', "%{$searchValue}%")
+                    ->orWhere('bib_number', 'like', "%{$searchValue}%")
+                    ->orWhere('phone', 'like', "%{$searchValue}%")
+                    ->orWhereHas('event', function ($q) use ($searchValue): void {
+                        $q->where('name', 'like', "%{$searchValue}%");
+                    });
             });
         }
 
         return DataTables::of($query)
-            ->addColumn("select", function (Participant $participant): string {
+            ->addColumn('select', function (Participant $participant): string {
                 if ($participant->status === Participant::STATUS_VERIFIED) {
-                    return '<input type="checkbox" name="participant_ids[]" value="' . $participant->id . '" form="bulk-bib-form" class="participant-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">';
+                    return '<input type="checkbox" name="participant_ids[]" value="'.$participant->id.'" form="bulk-bib-form" class="participant-select h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">';
                 }
+
                 return '<span class="pl-6">-</span>';
             })
-            ->addColumn("name_email", function (Participant $participant): string {
-                return '<p class="font-bold text-slate-800">' . e($participant->name) . '</p>' .
-                       '<p class="text-xs text-slate-500">' . e($participant->email) . '</p>';
+            ->addColumn('name_email', function (Participant $participant): string {
+                return '<p class="font-bold text-slate-800">'.e($participant->name).'</p>'.
+                       '<p class="text-xs text-slate-500">'.e($participant->email).'</p>';
             })
-            ->addColumn("event_name", function (Participant $participant): string {
+            ->addColumn('event_name', function (Participant $participant): string {
                 return e($participant->event?->name ?? 'N/A');
             })
-            ->addColumn("distance_badge", function (Participant $participant): string {
-                return '<span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">' . e($participant->distance_category) . '</span>';
+            ->addColumn('distance_badge', function (Participant $participant): string {
+                return '<span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-700">'.e($participant->distance_category).'</span>';
             })
-            ->addColumn("bib_number_display", function (Participant $participant): string {
+            ->addColumn('bib_number_display', function (Participant $participant): string {
                 return e($participant->bib_number ?? '-');
             })
-            ->addColumn("status_label", function (Participant $participant): string {
+            ->addColumn('status_label', function (Participant $participant): string {
                 if ($participant->status === Participant::STATUS_VERIFIED) {
                     return '<span class="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-700 border border-emerald-200">Verified</span>';
                 } elseif ($participant->status === Participant::STATUS_REJECTED) {
                     return '<span class="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-bold text-red-700 border border-red-200">Rejected</span>';
                 }
-                return '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">' . e($participant->workflow_status_label) . '</span>';
+
+                return '<span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-700 border border-amber-200">'.e($participant->workflow_status_label).'</span>';
             })
-            ->addColumn("actions", function (Participant $participant): string {
+            ->addColumn('actions', function (Participant $participant): string {
                 // SVG Icons
                 $eyeSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>';
                 $checkSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
@@ -114,27 +117,28 @@ class ParticipantController extends Controller
                 $xCircleSvg = '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="h-4 w-4"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
 
                 $actions = '<div class="flex items-center gap-2">';
-                $actions .= '<a href="' . route('admin.participants.show', $participant) . '" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail">' . $eyeSvg . '</a>';
+                $actions .= '<a href="'.route('admin.participants.show', $participant).'" class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600 transition-colors hover:bg-brand-100 hover:text-brand-800" title="Detail">'.$eyeSvg.'</a>';
 
                 if ($participant->workflow_status === Participant::WORKFLOW_SUBMITTED) {
-                    $actions .= '<form action="' . route('admin.participants.verify', $participant) . '" method="POST" onsubmit="return confirm(\'Verifikasi peserta ini?\')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">';
-                    $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify">' . $checkSvg . '</button></form>';
+                    $actions .= '<form action="'.route('admin.participants.verify', $participant).'" method="POST" onsubmit="return confirm(\'Verifikasi peserta ini?\')" data-loading-title="Memverifikasi peserta" data-loading-message="Status peserta sedang diperbarui dan nomor dada sedang disiapkan...">';
+                    $actions .= csrf_field().method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Memverifikasi..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Verify">'.$checkSvg.'</button></form>';
 
-                    $actions .= '<form action="' . route('admin.participants.reject', $participant) . '" method="POST" onsubmit="return confirm(\'Tolak peserta ini?\')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">';
-                    $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject">' . $xMarkSvg . '</button></form>';
+                    $actions .= '<form action="'.route('admin.participants.reject', $participant).'" method="POST" onsubmit="return confirm(\'Tolak peserta ini?\')" data-loading-title="Menolak pendaftaran" data-loading-message="Status peserta sedang diperbarui, mohon tunggu...">';
+                    $actions .= csrf_field().method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject">'.$xMarkSvg.'</button></form>';
                 } elseif ($participant->workflow_status === Participant::WORKFLOW_PAYMENT_SUBMITTED) {
-                    $actions .= '<form action="' . route('admin.participants.payment.approve', $participant) . '" method="POST" onsubmit="return confirm(\'Setujui pembayaran peserta ini?\')" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">';
-                    $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment">' . $banknotesSvg . '</button></form>';
+                    $actions .= '<form action="'.route('admin.participants.payment.approve', $participant).'" method="POST" onsubmit="return confirm(\'Setujui pembayaran peserta ini?\')" data-loading-title="Menyetujui pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan nomor dada sedang disiapkan...">';
+                    $actions .= csrf_field().method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Menyetujui..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 transition-colors hover:bg-emerald-100 hover:text-emerald-800" title="Approve Payment">'.$banknotesSvg.'</button></form>';
 
-                    $actions .= '<form action="' . route('admin.participants.payment.reject', $participant) . '" method="POST" onsubmit="return confirm(\'Tolak pembayaran peserta ini?\')" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">';
-                    $actions .= csrf_field() . method_field('PATCH');
-                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment">' . $xCircleSvg . '</button></form>';
+                    $actions .= '<form action="'.route('admin.participants.payment.reject', $participant).'" method="POST" onsubmit="return confirm(\'Tolak pembayaran peserta ini?\')" data-loading-title="Menolak pembayaran" data-loading-message="Status pembayaran sedang diperbarui dan link upload ulang sedang dikirim...">';
+                    $actions .= csrf_field().method_field('PATCH');
+                    $actions .= '<button type="submit" data-loading-label="Menolak..." class="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors hover:bg-red-100 hover:text-red-800" title="Reject Payment">'.$xCircleSvg.'</button></form>';
                 }
 
                 $actions .= '</div>';
+
                 return $actions;
             })
             ->rawColumns(['select', 'name_email', 'distance_badge', 'status_label', 'actions'])
@@ -143,8 +147,8 @@ class ParticipantController extends Controller
 
     public function show(Participant $participant): View
     {
-        return view("admin.participants.show", [
-            "participant" => $participant->load("event"),
+        return view('admin.participants.show', [
+            'participant' => $participant->load('event'),
         ]);
     }
 
@@ -155,8 +159,8 @@ class ParticipantController extends Controller
             Participant::WORKFLOW_APPROVED_WAITING_PAYMENT
         ) {
             return back()->with(
-                "success",
-                "Pendaftaran peserta sudah disetujui dan menunggu pembayaran.",
+                'success',
+                'Pendaftaran peserta sudah disetujui dan menunggu pembayaran.',
             );
         }
 
@@ -179,38 +183,38 @@ class ParticipantController extends Controller
             $locked->issuePaymentToken();
         });
 
-        $participant->refresh()->load("event");
+        $participant->refresh()->load('event');
         $participant->notify(
             new ParticipantRegistrationApprovedNotification($participant),
         );
 
         return back()->with(
-            "success",
-            "Pendaftaran peserta disetujui. Link pembayaran telah dikirim ke email peserta.",
+            'success',
+            'Pendaftaran peserta disetujui. Link pembayaran telah dikirim ke email peserta.',
         );
     }
 
     public function reject(Participant $participant): RedirectResponse
     {
         $participant->update([
-            "status" => Participant::STATUS_REJECTED,
-            "workflow_status" => Participant::WORKFLOW_REGISTRATION_REJECTED,
-            "registration_reviewed_at" => now(),
-            "bib_number" => null,
+            'status' => Participant::STATUS_REJECTED,
+            'workflow_status' => Participant::WORKFLOW_REGISTRATION_REJECTED,
+            'registration_reviewed_at' => now(),
+            'bib_number' => null,
         ]);
 
-        $participant->refresh()->load("event");
+        $participant->refresh()->load('event');
         $participant->notify(new ParticipantRejectedNotification($participant));
 
-        return back()->with("success", "Peserta berhasil ditolak.");
+        return back()->with('success', 'Peserta berhasil ditolak.');
     }
 
     public function approvePayment(Participant $participant): RedirectResponse
     {
         if ($participant->workflow_status === Participant::WORKFLOW_COMPLETED) {
             return back()->with(
-                "success",
-                "Pembayaran peserta sudah disetujui sebelumnya.",
+                'success',
+                'Pembayaran peserta sudah disetujui sebelumnya.',
             );
         }
 
@@ -226,12 +230,12 @@ class ParticipantController extends Controller
             $locked->save();
         });
 
-        $participant->refresh()->load("event");
+        $participant->refresh()->load('event');
         $participant->notify(new ParticipantVerifiedNotification($participant));
 
         return back()->with(
-            "success",
-            "Pembayaran disetujui. Bukti pendaftaran dan BIB telah dikirim ke email peserta.",
+            'success',
+            'Pembayaran disetujui. Bukti pendaftaran dan BIB telah dikirim ke email peserta.',
         );
     }
 
@@ -240,53 +244,62 @@ class ParticipantController extends Controller
         $participant->issuePaymentToken();
 
         $participant->update([
-            "status" => Participant::STATUS_PENDING,
-            "workflow_status" => Participant::WORKFLOW_PAYMENT_REJECTED,
-            "payment_reviewed_at" => now(),
+            'status' => Participant::STATUS_PENDING,
+            'workflow_status' => Participant::WORKFLOW_PAYMENT_REJECTED,
+            'payment_reviewed_at' => now(),
         ]);
 
-        $participant->refresh()->load("event");
+        $participant->refresh()->load('event');
         $participant->notify(
             new ParticipantPaymentRejectedNotification($participant),
         );
 
         return back()->with(
-            "success",
-            "Pembayaran ditolak. Peserta telah menerima email untuk upload ulang bukti pembayaran.",
+            'success',
+            'Pembayaran ditolak. Peserta telah menerima email untuk upload ulang bukti pembayaran.',
         );
+    }
+
+    public function destroy(Participant $participant): RedirectResponse
+    {
+        $participant->delete();
+
+        return redirect()
+            ->route('admin.participants.index')
+            ->with('success', 'Peserta berhasil dihapus.');
     }
 
     public function export(Request $request): StreamedResponse
     {
-        $fileName = "participants-" . now()->format("Ymd-His") . ".csv";
+        $fileName = 'participants-'.now()->format('Ymd-His').'.csv';
 
         $participants = Participant::query()
-            ->with("event")
-            ->when($request->filled("event_id"), function (Builder $query) use (
+            ->with('event')
+            ->when($request->filled('event_id'), function (Builder $query) use (
                 $request,
             ): void {
-                $query->where("event_id", $request->integer("event_id"));
+                $query->where('event_id', $request->integer('event_id'));
             })
-            ->when($request->filled("distance_category"), function (Builder $query) use (
+            ->when($request->filled('distance_category'), function (Builder $query) use (
                 $request,
             ): void {
-                $query->where("distance_category", $request->string("distance_category")->value());
+                $query->where('distance_category', $request->string('distance_category')->value());
             })
-            ->when($request->filled("status"), function (Builder $query) use (
+            ->when($request->filled('status'), function (Builder $query) use (
                 $request,
             ): void {
-                $query->where("status", $request->string("status")->value());
+                $query->where('status', $request->string('status')->value());
             })
-            ->when($request->filled("search"), function (Builder $query) use (
+            ->when($request->filled('search'), function (Builder $query) use (
                 $request,
             ): void {
-                $search = trim($request->string("search")->value());
+                $search = trim($request->string('search')->value());
                 $query->where(function (Builder $inner) use ($search): void {
                     $inner
-                        ->where("name", "like", "%{$search}%")
-                        ->orWhere("email", "like", "%{$search}%")
-                        ->orWhere("bib_number", "like", "%{$search}%")
-                        ->orWhere("phone", "like", "%{$search}%");
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('bib_number', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
                 });
             })
             ->latest()
@@ -294,21 +307,21 @@ class ParticipantController extends Controller
 
         return response()->streamDownload(
             function () use ($participants): void {
-                $stream = fopen("php://output", "w");
+                $stream = fopen('php://output', 'w');
 
                 fputcsv($stream, [
-                    "ID",
-                    "Event",
-                    "Bib Number",
-                    "Nama",
-                    "Email",
-                    "Phone",
-                    "Emergency Relationship",
-                    "Emergency Name",
-                    "Emergency Phone",
-                    "Distance",
-                    "Jersey",
-                    "Status",
+                    'ID',
+                    'Event',
+                    'Bib Number',
+                    'Nama',
+                    'Email',
+                    'Phone',
+                    'Emergency Relationship',
+                    'Emergency Name',
+                    'Emergency Phone',
+                    'Distance',
+                    'Jersey',
+                    'Status',
                 ]);
 
                 foreach ($participants as $participant) {
@@ -332,54 +345,54 @@ class ParticipantController extends Controller
             },
             $fileName,
             [
-                "Content-Type" => "text/csv",
+                'Content-Type' => 'text/csv',
             ],
         );
     }
 
     public function exportPdf(Request $request): Response
     {
-        $fileName = "participants-" . now()->format("Ymd-His") . ".pdf";
+        $fileName = 'participants-'.now()->format('Ymd-His').'.pdf';
 
         $participants = Participant::query()
-            ->with("event")
-            ->when($request->filled("event_id"), function (Builder $query) use (
+            ->with('event')
+            ->when($request->filled('event_id'), function (Builder $query) use (
                 $request,
             ): void {
-                $query->where("event_id", $request->integer("event_id"));
+                $query->where('event_id', $request->integer('event_id'));
             })
-            ->when($request->filled("distance_category"), function (Builder $query) use (
+            ->when($request->filled('distance_category'), function (Builder $query) use (
                 $request,
             ): void {
-                $query->where("distance_category", $request->string("distance_category")->value());
+                $query->where('distance_category', $request->string('distance_category')->value());
             })
-            ->when($request->filled("status"), function (Builder $query) use (
+            ->when($request->filled('status'), function (Builder $query) use (
                 $request,
             ): void {
-                $query->where("status", $request->string("status")->value());
+                $query->where('status', $request->string('status')->value());
             })
-            ->when($request->filled("search"), function (Builder $query) use (
+            ->when($request->filled('search'), function (Builder $query) use (
                 $request,
             ): void {
-                $search = trim($request->string("search")->value());
+                $search = trim($request->string('search')->value());
                 $query->where(function (Builder $inner) use ($search): void {
                     $inner
-                        ->where("name", "like", "%{$search}%")
-                        ->orWhere("email", "like", "%{$search}%")
-                        ->orWhere("bib_number", "like", "%{$search}%")
-                        ->orWhere("phone", "like", "%{$search}%");
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%")
+                        ->orWhere('bib_number', 'like', "%{$search}%")
+                        ->orWhere('phone', 'like', "%{$search}%");
                 });
             })
             ->latest()
             ->get();
 
-        $pdf = app("dompdf.wrapper");
+        $pdf = app('dompdf.wrapper');
 
         return $pdf
-            ->loadView("admin.participants.report-pdf", [
-                "participants" => $participants,
+            ->loadView('admin.participants.report-pdf', [
+                'participants' => $participants,
             ])
-            ->setPaper("A4", "landscape")
+            ->setPaper('A4', 'landscape')
             ->download($fileName);
     }
 
@@ -388,72 +401,72 @@ class ParticipantController extends Controller
     ): Response|RedirectResponse {
         if ($participant->status !== Participant::STATUS_VERIFIED) {
             return back()->with(
-                "error",
-                "Nomor dada hanya bisa dibuat untuk peserta yang sudah diverifikasi.",
+                'error',
+                'Nomor dada hanya bisa dibuat untuk peserta yang sudah diverifikasi.',
             );
         }
 
-        $participant->load("event");
+        $participant->load('event');
         $setting = BibSetting::current();
 
         $fileName =
-            "nomor-dada-" .
-            Str::slug($participant->name) .
-            "-" .
-            $participant->id .
-            ".pdf";
+            'nomor-dada-'.
+            Str::slug($participant->name).
+            '-'.
+            $participant->id.
+            '.pdf';
 
-        $pdf = app("dompdf.wrapper");
+        $pdf = app('dompdf.wrapper');
 
         return $pdf
-            ->loadView("admin.participants.id-card", [
-                "participants" => collect([$participant]),
-                "setting" => $setting,
+            ->loadView('admin.participants.id-card', [
+                'participants' => collect([$participant]),
+                'setting' => $setting,
             ])
-            ->setPaper("a5", "landscape")
+            ->setPaper('a5', 'landscape')
             ->download($fileName);
     }
 
     public function exportIdCardBulk(
         Request $request,
     ): Response|RedirectResponse {
-        $ids = collect($request->input("participant_ids", []))
-            ->map(fn(mixed $id): int => (int) $id)
-            ->filter(fn(int $id): bool => $id > 0)
+        $ids = collect($request->input('participant_ids', []))
+            ->map(fn (mixed $id): int => (int) $id)
+            ->filter(fn (int $id): bool => $id > 0)
             ->unique()
             ->values();
 
         if ($ids->isEmpty()) {
             return back()->with(
-                "error",
-                "Pilih minimal satu peserta untuk export nomor dada.",
+                'error',
+                'Pilih minimal satu peserta untuk export nomor dada.',
             );
         }
 
         $participants = Participant::query()
-            ->with("event")
-            ->whereIn("id", $ids)
-            ->where("status", Participant::STATUS_VERIFIED)
-            ->orderBy("bib_number")
+            ->with('event')
+            ->whereIn('id', $ids)
+            ->where('status', Participant::STATUS_VERIFIED)
+            ->orderBy('bib_number')
             ->get();
 
         if ($participants->isEmpty()) {
             return back()->with(
-                "error",
-                "Peserta yang dipilih belum terverifikasi.",
+                'error',
+                'Peserta yang dipilih belum terverifikasi.',
             );
         }
 
-        $pdf = app("dompdf.wrapper");
-        $fileName = "nomor-dada-bulk-" . now()->format("Ymd-His") . ".pdf";
+        $pdf = app('dompdf.wrapper');
+        $fileName = 'nomor-dada-bulk-'.now()->format('Ymd-His').'.pdf';
         $setting = BibSetting::current();
 
         return $pdf
-            ->loadView("admin.participants.id-card", [
-                "participants" => $participants,
-                "setting" => $setting,
+            ->loadView('admin.participants.id-card', [
+                'participants' => $participants,
+                'setting' => $setting,
             ])
-            ->setPaper("a5", "landscape")
+            ->setPaper('a5', 'landscape')
             ->download($fileName);
     }
 
@@ -462,9 +475,9 @@ class ParticipantController extends Controller
         $settings = BibSetting::current();
 
         $categoryId = DistanceCategory::where(
-            "name",
+            'name',
             $participant->distance_category,
-        )->value("id");
+        )->value('id');
 
         $prefix =
             $categoryId && isset($settings->category_prefixes[$categoryId])
@@ -477,18 +490,18 @@ class ParticipantController extends Controller
                 : 1;
 
         $count = Participant::query()
-            ->where("event_id", $participant->event_id)
-            ->where("distance_category", $participant->distance_category)
-            ->whereNotNull("bib_number")
+            ->where('event_id', $participant->event_id)
+            ->where('distance_category', $participant->distance_category)
+            ->whereNotNull('bib_number')
             ->count();
 
         $sequence = $startNumber + $count;
 
-        return $prefix .
+        return $prefix.
             str_pad(
                 (string) $sequence,
                 $settings->number_padding,
-                "0",
+                '0',
                 STR_PAD_LEFT,
             );
     }

@@ -1,24 +1,24 @@
 <?php
 
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
-use App\Http\Controllers\Admin\BibSettingController as AdminBibSettingController;
 use App\Http\Controllers\Admin\BibScanController as AdminBibScanController;
-use App\Http\Controllers\Admin\ContactController as AdminContactController;
+use App\Http\Controllers\Admin\BibSettingController as AdminBibSettingController;
 use App\Http\Controllers\Admin\CertificateController as AdminCertificateController;
+use App\Http\Controllers\Admin\ContactController as AdminContactController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DatabaseManagementController as AdminDatabaseController;
 use App\Http\Controllers\Admin\DistanceCategoryController as AdminDistanceCategoryController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
 use App\Http\Controllers\Admin\GalleryController as AdminGalleryController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\Admin\ParticipantController as AdminParticipantController;
+use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
+use App\Http\Controllers\Admin\RaceReportController as AdminRaceReportController;
 use App\Http\Controllers\Admin\RaceTimingController as AdminRaceTimingController;
 use App\Http\Controllers\Public\EventController;
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\PaymentController;
 use App\Http\Controllers\Public\RegistrationController;
-use App\Http\Controllers\Admin\ProfileController as AdminProfileController;
-use App\Http\Controllers\Admin\RaceReportController as AdminRaceReportController;
-use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
-use App\Http\Controllers\Admin\DatabaseManagementController as AdminDatabaseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -43,7 +43,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
 
         Route::get('/contacts', [AdminContactController::class, 'index'])->name('contacts.index');
         Route::put('/contacts', [AdminContactController::class, 'update'])->name('contacts.update');
-        
+
         Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
         Route::get('/bib-settings', [AdminBibSettingController::class, 'index'])->name('bib-settings.index');
@@ -94,6 +94,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::get('/participants/{participant}/id-card', [AdminParticipantController::class, 'exportIdCard'])->name('participants.id-card');
         Route::get('/participants', [AdminParticipantController::class, 'index'])->name('participants.index');
         Route::get('/participants/{participant}', [AdminParticipantController::class, 'show'])->name('participants.show');
+        Route::delete('/participants/{participant}', [AdminParticipantController::class, 'destroy'])->name('participants.destroy');
         Route::patch('/participants/{participant}/verify', [AdminParticipantController::class, 'verify'])->name('participants.verify');
         Route::patch('/participants/{participant}/reject', [AdminParticipantController::class, 'reject'])->name('participants.reject');
         Route::patch('/participants/{participant}/payment/approve', [AdminParticipantController::class, 'approvePayment'])->name('participants.payment.approve');

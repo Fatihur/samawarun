@@ -89,6 +89,17 @@
                 </div>
                 @endforeach
             </div>
+
+            {{-- Hapus Peserta --}}
+            <div class="mt-6 pt-6 border-t border-slate-200">
+                <form action="{{ route('admin.participants.destroy', $participant) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus peserta ini? Tindakan ini tidak dapat dibatalkan.')" data-loading-title="Menghapus peserta" data-loading-message="Data peserta sedang dihapus, mohon tunggu...">
+                    @csrf @method('DELETE')
+                    <button type="submit" data-loading-label="Menghapus..." class="inline-flex items-center gap-2 text-sm font-semibold text-red-600 hover:text-red-800 transition-colors">
+                        <x-heroicon-o-trash class="h-4 w-4" />
+                        Hapus Peserta
+                    </button>
+                </form>
+            </div>
         </div>
 
         {{-- Right Column: Attachments --}}
