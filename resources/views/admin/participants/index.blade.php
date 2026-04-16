@@ -4,6 +4,10 @@
     <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
         <h1 class="font-display text-3xl font-bold uppercase italic text-slate-800">Kelola Peserta</h1>
         <div class="flex flex-wrap items-center gap-3">
+            <a href="{{ route('admin.participants.create') }}" class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-700 active:scale-95">
+                <x-heroicon-o-plus class="h-5 w-5" />
+                Tambah Peserta
+            </a>
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <a href="{{ route('admin.participants.export_pdf', request()->query()) }}" class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-2.5 text-sm font-bold text-white shadow-sm transition-all hover:bg-red-700 active:scale-95">
                     <x-heroicon-o-document-arrow-down class="h-5 w-5" />

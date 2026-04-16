@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
@@ -35,6 +36,91 @@ class ParticipantController extends Controller
                 ->sort()
                 ->values(),
         ]);
+    }
+
+    public function create(): View
+    {
+        return view('admin.participants.create', [
+            'events' => Event::query()
+                ->where('is_active', true)
+                ->with('distanceCategories')
+                ->orderBy('date', 'desc')
+                ->get(),
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'event_id' => ['required', 'exists:events,id'],
+        ]);
+
+        $event = Event::with('distanceCategories')->findOrFail($request->input('event_id'));
+
+        $allowedDistances = $event->distanceCategories
+            ->pluck('name')
+            ->map(fn (string $name): string => strtoupper($name))
+            ->values()
+            ->toArray();
+
+        $validated = $request->validate([
+            'event_id' => ['required', 'exists:events,id'],
+            'name' => ['required', 'string', 'max:255'],
+            'birth_date' => ['required', 'date', 'before:today'],
+            'gender' => ['required', Rule::in(['male', 'female'])],
+            'nik' => [
+                'required', 'string', 'size:16',
+                Rule::unique('participants')->where(
+                    fn ($q) => $q->where('event_id', $event->id)
+                        ->where('workflow_status', '!=', Participant::WORKFLOW_REGISTRATION_REJECTED)
+                ),
+            ],
+            'phone' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required', 'email', 'max:255',
+                Rule::unique('participants')->where(
+                    fn ($q) => $q->where('event_id', $event->id)
+                        ->where('workflow_status', '!=', Participant::WORKFLOW_REGISTRATION_REJECTED)
+                ),
+            ],
+            'address' => ['required', 'string', 'max:1000'],
+            'distance_category' => [
+                'required',
+                function (string $attribute, mixed $value, \Closure $fail) use ($allowedDistances, $event): void {
+                    if (! in_array(strtoupper((string) $value), $allowedDistances, true)) {
+                        $fail('Kategori jarak yang dipilih tidak valid untuk event ini.');
+                    }
+                    if ($event->isCategoryFull(strtoupper((string) $value))) {
+                        $fail('Kuota untuk kategori jarak ini sudah penuh.');
+                    }
+                },
+            ],
+            'jersey_size' => ['required', Rule::in(['2XS', 'XS', 'S', 'M', 'L', 'XL', 'XXL'])],
+            'emergency_contact_name' => ['required', 'string', 'max:255'],
+            'emergency_contact_phone' => ['required', 'string', 'max:255'],
+            'emergency_contact_relationship' => ['required', Rule::in(Participant::EMERGENCY_RELATIONSHIPS)],
+        ], [
+            'nik.unique' => 'NIK sudah terdaftar pada event ini.',
+            'email.unique' => 'Email sudah terdaftar pada event ini.',
+        ]);
+
+        $validated['distance_category'] = strtoupper((string) $validated['distance_category']);
+        $validated['transfer_proof'] = null;
+        $validated['status'] = Participant::STATUS_VERIFIED;
+        $validated['workflow_status'] = Participant::WORKFLOW_COMPLETED;
+        $validated['payment_reviewed_at'] = now();
+
+        $participant = DB::transaction(function () use ($validated): Participant {
+            $participant = Participant::create($validated);
+            $participant->bib_number = $this->buildBibNumber($participant);
+            $participant->save();
+
+            return $participant;
+        });
+
+        return redirect()
+            ->route('admin.participants.index')
+            ->with('success', "Peserta {$participant->name} berhasil ditambahkan dengan BIB {$participant->bib_number}.");
     }
 
     public function data(Request $request): \Illuminate\Http\JsonResponse

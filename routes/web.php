@@ -90,6 +90,8 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/certificates/send-email-bulk', [AdminCertificateController::class, 'sendEmailBulk'])->name('certificates.send-email-bulk');
         Route::get('/race-timing', [AdminRaceTimingController::class, 'index'])->name('race-timing.index');
         Route::post('/race-timing', [AdminRaceTimingController::class, 'store'])->name('race-timing.store');
+        Route::get('/participants/create', [AdminParticipantController::class, 'create'])->name('participants.create');
+        Route::post('/participants', [AdminParticipantController::class, 'store'])->name('participants.store');
         Route::post('/participants/id-card/bulk', [AdminParticipantController::class, 'exportIdCardBulk'])->name('participants.id-card.bulk');
         Route::get('/participants/{participant}/id-card', [AdminParticipantController::class, 'exportIdCard'])->name('participants.id-card');
         Route::get('/participants', [AdminParticipantController::class, 'index'])->name('participants.index');
