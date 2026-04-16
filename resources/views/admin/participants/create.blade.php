@@ -171,14 +171,7 @@
 
     <script>
         function participantForm() {
-            const eventsData = @json($events->mapWithKeys(fn ($event) => [
-                $event->id => $event->distanceCategories->map(fn ($cat) => [
-                    'name' => strtoupper($cat->name),
-                    'quota' => $cat->pivot?->quota,
-                    'remaining' => $event->getRemainingQuotaForCategory(strtoupper($cat->name)),
-                    'is_full' => $event->isCategoryFull(strtoupper($cat->name)),
-                ])
-            ]));
+            const eventsData = @json($eventsCategories);
 
             return {
                 selectedEventId: '{{ old("event_id", "") }}',

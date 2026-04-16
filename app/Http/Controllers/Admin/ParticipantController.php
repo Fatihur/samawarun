@@ -40,12 +40,30 @@ class ParticipantController extends Controller
 
     public function create(): View
     {
+        $events = Event::query()
+            ->where('is_active', true)
+            ->with('distanceCategories')
+            ->orderBy('date', 'desc')
+            ->get();
+
+        $eventsCategories = $events->mapWithKeys(function (Event $event) {
+            return [
+                $event->id => $event->distanceCategories->map(function ($cat) use ($event) {
+                    $name = strtoupper($cat->name);
+
+                    return [
+                        'name' => $name,
+                        'quota' => $cat->pivot?->quota,
+                        'remaining' => $event->getRemainingQuotaForCategory($name),
+                        'is_full' => $event->isCategoryFull($name),
+                    ];
+                }),
+            ];
+        });
+
         return view('admin.participants.create', [
-            'events' => Event::query()
-                ->where('is_active', true)
-                ->with('distanceCategories')
-                ->orderBy('date', 'desc')
-                ->get(),
+            'events' => $events,
+            'eventsCategories' => $eventsCategories,
         ]);
     }
 
