@@ -334,6 +334,13 @@ class ParticipantController extends Controller
         }
 
         DB::transaction(function () use ($participant): void {
+            Participant::query()
+                ->where('event_id', $participant->event_id)
+                ->where('distance_category', $participant->distance_category)
+                ->whereNotNull('bib_number')
+                ->lockForUpdate()
+                ->get();
+
             $locked = Participant::query()
                 ->lockForUpdate()
                 ->findOrFail($participant->id);
@@ -604,13 +611,20 @@ class ParticipantController extends Controller
                 ? $settings->category_start_numbers[$categoryId]
                 : 1;
 
-        $count = Participant::query()
+        $existingBibs = Participant::query()
             ->where('event_id', $participant->event_id)
             ->where('distance_category', $participant->distance_category)
             ->whereNotNull('bib_number')
-            ->count();
+            ->where('bib_number', 'like', $prefix . '%')
+            ->pluck('bib_number');
 
-        $sequence = $startNumber + $count;
+        $maxSequence = $existingBibs->map(function ($bib) use ($prefix) {
+            $numericPart = substr((string) $bib, strlen((string) $prefix));
+
+            return (int) $numericPart;
+        })->max();
+
+        $sequence = $maxSequence !== null ? ($maxSequence + 1) : $startNumber;
 
         return $prefix.
             str_pad(

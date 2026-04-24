@@ -9,7 +9,10 @@
       "Skill(playwright-cli)",
       "Bash(composer require:*)",
       "Bash(grep:*)",
-      "Bash(head:*)"
+      "Bash(head:*)",
+      "Bash(find:*)",
+      "Bash(ls -1 /d/ORDER/samawarun/database/migrations/*.php)",
+      "Bash(rtk git:*)"
     ]
   }
 }
