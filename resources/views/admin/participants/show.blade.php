@@ -74,6 +74,7 @@
                         ['label' => 'NIK', 'value' => $participant->nik, 'full' => true],
                         ['label' => 'HP', 'value' => $participant->phone],
                         ['label' => 'Email', 'value' => $participant->email],
+                        ['label' => 'Alamat', 'value' => $participant->address, 'full' => true],
                         ['label' => 'Hubungan Darurat', 'value' => $participant->emergency_contact_relationship_label],
                         ['label' => 'Nama Kontak Darurat', 'value' => $participant->emergency_contact_name],
                         ['label' => 'Nomor Kontak Darurat', 'value' => $participant->emergency_contact_phone, 'full' => true],
