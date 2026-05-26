@@ -66,25 +66,28 @@
 
         .bib-number {
             margin-top: 2mm;
-            font-size: 80px;
-            font-weight: normal;
+            font-size: {{ (int) ($setting->bib_font_size ?? 108) }}px;
+            font-weight: 900;
             letter-spacing: 1px;
-            line-height: 1;
+            line-height: 0.92;
         }
 
         .barcode-container {
-            margin-top: 2mm;
+            position: absolute;
+            top: 78mm;
+            right: 14mm;
             text-align: center;
+            z-index: 2;
         }
         
         .barcode-container img {
-            width: 25mm;
-            height: 25mm;
+            width: 22mm;
+            height: 22mm;
             object-fit: contain;
         }
 
         .participant-name {
-            margin-top: 4mm;
+            margin-top: 6mm;
             font-size: 18px;
             font-weight: normal;
         }
