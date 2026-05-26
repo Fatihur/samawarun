@@ -65,7 +65,7 @@
         }
 
         .bib-number {
-            margin-top: 2mm;
+            margin-top: 4mm;
             font-size: {{ (int) ($setting->bib_font_size ?? 108) }}px;
             font-weight: 900;
             letter-spacing: 1px;
@@ -74,7 +74,7 @@
 
         .barcode-container {
             position: absolute;
-            top: 69mm;
+            top: 66.5mm;
             right: 14mm;
             text-align: center;
             z-index: 2;
