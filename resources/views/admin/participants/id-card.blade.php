@@ -74,7 +74,7 @@
 
         .barcode-container {
             position: absolute;
-            top: 75.5mm;
+            top: 69mm;
             right: 14mm;
             text-align: center;
             z-index: 2;
