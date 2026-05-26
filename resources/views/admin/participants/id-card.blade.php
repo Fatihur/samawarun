@@ -47,7 +47,7 @@
         /* Center Content Container */
         .content-container {
             position: absolute;
-            top: 25mm;
+            top: 27mm;
             left: 0;
             width: 210mm;
             height: 98mm; /* 148 - 25 - 25 */
@@ -74,7 +74,7 @@
 
         .barcode-container {
             position: absolute;
-            top: 78mm;
+            top: 75.5mm;
             right: 14mm;
             text-align: center;
             z-index: 2;
