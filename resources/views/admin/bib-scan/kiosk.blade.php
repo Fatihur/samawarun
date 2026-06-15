@@ -68,8 +68,8 @@
         .scanner-section {
             text-align: center;
             width: 100%;
-            max-width: 600px;
-            margin-top: 80px;
+            max-width: 720px;
+            margin-top: 60px;
         }
 
         .scanner-section.hidden {
@@ -77,80 +77,46 @@
         }
 
         .event-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #1e293b;
-            margin-bottom: 2rem;
-        }
-
-        .bib-input {
-            width: 100%;
-            max-width: 560px;
-            margin: 0 auto;
-            padding: 1.75rem 2rem;
             font-size: 3rem;
             font-weight: 800;
-            text-align: center;
-            border: 3px dashed #cbd5e1;
-            border-radius: 1.5rem;
-            background: #f8fafc;
-            color: #1e293b;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-            outline: none;
+            color: #0f172a;
+            margin-bottom: 3rem;
+            line-height: 1.1;
+            max-width: 90vw;
+            word-wrap: break-word;
+            letter-spacing: -0.01em;
+        }
+
+        .bib-input-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .scanner-illustration {
+            width: 100%;
+            max-width: 360px;
+            margin: 0 auto 2rem;
+        }
+
+        .scanner-illustration svg {
+            width: 100%;
+            height: auto;
             display: block;
         }
 
-        .bib-input:focus {
-            border-color: #3b82f6;
-            border-style: solid;
-            background: #ffffff;
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
-        }
-
-        .bib-input::placeholder {
-            color: #94a3b8;
-            font-size: 1.25rem;
-            font-weight: 600;
-            letter-spacing: normal;
-            text-transform: none;
-        }
-
-        .scanner-status {
-            margin-top: 1.5rem;
-            font-size: 1.125rem;
-            color: #64748b;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .scanner-status .dot {
-            width: 0.625rem;
-            height: 0.625rem;
-            border-radius: 50%;
-            background: #22c55e;
-            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
-            animation: pulse 1.6s ease-out infinite;
-        }
-
-        .scanner-status.error .dot {
-            background: #ef4444;
-            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
-        }
-
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.6); }
-            70% { box-shadow: 0 0 0 12px rgba(34, 197, 94, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
-        }
-
-        .scanner-hint {
-            margin-top: 0.75rem;
-            font-size: 0.875rem;
-            color: #94a3b8;
+        .scanner-prompt {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #475569;
+            margin-top: 0.5rem;
+            line-height: 1.4;
         }
 
         /* Info Section */
@@ -326,21 +292,50 @@
             <input
                 type="text"
                 id="bib-input"
-                class="bib-input"
-                placeholder="Arahkan scanner ke BIB..."
+                class="bib-input-hidden"
                 autocomplete="off"
                 autocapitalize="characters"
                 autocorrect="off"
                 spellcheck="false"
                 inputmode="text"
+                aria-label="BIB scanner input"
             >
 
-            <div class="scanner-status" id="scanner-status">
-                <span class="dot"></span>
-                <span id="scanner-status-text">Scanner USB siap</span>
+            <div class="scanner-illustration" aria-hidden="true">
+                <svg viewBox="0 0 200 110" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="10" width="180" height="90" rx="10" fill="none" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="6 4" opacity="0.6"/>
+                    <g fill="#1e293b">
+                        <rect x="30" y="25" width="3" height="60"/>
+                        <rect x="36" y="25" width="2" height="60"/>
+                        <rect x="42" y="25" width="4" height="60"/>
+                        <rect x="50" y="25" width="2" height="60"/>
+                        <rect x="56" y="25" width="3" height="60"/>
+                        <rect x="63" y="25" width="2" height="60"/>
+                        <rect x="68" y="25" width="4" height="60"/>
+                        <rect x="76" y="25" width="2" height="60"/>
+                        <rect x="82" y="25" width="3" height="60"/>
+                        <rect x="89" y="25" width="4" height="60"/>
+                        <rect x="97" y="25" width="2" height="60"/>
+                        <rect x="102" y="25" width="3" height="60"/>
+                        <rect x="109" y="25" width="2" height="60"/>
+                        <rect x="115" y="25" width="4" height="60"/>
+                        <rect x="123" y="25" width="3" height="60"/>
+                        <rect x="130" y="25" width="2" height="60"/>
+                        <rect x="136" y="25" width="4" height="60"/>
+                        <rect x="144" y="25" width="2" height="60"/>
+                        <rect x="150" y="25" width="3" height="60"/>
+                        <rect x="157" y="25" width="4" height="60"/>
+                        <rect x="165" y="25" width="2" height="60"/>
+                    </g>
+                    <line x1="20" y1="25" x2="180" y2="25" stroke="#3b82f6" stroke-width="3" stroke-linecap="round">
+                        <animate attributeName="y1" values="25;85;25" dur="1.8s" repeatCount="indefinite"/>
+                        <animate attributeName="y2" values="25;85;25" dur="1.8s" repeatCount="indefinite"/>
+                        <animate attributeName="opacity" values="1;0.5;1" dur="1.8s" repeatCount="indefinite"/>
+                    </line>
+                </svg>
             </div>
 
-            <p class="scanner-hint">Scan barcode BIB atau ketik manual lalu tekan Enter</p>
+            <p class="scanner-prompt">Silakan scan BIB di scanner yang sudah disediakan</p>
         </div>
 
         {{-- Info Section --}}
@@ -399,8 +394,6 @@
         const notFound = document.getElementById('not-found');
         const timerDisplay = document.getElementById('timer-display');
         const bibInput = document.getElementById('bib-input');
-        const scannerStatus = document.getElementById('scanner-status');
-        const scannerStatusText = document.getElementById('scanner-status-text');
 
         let displayTimer = null;
         let countdownInterval = null;
@@ -454,11 +447,6 @@
             }
         }
 
-        function setScannerStatus(text, isError = false) {
-            scannerStatusText.textContent = text;
-            scannerStatus.classList.toggle('error', isError);
-        }
-
         async function lookupBib(bibNumber) {
             try {
                 const url = `${LOOKUP_URL}?event_id=${EVENT_ID}&bib_number=${encodeURIComponent(bibNumber)}`;
@@ -482,7 +470,6 @@
             }
 
             scanLocked = true;
-            setScannerStatus('Mencari...', false);
             const data = await lookupBib(bib);
 
             if (data.found) {
@@ -496,7 +483,6 @@
 
         function clearInput() {
             bibInput.value = '';
-            setScannerStatus('Scanner USB siap', false);
             scanLocked = false;
             focusInput();
         }
@@ -626,8 +612,7 @@
 
         // Initial focus
         window.addEventListener('load', () => {
-            // Wait for overlay click to actually focus (avoid browser warnings)
-            setScannerStatus('Klik layar untuk mengaktifkan scanner', false);
+            // Focus waits for overlay click to satisfy browser autoplay/focus rules.
         });
     </script>
 </body>
