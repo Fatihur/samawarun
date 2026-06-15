@@ -53,7 +53,7 @@
                         <x-heroicon-o-information-circle class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                         <div class="text-sm text-amber-800">
                             <p class="font-semibold mb-1">Mode Kiosk</p>
-                            <p>Scanner BIB hanya tersedia di mode kiosk. Pastikan perangkat memiliki kamera yang berfungsi dengan baik.</p>
+                            <p>Scanner BIB menggunakan scanner USB VSC PB-333U (HID keyboard). Pastikan perangkat sudah terpasang dan suffix diatur ke <strong>Enter</strong>.</p>
                         </div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                         <x-heroicon-o-computer-desktop class="h-10 w-10" />
                     </div>
                     <h2 class="text-xl font-bold text-slate-800 mb-2">Mode Kiosk</h2>
-                    <p class="text-sm text-slate-500 mb-6">Masuk ke layar penuh dengan scanner kamera untuk memindai BIB peserta</p>
+                    <p class="text-sm text-slate-500 mb-6">Masuk ke layar penuh dengan scanner USB VSC PB-333U untuk memindai BIB peserta</p>
 
                     <a href="#" id="kiosk-link" class="inline-flex items-center gap-3 rounded-xl bg-orange-600 px-8 py-4 text-lg font-bold text-white shadow-lg shadow-orange-200 transition-all hover:bg-orange-700 hover:shadow-xl active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none">
                         <x-heroicon-o-play-circle class="h-6 w-6" />
@@ -100,7 +100,7 @@
                     </div>
                     <div class="flex items-start gap-3">
                         <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold text-xs">3</span>
-                        <p>Arahkan barcode BIB ke kamera hingga terbaca</p>
+                        <p>Arahkan barcode BIB ke scanner USB hingga terdengar bunyi "beep"</p>
                     </div>
                     <div class="flex items-start gap-3">
                         <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-bold text-xs">4</span>
@@ -110,19 +110,20 @@
             </div>
 
             {{-- Tips --}}
-            <div class="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-                <div class="flex items-start gap-3">
-                    <x-heroicon-o-light-bulb class="h-5 w-5 text-indigo-600 shrink-0" />
-                    <div class="text-sm text-indigo-800">
-                        <p class="font-semibold mb-1">Tips</p>
-                        <ul class="list-disc list-inside space-y-1 text-indigo-700">
-                            <li>Pastikan pencahayaan cukup terang</li>
-                            <li>Posisikan barcode dalam jarak 10-20 cm dari kamera</li>
-                            <li>Gunakan tombol ESC untuk keluar dari mode kiosk</li>
-                        </ul>
+                <div class="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+                    <div class="flex items-start gap-3">
+                        <x-heroicon-o-light-bulb class="h-5 w-5 text-indigo-600 shrink-0" />
+                        <div class="text-sm text-indigo-800">
+                            <p class="font-semibold mb-1">Tips</p>
+                            <ul class="list-disc list-inside space-y-1 text-indigo-700">
+                                <li>Colokkan scanner VSC PB-333U ke port USB sebelum membuka mode kiosk</li>
+                                <li>Jika scanner tidak respon, ketik nomor BIB manual lalu tekan Enter</li>
+                                <li>Beep nada tinggi = peserta ditemukan, beep nada rendah = BIB tidak dikenal</li>
+                                <li>Gunakan tombol ESC untuk keluar dari mode kiosk</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 
