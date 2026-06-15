@@ -62,6 +62,50 @@
 
         {{-- Panel Kanan: Aksi --}}
         <div class="space-y-6">
+            {{-- Status Scanner --}}
+            <div class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+                <div class="mb-4 flex items-center justify-between gap-3">
+                    <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                        <x-heroicon-o-signal class="h-5 w-5 text-slate-400" />
+                        Status Scanner
+                    </h3>
+                    <button
+                        type="button"
+                        id="scanner-activate-btn"
+                        class="text-xs font-semibold text-brand-600 hover:text-brand-700 px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 transition-colors"
+                    >
+                        Aktifkan
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-3 mb-4">
+                    <span id="scanner-status-dot" class="relative inline-flex h-3 w-3" aria-hidden="true"></span>
+                    <span id="scanner-status-text" class="text-sm font-semibold text-amber-700">Belum diaktifkan - klik tombol di atas</span>
+                </div>
+
+                <div class="rounded-lg bg-slate-50 border border-slate-200 p-3">
+                    <label for="scanner-test-input" class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                        Tes Scanner
+                    </label>
+                    <input
+                        type="text"
+                        id="scanner-test-input"
+                        placeholder="Scan barcode apapun di sini..."
+                        class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm font-mono focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors"
+                        autocomplete="off"
+                        autocapitalize="characters"
+                        autocorrect="off"
+                        spellcheck="false"
+                    >
+                    <p id="scanner-test-result" class="text-xs mt-2 hidden"></p>
+                </div>
+
+                <p class="mt-3 text-xs text-slate-400 flex items-start gap-1.5">
+                    <x-heroicon-o-information-circle class="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                    <span>Jika scanner tidak merespons, cabut dan pasang lagi ke port USB, lalu klik <strong>Aktifkan</strong>.</span>
+                </p>
+            </div>
+
             {{-- Tombol Masuk Kiosk --}}
             <div class="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
                 <div class="text-center">
@@ -233,5 +277,92 @@
 
         // Render history on load
         renderHistory();
+
+        // Status Scanner + Tes
+        (function() {
+            const dot = document.getElementById('scanner-status-dot');
+            const statusText = document.getElementById('scanner-status-text');
+            const testInput = document.getElementById('scanner-test-input');
+            const testResult = document.getElementById('scanner-test-result');
+            const activateBtn = document.getElementById('scanner-activate-btn');
+            let resultTimeout = null;
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function setReady() {
+                dot.innerHTML = `
+                    <span class="absolute inset-0 inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                    <span class="relative inline-block h-3 w-3 rounded-full bg-emerald-500"></span>
+                `;
+                statusText.textContent = 'Scanner USB siap';
+                statusText.classList.remove('text-amber-700', 'text-slate-700');
+                statusText.classList.add('text-emerald-700');
+                activateBtn.textContent = 'Aktif ✓';
+                activateBtn.classList.remove('bg-brand-50', 'text-brand-600', 'hover:bg-brand-100', 'hover:text-brand-700');
+                activateBtn.classList.add('bg-emerald-50', 'text-emerald-700', 'hover:bg-emerald-100');
+            }
+
+            function setInactive() {
+                dot.innerHTML = `<span class="relative inline-block h-3 w-3 rounded-full bg-amber-400"></span>`;
+                statusText.textContent = 'Belum diaktifkan - klik tombol di atas';
+                statusText.classList.add('text-amber-700');
+                statusText.classList.remove('text-emerald-700', 'text-slate-700');
+                activateBtn.textContent = 'Aktifkan';
+                activateBtn.classList.add('bg-brand-50', 'text-brand-600', 'hover:bg-brand-100', 'hover:text-brand-700');
+                activateBtn.classList.remove('bg-emerald-50', 'text-emerald-700', 'hover:bg-emerald-100');
+            }
+
+            function showTestResult(value) {
+                clearTimeout(resultTimeout);
+                const time = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const safe = escapeHtml(value);
+                testResult.innerHTML =
+                    `<span class="font-semibold text-emerald-600">&#10003; Scanner berfungsi</span>` +
+                    ` &middot; Terbaca: <span class="font-mono text-slate-700">${safe}</span>` +
+                    ` &middot; <span class="text-slate-400">${time}</span>`;
+                testResult.classList.remove('hidden');
+                resultTimeout = setTimeout(() => {
+                    testResult.classList.add('hidden');
+                }, 6000);
+            }
+
+            function activate() {
+                testInput.focus();
+                setReady();
+            }
+
+            activateBtn.addEventListener('click', activate);
+
+            testInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const value = testInput.value.trim();
+                    testInput.value = '';
+                    if (value) {
+                        showTestResult(value);
+                    }
+                    testInput.focus();
+                }
+            });
+
+            testInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (document.activeElement !== testInput) {
+                        setInactive();
+                    }
+                }, 150);
+            });
+
+            testInput.addEventListener('focus', () => {
+                setReady();
+            });
+
+            // Initial state
+            setInactive();
+        })();
     </script>
 @endsection

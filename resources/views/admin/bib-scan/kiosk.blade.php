@@ -579,6 +579,10 @@
             if (!document.hidden) focusInput();
         });
 
+        window.addEventListener('focus', () => {
+            setTimeout(focusInput, 50);
+        });
+
         window.addEventListener('blur', () => {
             setTimeout(focusInput, 100);
         });
