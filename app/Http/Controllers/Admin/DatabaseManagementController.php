@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Artisan;
+use Symfony\Component\Process\Process;
 
 class DatabaseManagementController extends Controller
 {
@@ -102,19 +103,19 @@ class DatabaseManagementController extends Controller
                 $configContent = "[client]\nuser={$dbUser}\npassword={$dbPass}\nhost={$dbHost}";
                 file_put_contents($configFile, $configContent);
 
-                $command = sprintf(
+                $process = Process::fromShellCommandline(sprintf(
                     'mysqldump --defaults-extra-file=%s %s > %s',
                     escapeshellarg($configFile),
                     escapeshellarg($dbName),
                     escapeshellarg($path)
-                );
+                ));
 
-                exec($command, $output, $returnCode);
+                $process->run();
 
                 unlink($configFile);
 
-                if ($returnCode !== 0) {
-                    throw new \Exception('Gagal membuat backup database');
+                if (! $process->isSuccessful()) {
+                    throw new \Exception('Gagal membuat backup database: ' . $process->getErrorOutput());
                 }
             }
 
@@ -165,19 +166,20 @@ class DatabaseManagementController extends Controller
                 $configContent = "[client]\nuser={$dbUser}\npassword={$dbPass}\nhost={$dbHost}";
                 file_put_contents($configFile, $configContent);
 
-                $command = sprintf(
+                $process = Process::fromShellCommandline(sprintf(
                     'mysql --defaults-extra-file=%s %s < %s',
                     escapeshellarg($configFile),
                     escapeshellarg($dbName),
                     escapeshellarg($path)
-                );
+                ));
 
-                exec($command, $output, $returnCode);
+                $process->setTimeout(300);
+                $process->run();
 
                 unlink($configFile);
 
-                if ($returnCode !== 0) {
-                    throw new \Exception('Gagal merestore database');
+                if (! $process->isSuccessful()) {
+                    throw new \Exception('Gagal merestore database: ' . $process->getErrorOutput());
                 }
             }
 
