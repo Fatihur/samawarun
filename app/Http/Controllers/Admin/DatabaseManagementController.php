@@ -224,7 +224,16 @@ class DatabaseManagementController extends Controller
                     try {
                         DB::statement($statement);
                     } catch (\Exception $e) {
-                        if (! str_contains($e->getMessage(), 'Unknown table')) {
+                        $msg = $e->getMessage();
+                        $ignored = ['Unknown table', 'Base table or view already exists', 'already exists'];
+                        $shouldIgnore = false;
+                        foreach ($ignored as $pattern) {
+                            if (str_contains($msg, $pattern)) {
+                                $shouldIgnore = true;
+                                break;
+                            }
+                        }
+                        if (! $shouldIgnore) {
                             throw $e;
                         }
                     }
