@@ -132,13 +132,39 @@ class DatabaseManagementController extends Controller
     public function restore(Request $request): RedirectResponse
     {
         try {
-            $filename = $request->input('backup_file');
-            $path = $this->validateBackupPath($filename);
+            $uploadedFile = $request->file('sql_file');
 
-            if ($path === null) {
-                return redirect()
-                    ->route('admin.database.index')
-                    ->with('error', 'File backup tidak valid.');
+            if ($uploadedFile) {
+                if ($uploadedFile->getClientOriginalExtension() !== 'sql') {
+                    throw new \Exception('File harus berekstensi .sql');
+                }
+
+                if (! $uploadedFile->isValid()) {
+                    throw new \Exception('File upload tidak valid');
+                }
+
+                $path = $uploadedFile->getRealPath();
+                $filename = $uploadedFile->getClientOriginalName();
+
+                if (filesize($path) === 0) {
+                    throw new \Exception('File SQL kosong');
+                }
+            } else {
+                $filename = $request->input('backup_file');
+
+                if (empty($filename)) {
+                    return redirect()
+                        ->route('admin.database.index')
+                        ->with('error', 'Pilih file backup atau upload file SQL.');
+                }
+
+                $path = $this->validateBackupPath($filename);
+
+                if ($path === null) {
+                    return redirect()
+                        ->route('admin.database.index')
+                        ->with('error', 'File backup tidak valid.');
+                }
             }
 
             if (config('database.default') === 'sqlite') {

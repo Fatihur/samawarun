@@ -67,17 +67,32 @@
             </div>
 
             @if(count($backups) > 0)
-                <form action="{{ route('admin.database.restore') }}" method="POST" class="space-y-4">
+                <form action="{{ route('admin.database.restore') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                     @csrf
                     <div>
                         <label class="mb-2 block text-sm font-medium text-slate-700">Pilih Backup</label>
                         <select name="backup_file" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
+                            <option value="">-- Upload File Manual --</option>
                             @foreach($backups as $backup)
                                 <option value="{{ $backup['filename'] }}">
                                     {{ $backup['filename'] }} ({{ $backup['size'] }})
                                 </option>
                             @endforeach
                         </select>
+                    </div>
+
+                    <div class="relative">
+                        <div class="absolute inset-0 flex items-center">
+                            <div class="w-full border-t border-slate-200"></div>
+                        </div>
+                        <div class="relative flex justify-center text-xs uppercase">
+                            <span class="bg-white px-2 text-slate-400">atau upload file</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">Upload File SQL</label>
+                        <input type="file" name="sql_file" accept=".sql" class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-700 hover:file:bg-brand-200 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
                     </div>
 
                     <div class="rounded-lg border border-amber-200 bg-amber-50 p-3">
@@ -95,11 +110,24 @@
                     </button>
                 </form>
             @else
-                <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
-                    <x-heroicon-o-inbox class="mx-auto h-10 w-10 text-slate-400" />
-                    <p class="mt-2 text-sm text-slate-500">Belum ada backup tersedia</p>
-                    <p class="text-xs text-slate-400">Buat backup terlebih dahulu</p>
-                </div>
+                <form action="{{ route('admin.database.restore') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+                    @csrf
+                    <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center">
+                        <x-heroicon-o-inbox class="mx-auto h-10 w-10 text-slate-400" />
+                        <p class="mt-2 text-sm text-slate-500">Belum ada backup tersedia</p>
+                        <p class="text-xs text-slate-400">Upload file SQL untuk restore</p>
+                    </div>
+
+                    <div>
+                        <label class="mb-2 block text-sm font-medium text-slate-700">Upload File SQL</label>
+                        <input type="file" name="sql_file" accept=".sql" required class="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-800 file:mr-3 file:rounded-lg file:border-0 file:bg-brand-100 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-brand-700 hover:file:bg-brand-200 focus:border-brand-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
+                    </div>
+
+                    <button type="submit" onclick="return confirm('Yakin ingin restore database? Data saat ini akan diganti.')" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-sm transition-all hover:bg-blue-700 active:scale-95">
+                        <x-heroicon-o-arrow-path class="h-4 w-4" />
+                        Restore Database
+                    </button>
+                </form>
             @endif
         </div>
     </div>
