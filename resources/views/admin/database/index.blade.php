@@ -144,12 +144,14 @@
             </div>
         </div>
 
-        <form action="{{ route('admin.database.delete') }}" method="POST" class="space-y-4">
+        <form action="{{ route('admin.database.delete') }}" method="POST" class="space-y-4" x-data="{ selected: [] }">
             @csrf
             <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach($tables as $key => $table)
                     <label class="relative flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 p-4 transition-all hover:border-red-200 hover:bg-red-50/50 has-[:checked]:border-red-300 has-[:checked]:bg-red-50">
-                        <input type="checkbox" name="tables[]" value="{{ $key }}" class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
+                        <input type="checkbox" name="tables[]" value="{{ $key }}"
+                            @change="selected = $el.checked ? [...selected, '{{ $key }}'] : selected.filter(t => t !== '{{ $key }}')"
+                            class="h-4 w-4 rounded border-slate-300 text-red-600 focus:ring-red-500">
                         <div class="flex-1">
                             <p class="font-semibold text-slate-800">{{ $table['name'] }}</p>
                             <p class="text-xs text-slate-500">{{ $table['description'] }}</p>
@@ -157,6 +159,18 @@
                         </div>
                     </label>
                 @endforeach
+            </div>
+
+            <div x-show="selected.includes('participants')" x-cloak class="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                <label class="mb-2 block text-sm font-medium text-slate-700">Filter Event</label>
+                <select name="event_id"
+                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500 transition-colors">
+                    <option value="">Semua Peserta (semua event)</option>
+                    @foreach($events as $event)
+                        <option value="{{ $event->id }}">{{ $event->name }} ({{ $event->date->format('d M Y') }})</option>
+                    @endforeach
+                </select>
+                <p class="mt-1.5 text-xs text-slate-500">Kosongkan pilihan untuk menghapus peserta dari semua event</p>
             </div>
 
             <div class="rounded-lg border border-red-200 bg-red-50 p-3">

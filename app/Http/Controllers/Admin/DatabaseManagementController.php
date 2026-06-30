@@ -66,8 +66,9 @@ class DatabaseManagementController extends Controller
         ];
 
         $backups = $this->getBackups();
+        $events = Event::orderBy('name')->get(['id', 'name', 'date']);
 
-        return view('admin.database.index', compact('tables', 'backups'));
+        return view('admin.database.index', compact('tables', 'backups', 'events'));
     }
 
     public function backup(Request $request): RedirectResponse
@@ -273,10 +274,13 @@ class DatabaseManagementController extends Controller
                     ->with('error', 'Tabel yang dipilih tidak valid.');
             }
 
-            DB::transaction(function () use ($tables): void {
+            DB::transaction(function () use ($tables, $request): void {
+                $eventId = $request->input('event_id');
+
                 foreach ($tables as $table) {
                     match ($table) {
-                        'participants' => Participant::query()->delete(),
+                        'participants' => Participant::when($eventId, fn ($q) => $q->where('event_id', $eventId))
+                            ->delete(),
                         'events' => Event::query()->delete(),
                         'distance_categories' => DistanceCategory::query()->delete(),
                         'contacts' => Contact::query()->delete(),
