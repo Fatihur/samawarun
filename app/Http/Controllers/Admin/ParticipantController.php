@@ -269,16 +269,6 @@ class ParticipantController extends Controller
 
     public function verify(Participant $participant): RedirectResponse
     {
-        if (
-            $participant->workflow_status ===
-            Participant::WORKFLOW_APPROVED_WAITING_PAYMENT
-        ) {
-            return back()->with(
-                'success',
-                'Pendaftaran peserta sudah disetujui dan menunggu pembayaran.',
-            );
-        }
-
         DB::transaction(function () use ($participant): void {
             $locked = Participant::query()
                 ->lockForUpdate()

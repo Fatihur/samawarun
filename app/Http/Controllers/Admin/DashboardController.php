@@ -14,20 +14,15 @@ class DashboardController extends Controller
     {
         $now = now();
 
-        // Event aktif terdekat
         $upcomingEvents = Event::query()
             ->where('date', '>=', $now->copy()->subDay())
             ->where('is_active', true)
+            ->withCount(['participants', 'participants as verified_count' => function ($q): void {
+                $q->where('status', Participant::STATUS_VERIFIED);
+            }])
             ->orderBy('date')
             ->limit(3)
-            ->get()
-            ->map(function ($event) {
-                $event->participants_count = Participant::where('event_id', $event->id)->count();
-                $event->verified_count = Participant::where('event_id', $event->id)
-                    ->where('status', Participant::STATUS_VERIFIED)
-                    ->count();
-                return $event;
-            });
+            ->get();
 
         // Trend pendaftaran 7 hari terakhir
         $registrationTrend = Participant::query()

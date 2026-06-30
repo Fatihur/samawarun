@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Cache\RateLimiter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
@@ -31,11 +32,24 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
+        $limiter = app(RateLimiter::class);
+        $throttleKey = Str::lower($request->input('email')) . '|' . $request->ip();
+
+        if ($limiter->tooManyAttempts($throttleKey, 5)) {
+            $seconds = $limiter->availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'email' => 'Terlalu banyak percobaan login. Silakan coba lagi dalam ' . $seconds . ' detik.',
+            ]);
+        }
+
         if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            $limiter->hit($throttleKey, 60);
             throw ValidationException::withMessages([
                 'email' => 'Email atau password salah.',
             ]);
         }
+
+        $limiter->clear($throttleKey);
 
         $request->session()->regenerate();
 

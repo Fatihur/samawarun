@@ -66,9 +66,6 @@ class BibScanController extends Controller
                 : $participant->workflow_status_label,
             'distance_category' => $participant->distance_category,
             'jersey_size' => $participant->jersey_size,
-            'email' => $participant->email,
-            'phone' => $participant->phone,
-            'emergency_contact' => $participant->emergency_contact_display,
             'event_name' => $participant->event?->name ?? '-',
             'finish_time' => $participant->formatted_race_duration ?? 'Belum tercatat',
         ]);

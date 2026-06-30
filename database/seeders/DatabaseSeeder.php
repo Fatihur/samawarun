@@ -14,9 +14,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminEmail = env('ADMIN_EMAIL', 'admin@samawarun.test');
-        $adminName = env('ADMIN_NAME', 'Samawa Admin');
-        $adminPassword = env('ADMIN_PASSWORD', 'password');
+        $adminEmail = env("ADMIN_EMAIL", "admin@samawarun.test");
+        $adminName = env("ADMIN_NAME", "Samawa Admin");
+        $adminPassword = env("ADMIN_PASSWORD", "password");
 
         User::query()->updateOrCreate(
             ["email" => $adminEmail],
@@ -40,11 +40,11 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
-        // $this->call([
-        //     DistanceCategorySeeder::class,
-        //     BibSettingSeeder::class,
-        //     EventSeeder::class,
-        //     ParticipantSeeder::class,
-        // ]);
+        $this->call([
+            DistanceCategorySeeder::class,
+            BibSettingSeeder::class,
+            EventSeeder::class,
+            ParticipantSeeder::class,
+        ]);
     }
 }

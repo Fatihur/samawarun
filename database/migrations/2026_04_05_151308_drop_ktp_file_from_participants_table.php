@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('participants', function (Blueprint $table) {
-            $table->dropColumn('ktp_file');
-        });
+        if (Schema::hasColumn('participants', 'ktp_file')) {
+            Schema::table('participants', function (Blueprint $table) {
+                $table->dropColumn('ktp_file');
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('participants', function (Blueprint $table) {
-            $table->string('ktp_file')->nullable();
-        });
+        if (! Schema::hasColumn('participants', 'ktp_file')) {
+            Schema::table('participants', function (Blueprint $table) {
+                $table->string('ktp_file')->nullable();
+            });
+        }
     }
 };

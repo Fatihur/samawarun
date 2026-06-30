@@ -43,6 +43,13 @@ class DistanceCategoryController extends Controller
 
     public function destroy(DistanceCategory $distanceCategory)
     {
+        if ($distanceCategory->events()->exists()) {
+            return back()->with(
+                'error',
+                'Kategori jarak tidak bisa dihapus karena masih terhubung dengan event. Hapus atau ubah event terlebih dahulu.'
+            );
+        }
+
         $distanceCategory->delete();
         return back()->with('success', 'Kategori jarak berhasil dihapus.');
     }

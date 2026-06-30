@@ -21,3 +21,11 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/.agents
+/.claude
+/.opencode
+/.pi
+/_bmad-output
+/_bmad
+/openspec
+/storage/fonts/*.json

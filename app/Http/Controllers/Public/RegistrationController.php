@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Participant;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use App\Models\User;
 use App\Notifications\NewParticipantNotification;
@@ -20,12 +21,6 @@ class RegistrationController extends Controller
     {
         abort_unless($event->is_active, 404);
         abort_unless($event->isRegistrationOpen(), 404);
-
-        // Ensure slug exists for route generation
-        if (empty($event->slug)) {
-            $event->slug = $event->generateSlug();
-            $event->saveQuietly();
-        }
 
         return view("public.registrations.create", [
             "event" => $event->load("distanceCategories"),
@@ -49,12 +44,6 @@ class RegistrationController extends Controller
     public function store(Request $request, Event $event): RedirectResponse
     {
         abort_unless($event->is_active, 404);
-
-        // Ensure slug exists for route generation
-        if (empty($event->slug)) {
-            $event->slug = $event->generateSlug();
-            $event->saveQuietly();
-        }
 
         if (!$event->isRegistrationOpen()) {
             return redirect()
@@ -151,7 +140,30 @@ class RegistrationController extends Controller
         $validated["status"] = Participant::STATUS_PENDING;
         $validated["workflow_status"] = Participant::WORKFLOW_SUBMITTED;
 
-        $participant = Participant::create($validated);
+        try {
+            $participant = DB::transaction(function () use ($event, $validated): Participant {
+                $categoryName = $validated['distance_category'];
+
+                $lockedCat = DB::table('distance_category_event')
+                    ->where('event_id', $event->id)
+                    ->whereIn('distance_category_id', function ($q) use ($categoryName) {
+                        $q->select('id')
+                            ->from('distance_categories')
+                            ->where(DB::raw('UPPER(name)'), $categoryName);
+                    })
+                    ->lockForUpdate()
+                    ->first();
+
+                $registered = $event->getRegisteredCountForCategory($categoryName);
+                if ($lockedCat?->quota !== null && $registered >= $lockedCat->quota) {
+                    throw new \RuntimeException('Kuota untuk kategori jarak ini sudah penuh.');
+                }
+
+                return Participant::create($validated);
+            });
+        } catch (\RuntimeException $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
 
         $participant->notify(
             new ParticipantRegistrationThankYouNotification($participant),

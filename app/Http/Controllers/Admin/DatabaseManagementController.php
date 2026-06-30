@@ -19,6 +19,17 @@ use Illuminate\Support\Facades\Artisan;
 
 class DatabaseManagementController extends Controller
 {
+    private const ALLOWED_TABLES = [
+        'participants',
+        'events',
+        'distance_categories',
+        'contacts',
+        'galleries',
+        'certificate_templates',
+    ];
+
+    private const BACKUP_FILENAME_PATTERN = '/^backup_[a-z]+_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}\.sql$/';
+
     public function index(): View
     {
         $tables = [
@@ -66,33 +77,42 @@ class DatabaseManagementController extends Controller
             $filename = 'backup_' . $type . '_' . date('Y-m-d_H-i-s') . '.sql';
             $path = storage_path('app/backups/' . $filename);
 
-            // Ensure backup directory exists
             if (!is_dir(dirname($path))) {
                 mkdir(dirname($path), 0755, true);
             }
 
             if (config('database.default') === 'sqlite') {
-                // Backup SQLite database
                 $source = config('database.connections.sqlite.database');
-                copy($source, $path);
+                $lock = fopen($source, 'r');
+                if ($lock) {
+                    flock($lock, LOCK_SH);
+                    copy($source, $path);
+                    flock($lock, LOCK_UN);
+                    fclose($lock);
+                } else {
+                    throw new \Exception('Tidak bisa mengakses database');
+                }
             } else {
-                // Backup MySQL database using mysqldump
                 $dbName = config('database.connections.mysql.database');
                 $dbUser = config('database.connections.mysql.username');
                 $dbPass = config('database.connections.mysql.password');
                 $dbHost = config('database.connections.mysql.host');
-                
+
+                $configFile = tempnam(sys_get_temp_dir(), 'my_cnf_');
+                $configContent = "[client]\nuser={$dbUser}\npassword={$dbPass}\nhost={$dbHost}";
+                file_put_contents($configFile, $configContent);
+
                 $command = sprintf(
-                    'mysqldump -h %s -u %s -p%s %s > %s',
-                    escapeshellarg($dbHost),
-                    escapeshellarg($dbUser),
-                    escapeshellarg($dbPass),
+                    'mysqldump --defaults-extra-file=%s %s > %s',
+                    escapeshellarg($configFile),
                     escapeshellarg($dbName),
                     escapeshellarg($path)
                 );
-                
+
                 exec($command, $output, $returnCode);
-                
+
+                unlink($configFile);
+
                 if ($returnCode !== 0) {
                     throw new \Exception('Gagal membuat backup database');
                 }
@@ -112,42 +132,50 @@ class DatabaseManagementController extends Controller
     {
         try {
             $filename = $request->input('backup_file');
-            $path = storage_path('app/backups/' . $filename);
+            $path = $this->validateBackupPath($filename);
 
-            if (!file_exists($path)) {
+            if ($path === null) {
                 return redirect()
                     ->route('admin.database.index')
-                    ->with('error', 'File backup tidak ditemukan');
+                    ->with('error', 'File backup tidak valid.');
             }
 
             if (config('database.default') === 'sqlite') {
-                // Restore SQLite database
                 $target = config('database.connections.sqlite.database');
-                
-                // Backup current database first
+
                 $currentBackup = $target . '.backup_' . date('Y-m-d_H-i-s');
                 copy($target, $currentBackup);
-                
-                // Restore
-                copy($path, $target);
+
+                $lock = fopen($target, 'w');
+                if ($lock) {
+                    flock($lock, LOCK_EX);
+                    copy($path, $target);
+                    flock($lock, LOCK_UN);
+                    fclose($lock);
+                } else {
+                    throw new \Exception('Tidak bisa mengakses database');
+                }
             } else {
-                // Restore MySQL database
                 $dbName = config('database.connections.mysql.database');
                 $dbUser = config('database.connections.mysql.username');
                 $dbPass = config('database.connections.mysql.password');
                 $dbHost = config('database.connections.mysql.host');
-                
+
+                $configFile = tempnam(sys_get_temp_dir(), 'my_cnf_');
+                $configContent = "[client]\nuser={$dbUser}\npassword={$dbPass}\nhost={$dbHost}";
+                file_put_contents($configFile, $configContent);
+
                 $command = sprintf(
-                    'mysql -h %s -u %s -p%s %s < %s',
-                    escapeshellarg($dbHost),
-                    escapeshellarg($dbUser),
-                    escapeshellarg($dbPass),
+                    'mysql --defaults-extra-file=%s %s < %s',
+                    escapeshellarg($configFile),
                     escapeshellarg($dbName),
                     escapeshellarg($path)
                 );
-                
+
                 exec($command, $output, $returnCode);
-                
+
+                unlink($configFile);
+
                 if ($returnCode !== 0) {
                     throw new \Exception('Gagal merestore database');
                 }
@@ -167,49 +195,39 @@ class DatabaseManagementController extends Controller
     {
         try {
             $tables = $request->input('tables', []);
-            
+
             if (empty($tables)) {
                 return redirect()
                     ->route('admin.database.index')
                     ->with('error', 'Pilih minimal satu tabel untuk dihapus');
             }
 
-            $deletedTables = [];
-
-            foreach ($tables as $table) {
-                switch ($table) {
-                    case 'participants':
-                        Participant::query()->delete();
-                        $deletedTables[] = 'Participants';
-                        break;
-                    case 'events':
-                        Event::query()->delete();
-                        $deletedTables[] = 'Events';
-                        break;
-                    case 'distance_categories':
-                        DistanceCategory::query()->delete();
-                        $deletedTables[] = 'Distance Categories';
-                        break;
-                    case 'contacts':
-                        Contact::query()->delete();
-                        $deletedTables[] = 'Contacts';
-                        break;
-                    case 'galleries':
-                        Gallery::query()->delete();
-                        // Also delete gallery files
-                        Storage::disk('public')->deleteDirectory('galleries');
-                        $deletedTables[] = 'Galleries';
-                        break;
-                    case 'certificate_templates':
-                        CertificateTemplate::query()->delete();
-                        $deletedTables[] = 'Certificate Templates';
-                        break;
-                }
+            $invalid = array_diff($tables, self::ALLOWED_TABLES);
+            if (! empty($invalid)) {
+                return redirect()
+                    ->route('admin.database.index')
+                    ->with('error', 'Tabel yang dipilih tidak valid.');
             }
+
+            DB::transaction(function () use ($tables): void {
+                foreach ($tables as $table) {
+                    match ($table) {
+                        'participants' => Participant::query()->delete(),
+                        'events' => Event::query()->delete(),
+                        'distance_categories' => DistanceCategory::query()->delete(),
+                        'contacts' => Contact::query()->delete(),
+                        'galleries' => (function () {
+                            Gallery::query()->delete();
+                            Storage::disk('public')->deleteDirectory('galleries');
+                        })(),
+                        'certificate_templates' => CertificateTemplate::query()->delete(),
+                    };
+                }
+            });
 
             return redirect()
                 ->route('admin.database.index')
-                ->with('success', 'Data berhasil dihapus dari: ' . implode(', ', $deletedTables));
+                ->with('success', 'Data berhasil dihapus.');
         } catch (\Exception $e) {
             return redirect()
                 ->route('admin.database.index')
@@ -219,12 +237,12 @@ class DatabaseManagementController extends Controller
 
     public function download(string $filename)
     {
-        $path = storage_path('app/backups/' . $filename);
-        
-        if (!file_exists($path)) {
+        $path = $this->validateBackupPath($filename);
+
+        if ($path === null) {
             return redirect()
                 ->route('admin.database.index')
-                ->with('error', 'File backup tidak ditemukan');
+                ->with('error', 'File backup tidak valid.');
         }
 
         return response()->download($path);
@@ -233,11 +251,15 @@ class DatabaseManagementController extends Controller
     public function destroyBackup(string $filename): RedirectResponse
     {
         try {
-            $path = storage_path('app/backups/' . $filename);
-            
-            if (file_exists($path)) {
-                unlink($path);
+            $path = $this->validateBackupPath($filename);
+
+            if ($path === null) {
+                return redirect()
+                    ->route('admin.database.index')
+                    ->with('error', 'File backup tidak valid.');
             }
+
+            unlink($path);
 
             return redirect()
                 ->route('admin.database.index')
@@ -249,6 +271,21 @@ class DatabaseManagementController extends Controller
         }
     }
 
+    private function validateBackupPath(string $filename): ?string
+    {
+        if (! preg_match(self::BACKUP_FILENAME_PATTERN, $filename)) {
+            return null;
+        }
+
+        $path = storage_path('app/backups/' . basename($filename));
+
+        if (! file_exists($path) || ! str_starts_with(realpath($path), realpath(storage_path('app/backups')))) {
+            return null;
+        }
+
+        return $path;
+    }
+
     private function getBackups(): array
     {
         $backupPath = storage_path('app/backups');
@@ -256,16 +293,20 @@ class DatabaseManagementController extends Controller
 
         if (is_dir($backupPath)) {
             $files = glob($backupPath . '/*.sql');
-            
+
             foreach ($files as $file) {
+                $filename = basename($file);
+                if (! preg_match(self::BACKUP_FILENAME_PATTERN, $filename)) {
+                    continue;
+                }
+
                 $backups[] = [
-                    'filename' => basename($file),
+                    'filename' => $filename,
                     'size' => $this->formatBytes(filesize($file)),
                     'created_at' => date('Y-m-d H:i:s', filemtime($file))
                 ];
             }
 
-            // Sort by creation date (newest first)
             usort($backups, function ($a, $b) {
                 return strtotime($b['created_at']) - strtotime($a['created_at']);
             });
@@ -277,13 +318,13 @@ class DatabaseManagementController extends Controller
     private function formatBytes(int $bytes, int $precision = 2): string
     {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
-        
+
         $bytes = max($bytes, 0);
         $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
         $pow = min($pow, count($units) - 1);
-        
+
         $bytes /= pow(1024, $pow);
-        
+
         return round($bytes, $precision) . ' ' . $units[$pow];
     }
 }

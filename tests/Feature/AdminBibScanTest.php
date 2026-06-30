@@ -68,7 +68,6 @@ class AdminBibScanTest extends TestCase
         $response->assertOk();
         $response->assertSee('Pelari Admin');
         $response->assertSee('10K007');
-        $response->assertSee('adminscan@example.com');
         $response->assertSee('Verified');
     }
 

@@ -26,7 +26,7 @@ class CertificateTemplateService
         $storagePath = Storage::disk('public')->path($directory);
 
         if (! is_dir($storagePath)) {
-            mkdir($storagePath, 0777, true);
+            Storage::disk('public')->makeDirectory($directory);
         }
 
         $absolutePath = $storagePath.DIRECTORY_SEPARATOR.$filename;
@@ -175,7 +175,6 @@ class CertificateTemplateService
             ->unique()
             ->toArray();
 
-        // Exclude system fonts
         $systemFonts = ['dejavu sans', 'dejavu serif', 'dejavu sans mono', 'helvetica', 'times', 'courier'];
         $usedFamilies = array_diff($usedFamilies, $systemFonts);
 
@@ -192,15 +191,11 @@ class CertificateTemplateService
         $css = '';
         $files = scandir($fontDir);
 
-        // Group font files by family
-        $fontFiles = [];
-
         foreach ($files as $file) {
             if (! str_ends_with($file, '.ttf')) {
                 continue;
             }
 
-            // Skip cached font files (they have hash in name)
             if (preg_match('/_[a-f0-9]{32}\.ttf$/', $file)) {
                 continue;
             }
@@ -227,58 +222,30 @@ class CertificateTemplateService
 
             $fontFamily = ucwords(str_replace('_', ' ', implode('_', $nameParts)));
 
-            // Only include fonts that are actually used
             if (! in_array($fontFamily, $usedFamilies)) {
                 continue;
             }
 
-            $fontPath = $fontDir . DIRECTORY_SEPARATOR . $file;
+            $fontPath = realpath($fontDir . DIRECTORY_SEPARATOR . $file);
 
-            if (! file_exists($fontPath)) {
+            if ($fontPath === false || ! file_exists($fontPath)) {
                 continue;
             }
 
-            if (! isset($fontFiles[$fontFamily])) {
-                $fontFiles[$fontFamily] = [];
+            if (! str_starts_with($fontPath, realpath($fontDir))) {
+                continue;
             }
 
-            $fontFiles[$fontFamily][] = [
-                'path' => $fontPath,
-                'weight' => $fontWeight,
-                'style' => $fontStyle,
-            ];
-        }
+            $fontUrl = 'file:///' . str_replace('\\', '/', ltrim(substr($fontPath, strpos($fontPath, ':') + 1), '/'));
 
-        // Generate CSS for each font family
-        foreach ($fontFiles as $fontFamily => $variants) {
-            // Find normal variant as fallback
-            $normalVariant = null;
-            foreach ($variants as $variant) {
-                if ($variant['weight'] === 'normal' && $variant['style'] === 'normal') {
-                    $normalVariant = $variant;
-                    break;
-                }
-            }
+            $css .= "@font-face {\n";
+            $css .= "    font-family: '{$fontFamily}';\n";
+            $css .= "    src: url('{$fontUrl}') format('truetype');\n";
+            $css .= "    font-weight: {$fontWeight};\n";
+            $css .= "    font-style: {$fontStyle};\n";
+            $css .= "}\n";
 
-            // Generate @font-face for each variant
-            foreach ($variants as $variant) {
-                $fontData = base64_encode(file_get_contents($variant['path']));
-                $fontUrl = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
-
-                $css .= "@font-face {\n";
-                $css .= "    font-family: '{$fontFamily}';\n";
-                $css .= "    src: url('{$fontUrl}') format('truetype');\n";
-                $css .= "    font-weight: {$variant['weight']};\n";
-                $css .= "    font-style: {$variant['style']};\n";
-                $css .= "}\n";
-            }
-
-            // For script fonts with only normal variant, also register for bold/italic to prevent fallback
-            if ($normalVariant !== null && count($variants) === 1) {
-                $fontData = base64_encode(file_get_contents($normalVariant['path']));
-                $fontUrl = 'data:font/truetype;charset=utf-8;base64,' . $fontData;
-
-                // Register as bold
+            if ($fontWeight === 'normal' && $fontStyle === 'normal') {
                 $css .= "@font-face {\n";
                 $css .= "    font-family: '{$fontFamily}';\n";
                 $css .= "    src: url('{$fontUrl}') format('truetype');\n";
