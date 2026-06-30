@@ -16,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Artisan;
-use Symfony\Component\Process\Process;
 
 class DatabaseManagementController extends Controller
 {
@@ -95,28 +94,52 @@ class DatabaseManagementController extends Controller
                 }
             } else {
                 $dbName = config('database.connections.mysql.database');
-                $dbUser = config('database.connections.mysql.username');
-                $dbPass = config('database.connections.mysql.password');
-                $dbHost = config('database.connections.mysql.host');
 
-                $configFile = tempnam(sys_get_temp_dir(), 'my_cnf_');
-                $configContent = "[client]\nuser={$dbUser}\npassword={$dbPass}\nhost={$dbHost}";
-                file_put_contents($configFile, $configContent);
+                $sql = "-- Backup: {$filename}\n-- Date: " . date('Y-m-d H:i:s') . "\n\n";
+                $sql .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";
 
-                $process = Process::fromShellCommandline(sprintf(
-                    'mysqldump --defaults-extra-file=%s %s > %s',
-                    escapeshellarg($configFile),
-                    escapeshellarg($dbName),
-                    escapeshellarg($path)
-                ));
+                $tables = DB::select('SHOW TABLES');
+                $tableKey = "Tables_in_{$dbName}";
 
-                $process->run();
+                foreach ($tables as $tableObj) {
+                    $table = $tableObj->$tableKey;
 
-                unlink($configFile);
+                    $createResult = DB::select("SHOW CREATE TABLE `{$table}`");
+                    $createStmt = $createResult[0]->{'Create Table'};
+                    $sql .= "DROP TABLE IF EXISTS `{$table}`;\n";
+                    $sql .= "{$createStmt};\n\n";
 
-                if (! $process->isSuccessful()) {
-                    throw new \Exception('Gagal membuat backup database: ' . $process->getErrorOutput());
+                    $rows = DB::select("SELECT * FROM `{$table}`");
+                    if (empty($rows)) {
+                        continue;
+                    }
+
+                    $columns = array_keys(get_object_vars($rows[0]));
+                    $columnList = '`' . implode('`, `', $columns) . '`';
+
+                    $chunks = array_chunk($rows, 100);
+                    foreach ($chunks as $chunk) {
+                        $values = [];
+                        foreach ($chunk as $row) {
+                            $rowValues = [];
+                            foreach ($columns as $col) {
+                                $val = $row->$col;
+                                if ($val === null) {
+                                    $rowValues[] = 'NULL';
+                                } else {
+                                    $rowValues[] = DB::connection()->getPdo()->quote($val);
+                                }
+                            }
+                            $values[] = '(' . implode(', ', $rowValues) . ')';
+                        }
+                        $sql .= "INSERT INTO `{$table}` ({$columnList}) VALUES\n" . implode(",\n", $values) . ";\n";
+                    }
+                    $sql .= "\n";
                 }
+
+                $sql .= "SET FOREIGN_KEY_CHECKS = 1;\n";
+
+                file_put_contents($path, $sql);
             }
 
             return redirect()
@@ -183,30 +206,31 @@ class DatabaseManagementController extends Controller
                     throw new \Exception('Tidak bisa mengakses database');
                 }
             } else {
-                $dbName = config('database.connections.mysql.database');
-                $dbUser = config('database.connections.mysql.username');
-                $dbPass = config('database.connections.mysql.password');
-                $dbHost = config('database.connections.mysql.host');
+                $sqlContent = file_get_contents($path);
 
-                $configFile = tempnam(sys_get_temp_dir(), 'my_cnf_');
-                $configContent = "[client]\nuser={$dbUser}\npassword={$dbPass}\nhost={$dbHost}";
-                file_put_contents($configFile, $configContent);
-
-                $process = Process::fromShellCommandline(sprintf(
-                    'mysql --defaults-extra-file=%s %s < %s',
-                    escapeshellarg($configFile),
-                    escapeshellarg($dbName),
-                    escapeshellarg($path)
-                ));
-
-                $process->setTimeout(300);
-                $process->run();
-
-                unlink($configFile);
-
-                if (! $process->isSuccessful()) {
-                    throw new \Exception('Gagal merestore database: ' . $process->getErrorOutput());
+                if ($sqlContent === false || $sqlContent === '') {
+                    throw new \Exception('File SQL kosong atau tidak bisa dibaca');
                 }
+
+                DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+
+                $statements = explode(";\n", $sqlContent);
+                foreach ($statements as $statement) {
+                    $statement = trim($statement);
+                    if ($statement === '' || str_starts_with($statement, '--')) {
+                        continue;
+                    }
+
+                    try {
+                        DB::statement($statement);
+                    } catch (\Exception $e) {
+                        if (! str_contains($e->getMessage(), 'Unknown table')) {
+                            throw $e;
+                        }
+                    }
+                }
+
+                DB::statement('SET FOREIGN_KEY_CHECKS = 1');
             }
 
             return redirect()
