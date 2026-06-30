@@ -212,34 +212,37 @@ class DatabaseManagementController extends Controller
                     throw new \Exception('File SQL kosong atau tidak bisa dibaca');
                 }
 
-                DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+                try {
+                    DB::statement('SET FOREIGN_KEY_CHECKS = 0');
 
-                $statements = explode(";\n", $sqlContent);
-                foreach ($statements as $statement) {
-                    $statement = trim($statement);
-                    if ($statement === '' || str_starts_with($statement, '--')) {
-                        continue;
-                    }
+                    $statements = explode(";\n", $sqlContent);
+                    foreach ($statements as $statement) {
+                        $statement = trim($statement);
+                        if ($statement === '' || str_starts_with($statement, '--')) {
+                            continue;
+                        }
 
-                    try {
-                        DB::statement($statement);
-                    } catch (\Exception $e) {
-                        $msg = $e->getMessage();
-                        $ignored = ['Unknown table', 'Base table or view already exists', 'already exists'];
-                        $shouldIgnore = false;
-                        foreach ($ignored as $pattern) {
-                            if (str_contains($msg, $pattern)) {
-                                $shouldIgnore = true;
-                                break;
+                        try {
+                            DB::statement($statement);
+                        } catch (\Exception $e) {
+                            $msg = $e->getMessage();
+                            $ignored = ['Unknown table', 'Base table or view already exists', 'already exists', 'Duplicate entry'];
+                            $shouldIgnore = false;
+                            foreach ($ignored as $pattern) {
+                                if (str_contains($msg, $pattern)) {
+                                    $shouldIgnore = true;
+                                    break;
+                                }
+                            }
+                            if (! $shouldIgnore) {
+                                throw $e;
                             }
                         }
-                        if (! $shouldIgnore) {
-                            throw $e;
-                        }
                     }
+                } finally {
+                    DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+                    DB::statement('UNLOCK TABLES');
                 }
-
-                DB::statement('SET FOREIGN_KEY_CHECKS = 1');
             }
 
             return redirect()
