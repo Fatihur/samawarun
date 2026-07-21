@@ -114,7 +114,7 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::delete('/database/backup/{filename}', [AdminDatabaseController::class, 'destroyBackup'])->name('database.backup.destroy');
     });
 
-    // Mobile API Routes (for Race Tracker app)
+    // Mobile API Routes (for Race Tracker app) - no auth required
     Route::prefix('api')->name('api.')->group(function (): void {
         Route::get('/mobile-export', MobileExportController::class)->name('mobile-export');
         Route::post('/mobile-sync', MobileSyncController::class)->name('mobile-sync');
