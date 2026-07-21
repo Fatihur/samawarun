@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Admin\Api\MobileExportController;
+use App\Http\Controllers\Admin\Api\MobileSyncController;
 use App\Http\Controllers\Admin\AuthController as AdminAuthController;
 use App\Http\Controllers\Admin\BibScanController as AdminBibScanController;
 use App\Http\Controllers\Admin\BibSettingController as AdminBibSettingController;
@@ -110,5 +112,11 @@ Route::prefix('admin')->name('admin.')->group(function (): void {
         Route::post('/database/delete', [AdminDatabaseController::class, 'delete'])->name('database.delete');
         Route::get('/database/download/{filename}', [AdminDatabaseController::class, 'download'])->name('database.download');
         Route::delete('/database/backup/{filename}', [AdminDatabaseController::class, 'destroyBackup'])->name('database.backup.destroy');
+    });
+
+    // Mobile API Routes (for Race Tracker app)
+    Route::prefix('api')->name('api.')->group(function (): void {
+        Route::get('/mobile-export', MobileExportController::class)->name('mobile-export');
+        Route::post('/mobile-sync', MobileSyncController::class)->name('mobile-sync');
     });
 });
