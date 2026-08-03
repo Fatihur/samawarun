@@ -16,7 +16,7 @@
         }
 
         body {
-            font-family: DejaVu Sans, sans-serif;
+            font-family: 'Poppins', sans-serif;
             background: #ffffff;
             color: #000000;
         }
@@ -47,7 +47,7 @@
         /* Center Content Container */
         .content-container {
             position: absolute;
-            top: 27mm;
+            top: 52mm;
             left: 0;
             width: 210mm;
             height: 98mm; /* 148 - 25 - 25 */
@@ -65,7 +65,7 @@
         }
 
         .bib-number {
-            margin-top: 4mm;
+            margin-top: 0mm;
             font-size: {{ (int) ($setting->bib_font_size ?? 108) }}px;
             font-weight: 900;
             letter-spacing: 1px;
@@ -74,12 +74,12 @@
 
         .barcode-container {
             position: absolute;
-            top: 66.5mm;
+            top: 15mm;
             right: 14mm;
             text-align: center;
             z-index: 2;
         }
-        
+
         .barcode-container img {
             width: 22mm;
             height: 22mm;
@@ -87,8 +87,8 @@
         }
 
         .participant-name {
-            margin-top: 6mm;
-            font-size: 18px;
+            margin-top: 1mm;
+            font-size: {{ (int) ($setting->name_font_size ?? 22) }}px;
             font-weight: normal;
         }
 
@@ -108,21 +108,33 @@
         @endphp
         <div class="page-wrap {{ !$loop->last ? 'page-break' : '' }}">
             @if ($setting->background_image_path)
-                <img src="{{ public_path('storage/'.$setting->background_image_path) }}" alt="" class="bg-image">
+                @php
+                    $bgPath = Storage::disk('public')->path($setting->background_image_path);
+                    $bgData = file_exists($bgPath) ? base64_encode(file_get_contents($bgPath)) : null;
+                    $bgMime = file_exists($bgPath) ? (function($p) {
+                        $ext = strtolower(pathinfo($p, PATHINFO_EXTENSION));
+                        return match($ext) {
+                            'jpg', 'jpeg' => 'image/jpeg',
+                            'png' => 'image/png',
+                            'gif' => 'image/gif',
+                            'webp' => 'image/webp',
+                            default => 'image/png',
+                        };
+                    })($bgPath) : 'image/png';
+                @endphp
+                @if($bgData)
+                    <img src="data:{{ $bgMime }};base64,{{ $bgData }}" alt="" class="bg-image">
+                @endif
             @endif
-            
+
             <div class="content-container">
-                <div class="event-name">{{ $participant->event?->name ?? 'NAMA EVENT' }}</div>
-                
                 <div class="bib-number">{{ $participant->bib_number ?? '0000' }}</div>
-                
+
                 <div class="barcode-container">
                     <img src="data:image/svg+xml;base64,{{ $barcodeBase64 }}" alt="QR Code">
                 </div>
 
                 <div class="participant-name">{{ $participant->name }}</div>
-                
-                <div class="distance-category">{{ $participant->distance_category }}</div>
             </div>
 
 

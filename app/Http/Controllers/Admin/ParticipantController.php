@@ -529,6 +529,7 @@ class ParticipantController extends Controller
             '.pdf';
 
         $pdf = app('dompdf.wrapper');
+        $this->registerBibFonts($pdf);
 
         return $pdf
             ->loadView('admin.participants.id-card', [
@@ -570,8 +571,7 @@ class ParticipantController extends Controller
         }
 
         $pdf = app('dompdf.wrapper');
-        $fileName = 'nomor-dada-bulk-'.now()->format('Ymd-His').'.pdf';
-        $setting = BibSetting::current();
+        $this->registerBibFonts($pdf);
 
         return $pdf
             ->loadView('admin.participants.id-card', [
@@ -580,6 +580,28 @@ class ParticipantController extends Controller
             ])
             ->setPaper('a5', 'landscape')
             ->download($fileName);
+    }
+
+    private function registerBibFonts($pdf): void
+    {
+        $fontDir = storage_path('fonts');
+        $dompdf = $pdf->getDomPDF();
+        $fontMetrics = $dompdf->getFontMetrics();
+
+        $fonts = [
+            'poppins_normal.ttf' => ['family' => 'Poppins', 'style' => 'normal', 'weight' => 'normal'],
+            'poppins_bold.ttf' => ['family' => 'Poppins', 'style' => 'normal', 'weight' => 'bold'],
+        ];
+
+        foreach ($fonts as $file => $meta) {
+            $path = $fontDir . DIRECTORY_SEPARATOR . $file;
+            if (file_exists($path)) {
+                $fontMetrics->registerFont(
+                    ['family' => $meta['family'], 'style' => $meta['style'], 'weight' => $meta['weight']],
+                    $path
+                );
+            }
+        }
     }
 
     private function buildBibNumber(Participant $participant): string
