@@ -570,6 +570,9 @@ class ParticipantController extends Controller
             );
         }
 
+        $setting = BibSetting::current();
+        $fileName = 'id-card-bulk-'.now()->format('Ymd-His').'.pdf';
+
         $pdf = app('dompdf.wrapper');
         $this->registerBibFonts($pdf);
 
