@@ -6,6 +6,8 @@ import '../../../data/datasources/local/app_database.dart';
 import '../../../data/services/result_export_service.dart';
 import '../../providers/database_providers.dart';
 
+String _normCat(String s) => s.trim().toUpperCase();
+
 final resultsByCategoryProvider = FutureProvider.family<Map<String, List<Map<String, dynamic>>>, int>((ref, eventId) async {
   final db = ref.watch(databaseProvider);
   final results = await db.getResultsByEvent(eventId);
@@ -14,7 +16,7 @@ final resultsByCategoryProvider = FutureProvider.family<Map<String, List<Map<Str
   for (final result in results) {
     final participant = await db.getParticipantByBib(eventId, result.bibNumber);
     if (participant != null) {
-      final category = participant.distanceCategory;
+      final category = _normCat(participant.distanceCategory);
       grouped.putIfAbsent(category, () => []);
       grouped[category]!.add({
         'result': result,
@@ -43,7 +45,7 @@ final resultsByCategoryAndGenderProvider =
   for (final result in results) {
     final participant = await db.getParticipantByBib(eventId, result.bibNumber);
     if (participant != null) {
-      final category = participant.distanceCategory;
+      final category = _normCat(participant.distanceCategory);
       final genderKey = GenderUtils.normalize(participant.gender) ?? 'Unknown';
       grouped.putIfAbsent(category, () => {});
       grouped[category]!.putIfAbsent(genderKey, () => []);
@@ -71,11 +73,12 @@ final categoriesProvider = FutureProvider.family<List<String>, int>((ref, eventI
   final db = ref.watch(databaseProvider);
   final startTimes = await db.getStartTimesByEvent(eventId);
   if (startTimes.isNotEmpty) {
-    final cats = startTimes.map((e) => e.categoryName).toList()..sort();
+    // Normalize case-insensitively to handle '3Kkids' vs '3KKIDS'
+    final cats = startTimes.map((e) => _normCat(e.categoryName)).toSet().toList()..sort();
     return cats;
   }
   final participants = await db.getParticipantsByEvent(eventId);
-  final cats = participants.map((p) => p.distanceCategory).toSet().toList()..sort();
+  final cats = participants.map((p) => _normCat(p.distanceCategory)).toSet().toList()..sort();
   return cats;
 });
 

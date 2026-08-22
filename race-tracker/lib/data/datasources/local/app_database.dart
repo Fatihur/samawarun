@@ -135,7 +135,7 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<String>> getDistinctCategoriesByEvent(int eventId) async {
     final participants = await getParticipantsByEvent(eventId);
-    final cats = participants.map((p) => p.distanceCategory).toSet().toList()..sort();
+    final cats = participants.map((p) => p.distanceCategory.trim().toUpperCase()).toSet().toList()..sort();
     return cats;
   }
 
