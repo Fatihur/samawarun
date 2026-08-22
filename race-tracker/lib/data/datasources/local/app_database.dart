@@ -113,10 +113,23 @@ class AppDatabase extends _$AppDatabase {
   // Category start time queries
   Future<List<CategoryStartTime>> getStartTimesByEvent(int eventId) =>
       (select(categoryStartTimes)..where((t) => t.eventId.equals(eventId))).get();
-  Future<CategoryStartTime?> getStartTimeForCategory(int eventId, String category) =>
-      (select(categoryStartTimes)
-        ..where((t) => t.eventId.equals(eventId) & t.categoryName.equals(category)))
-          .getSingleOrNull();
+  Future<CategoryStartTime?> getStartTimeForCategory(int eventId, String category) async {
+    // Case-insensitive & trim-insensitive lookup to handle '3KKIDS' vs '3Kkids' vs '3K Kids'
+    final normalizedInput = category.trim().toUpperCase();
+    final all = await getStartTimesByEvent(eventId);
+    for (final st in all) {
+      if (st.categoryName.trim().toUpperCase() == normalizedInput) {
+        return st;
+      }
+    }
+    // Fallback: also try without spaces (e.g. '3K Kids' vs '3KKIDS')
+    final noSpaceInput = normalizedInput.replaceAll(' ', '').replaceAll('-', '');
+    for (final st in all) {
+      final noSpaceStored = st.categoryName.trim().toUpperCase().replaceAll(' ', '').replaceAll('-', '');
+      if (noSpaceStored == noSpaceInput) return st;
+    }
+    return null;
+  }
   Future<void> insertStartTime(CategoryStartTimesCompanion startTime) =>
       into(categoryStartTimes).insert(startTime);
 
