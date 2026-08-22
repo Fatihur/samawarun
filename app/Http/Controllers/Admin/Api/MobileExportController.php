@@ -34,12 +34,21 @@ class MobileExportController extends Controller
                 'jersey_size' => $p->jersey_size,
             ]);
 
+        $participantCategories = $participants
+            ->pluck('distance_category')
+            ->map(fn ($v) => strtoupper((string) $v))
+            ->filter()
+            ->unique()
+            ->values();
+
         $categories = $event->distanceCategories
+            ->filter(fn ($cat) => $participantCategories->contains(strtoupper((string) $cat->name)))
             ->map(fn ($cat) => [
                 'name' => $cat->name,
                 'price' => $cat->pivot->price ?? $cat->price,
                 'quota' => $cat->pivot->quota ?? null,
-            ]);
+            ])
+            ->values();
 
         return response()->json([
             'success' => true,
